@@ -1,6 +1,9 @@
 "use client";
+// shadcnui
 import { Button } from "@/components/ui/button";
+// next-auth
 import { signIn } from "next-auth/react";
+// icons
 import { FcGoogle } from "react-icons/fc";
 
 const SignIn = () => {

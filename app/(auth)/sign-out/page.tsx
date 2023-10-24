@@ -1,6 +1,8 @@
 "use client";
 
+// shadcn
 import { Button } from "@/components/ui/button";
+// auth
 import { signOut } from "next-auth/react";
 
 const SignOut = () => {
