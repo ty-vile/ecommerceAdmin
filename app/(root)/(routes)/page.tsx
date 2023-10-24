@@ -1,6 +1,5 @@
 "use client";
-// shadcnui
-import { Modal } from "@/components/ui/modal";
+
 // hooks
 import { useStoreModal } from "@/hooks/useStoreModal";
 import { useEffect } from "react";

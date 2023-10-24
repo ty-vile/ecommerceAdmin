@@ -9,9 +9,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// hooks
-import { useEffect, useState } from "react";
-
 type ModalProps = {
   title: string;
   description: string;
@@ -27,17 +24,6 @@ export const Modal: React.FC<ModalProps> = ({
   onClose,
   children,
 }) => {
-  // NOTES -- STOP HYDRATION ERROR
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return null;
-  }
-
   const onChange = (open: boolean) => {
     if (!open) {
       onClose();

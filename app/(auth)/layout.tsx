@@ -7,7 +7,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section className="flex w-screen h-screen">
+    <section className="flex w-screen h-screen bg-blue-50">
       <div className="w-full min-w-[500px] lg:w-4/12 flex items-center justify-center p-10">
         {children}
       </div>
@@ -16,7 +16,7 @@ export default function AuthLayout({
           src="/authBg.jpg"
           fill
           alt="Auth Background Image"
-          objectFit="cover"
+          className="object-cover"
         />
       </div>
     </section>
