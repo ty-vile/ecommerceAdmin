@@ -1,9 +1,10 @@
 import prisma from "@/app/libs/prismadb";
-import { getSession } from "next-auth/react";
+
+import { getCurrentSession } from "./getSession";
 
 export default async function getCurrentUser() {
   try {
-    const session = await getSession();
+    const session = await getCurrentSession();
 
     if (!session?.user?.email) {
       return null;
