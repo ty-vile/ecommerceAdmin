@@ -51,3 +51,11 @@ model User {
   accounts      Account[]
   sessions      Session[]
 }
+
+model Store {
+  id           String   @id @default(cuid())
+  name String
+  userId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

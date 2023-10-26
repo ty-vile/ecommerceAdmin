@@ -55,14 +55,11 @@ const Register = () => {
           "Content-Type": "application/json", // Set the appropriate content-type for your data
         },
         body: JSON.stringify(values), // Convert data object to JSON string
-      })
-        .then(() => {})
-        .catch((error) => {})
-        .finally(() => {
-          // ADD TOAST
-          setIsLoading(false);
-          router.push("/sign-in");
-        });
+      }).finally(() => {
+        // ADD TOAST
+        setIsLoading(false);
+        router.push("/sign-in");
+      });
     } catch (error) {
       // ADD TOAST
     }

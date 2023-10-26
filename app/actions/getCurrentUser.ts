@@ -1,6 +1,7 @@
 import prisma from "@/app/libs/prismadb";
 
 import { getCurrentSession } from "./getSession";
+import { User } from "@prisma/client";
 
 export default async function getCurrentUser() {
   try {
@@ -16,8 +17,15 @@ export default async function getCurrentUser() {
       },
     });
 
-    return currentUser;
+    const user = {
+      id: currentUser?.id!,
+      name: currentUser?.name!,
+      email: currentUser?.email!,
+    };
+
+    return user;
   } catch (error) {
+    console.log(["CURRENTUSER_GET"], error);
     return null;
   }
 }

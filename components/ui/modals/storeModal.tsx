@@ -9,6 +9,7 @@ import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 // hooks
 import { useForm } from "react-hook-form";
+import { useState } from "react";
 // shadcn
 import { Button } from "@/components/ui/button";
 import {
@@ -29,6 +30,7 @@ const formSchema = z.object({
 });
 
 export const StoreModal = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const storeModal = useStoreModal();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -39,7 +41,22 @@ export const StoreModal = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    setIsLoading(true);
+
+    try {
+      fetch("/api/store", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json", // Set the appropriate content-type for your data
+        },
+        body: JSON.stringify(values), // Convert data object to JSON string
+      }).finally(() => {
+        // ADD TOAST
+        setIsLoading(false);
+      });
+    } catch (error) {
+      // ADD TOAST
+    }
   };
 
   return (
@@ -59,14 +76,22 @@ export const StoreModal = () => {
                 <FormItem>
                   <FormLabel>Store name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter Store Name" {...field} />
+                    <Input
+                      placeholder="Enter Store Name"
+                      {...field}
+                      disabled={isLoading}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <div className="flex items-center justify-end pt-6 space-x-6">
-              <Button variant="outline" onClick={storeModal.onClose}>
+              <Button
+                variant="outline"
+                onClick={storeModal.onClose}
+                disabled={isLoading}
+              >
                 Cancel
               </Button>
               <Button>Continue</Button>
