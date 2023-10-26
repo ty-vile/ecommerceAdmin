@@ -1,4 +1,8 @@
+// next
+import { redirect } from "next/navigation";
+// actions
 import getCurrentUser from "../actions/getCurrentUser";
+import getStore from "../actions/getStore";
 
 export default async function HomeLayout({
   children,
@@ -6,8 +10,17 @@ export default async function HomeLayout({
   children: React.ReactNode;
 }) {
   const currentUser = await getCurrentUser();
+  const store = await getStore({
+    userId: currentUser?.id,
+  });
 
-  console.log(currentUser);
+  if (!currentUser) {
+    redirect("/sign-in");
+  }
+
+  if (store) {
+    redirect(`/${store.id}`);
+  }
 
   return <>{children}</>;
 }
