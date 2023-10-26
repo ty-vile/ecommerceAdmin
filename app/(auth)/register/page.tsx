@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+// toast
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
   name: z
@@ -49,19 +51,26 @@ const Register = () => {
     setIsLoading(true);
 
     try {
-      fetch("/api/register", {
+      const response = await fetch("/api/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Set the appropriate content-type for your data
         },
         body: JSON.stringify(values), // Convert data object to JSON string
-      }).finally(() => {
-        // ADD TOAST
-        setIsLoading(false);
-        router.push("/sign-in");
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`User: ${data?.name} created`);
+      }
+
+      setIsLoading(false);
+      router.push("/");
     } catch (error) {
-      // ADD TOAST
+      console.log(error);
+      toast.error(`Error creating user`);
+    } finally {
+      setIsLoading(false);
     }
   };
 

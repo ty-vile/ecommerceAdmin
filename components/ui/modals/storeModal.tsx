@@ -21,6 +21,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+// toast
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
   name: z
@@ -44,18 +46,23 @@ export const StoreModal = () => {
     setIsLoading(true);
 
     try {
-      fetch("/api/store", {
+      const response = await fetch("/api/store", {
         method: "POST",
         headers: {
           "Content-Type": "application/json", // Set the appropriate content-type for your data
         },
         body: JSON.stringify(values), // Convert data object to JSON string
-      }).finally(() => {
-        // ADD TOAST
-        setIsLoading(false);
       });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success(`Store: ${data?.name} created`);
+      }
     } catch (error) {
-      // ADD TOAST
+      console.log(error);
+      toast.error(`Error creating store`);
+    } finally {
+      setIsLoading(false);
     }
   };
 

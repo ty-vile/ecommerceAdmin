@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+// toast
+import { toast } from "react-toastify";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Must be valid email" }),
@@ -53,10 +55,11 @@ const SignIn = () => {
       if (!callback?.error) {
         router.refresh();
         router.push("/");
+        toast.success("User signed in");
       }
 
       if (callback?.error) {
-        // ADD TOAST
+        toast.error(`Error signing in`);
       }
     });
   };
