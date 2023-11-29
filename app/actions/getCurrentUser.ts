@@ -20,6 +20,7 @@ export default async function getCurrentUser() {
       id: currentUser?.id!,
       name: currentUser?.name!,
       email: currentUser?.email!,
+      image: currentUser?.image!,
     };
 
     return user;

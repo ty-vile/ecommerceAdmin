@@ -120,7 +120,7 @@ const SignIn = () => {
         <Button
           className="flex items-center gap-4 w-full"
           variant="outline"
-          onClick={() => signIn("google", { callbackUrl: "/sign-out" })}
+          onClick={() => signIn("google", { callbackUrl: "/" })}
           disabled={isLoading}
         >
           Sign In

@@ -2,8 +2,9 @@
 
 // components
 import { Modal } from "@/components/ui/modal";
-// store
+// hooks
 import { useStoreModal } from "@/hooks/useStoreModal";
+import { useRouter } from "next/navigation";
 // zod
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +34,7 @@ const formSchema = z.object({
 
 export const StoreModal = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const storeModal = useStoreModal();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -56,7 +58,13 @@ export const StoreModal = () => {
 
       if (response.ok) {
         const data = await response.json();
-        toast.success(`Store: ${data?.name} created`);
+
+        router.refresh();
+        router.push(`/${data.id}`);
+
+        setTimeout(() => {
+          storeModal.onClose();
+        }, 500);
       }
     } catch (error) {
       console.log(error);

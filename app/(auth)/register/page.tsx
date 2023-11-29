@@ -65,7 +65,7 @@ const Register = () => {
       }
 
       setIsLoading(false);
-      router.push("/");
+      router.push("/sign-in");
     } catch (error) {
       console.log(error);
       toast.error(`Error creating user`);

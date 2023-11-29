@@ -1,6 +1,7 @@
 // actions
 import getCurrentUser from "@/app/actions/getCurrentUser";
 import getStore from "@/app/actions/getStore";
+import Navbar from "@/components/navbar/navbar";
 // next
 import { redirect } from "next/navigation";
 
@@ -27,7 +28,7 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <div>This will be a Navbar</div>
+      <Navbar />
       {children}
     </>
   );
