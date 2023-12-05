@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation";
 // actions
 import getCurrentUser from "../actions/getCurrentUser";
-import getStore from "../actions/getStore";
+import getStore from "../actions/stores/getStore";
 
 export default async function HomeLayout({
   children,

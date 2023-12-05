@@ -9,6 +9,10 @@ export default async function getStore(params: GetStoreTypes) {
   try {
     const { storeId, userId } = params;
 
+    if (!userId) {
+      throw new Error("User ID not found");
+    }
+
     // if storeId and userId are passed as params
     if (storeId && userId) {
       const store = await prisma.store.findFirst({
@@ -31,10 +35,8 @@ export default async function getStore(params: GetStoreTypes) {
 
       return store;
     }
-
-    return null;
-  } catch (error) {
+  } catch (error: any) {
     console.log(["STORE_GET"], error);
-    return null;
+    throw new Error(error);
   }
 }

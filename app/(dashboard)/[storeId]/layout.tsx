@@ -1,6 +1,6 @@
 // actions
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import getStore from "@/app/actions/getStore";
+import getStore from "@/app/actions/stores/getStore";
 import Navbar from "@/components/navbar/navbar";
 // next
 import { redirect } from "next/navigation";
