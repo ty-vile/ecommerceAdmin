@@ -3,7 +3,7 @@
 // next-auth
 import { signOut } from "next-auth/react";
 // components
-import { Button } from "../../button";
+import { Button } from "@/components/ui/button";
 
 const SignOutButton = () => {
   return (

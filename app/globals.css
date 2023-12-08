@@ -80,3 +80,15 @@ body,
     @apply bg-background text-foreground;
   }
 }
+
+.transition-300 {
+  transition: all 300ms linear;
+}
+
+.transition-500 {
+  transition: all 500ms linear;
+}
+
+.transition-700 {
+  transition: all 700ms linear;
+}

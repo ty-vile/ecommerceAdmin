@@ -1,5 +1,5 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
-import SignOutButton from "@/components/ui/buttons/auth/sign-out-button";
+import SignOutButton from "@/components/buttons/auth/sign-out-button";
 
 import { redirect } from "next/navigation";
 
