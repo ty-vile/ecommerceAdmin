@@ -3,7 +3,7 @@ export const RegisterUser = async (values: {
   email: string;
   password: string;
 }) => {
-  const response = await fetch("/api/register", {
+  const response = await fetch("/api/user/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
@@ -16,5 +16,22 @@ export const RegisterUser = async (values: {
     return data;
   }
 
-  return { msg: response.status };
+  throw new Error(response.statusText);
+};
+
+export const DeleteUser = async (email: string) => {
+  const response = await fetch("/api/user/delete", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json", // Set the appropriate content-type for your data
+    },
+    body: JSON.stringify(email),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
 };
