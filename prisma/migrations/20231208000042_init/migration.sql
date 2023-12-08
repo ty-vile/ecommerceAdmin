@@ -33,6 +33,7 @@ CREATE TABLE `Session` (
 -- CreateTable
 CREATE TABLE `User` (
     `id` VARCHAR(191) NOT NULL,
+    `role` ENUM('ADMIN', 'VIEWER') NOT NULL DEFAULT 'ADMIN',
     `name` VARCHAR(191) NULL,
     `email` VARCHAR(191) NULL,
     `emailVerified` DATETIME(3) NULL,

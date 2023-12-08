@@ -1,20 +1,18 @@
-"use client";
+import getCurrentUser from "@/app/actions/getCurrentUser";
+import SignOutButton from "@/components/ui/buttons/auth/sign-out-button";
 
-// shadcn
-import { Button } from "@/components/ui/button";
-// auth
-import { signOut } from "next-auth/react";
+import { redirect } from "next/navigation";
 
-const SignOut = () => {
+const SignOut = async () => {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/sign-in");
+  }
+
   return (
     <div>
-      <Button
-        className="flex items-center gap-4 text-xl"
-        variant="outline"
-        onClick={() => signOut({ callbackUrl: "/sign-in" })}
-      >
-        Sign Out
-      </Button>
+      <SignOutButton />
     </div>
   );
 };

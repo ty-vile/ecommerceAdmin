@@ -17,6 +17,7 @@ export default function AuthLayout({
           fill
           alt="Auth Background Image"
           className="object-cover"
+          priority
         />
       </div>
     </section>

@@ -5,8 +5,6 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
-// providers
-import { ModalProvider } from "@/providers/modalProvider";
 // toast
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -34,7 +32,7 @@ export default function RootLayout({
           draggable
           theme="light"
         />
-        <ModalProvider />
+
         <div>{children}</div>
       </body>
     </html>
