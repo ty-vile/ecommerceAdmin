@@ -9,7 +9,6 @@ import { BiSolidPurchaseTagAlt } from "react-icons/bi";
 import { IoMdSettings } from "react-icons/io";
 import { FaUsersCog } from "react-icons/fa";
 import { FaDatabase } from "react-icons/fa";
-import { MdDashboard } from "react-icons/md";
 import { Role } from "@prisma/client";
 
 const EcommerceSidebarItems = [

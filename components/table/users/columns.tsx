@@ -16,8 +16,11 @@ import { Button } from "@/components/ui/button";
 import { FaEllipsisVertical } from "react-icons/fa6";
 // actions
 import { DeleteUser, UpdateUserRole } from "@/app/libs/api";
+// toast
 import { toast } from "react-toastify";
+// nextjs
 import { useRouter } from "next/navigation";
+// types
 import { Role } from "@prisma/client";
 
 type DashboardUsers = {
@@ -46,6 +49,7 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
 
       const router = useRouter();
 
+      // delete user
       const submitDelete = async (email: string) => {
         try {
           const deletedUser = await DeleteUser(email);
@@ -58,12 +62,13 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
         }
       };
 
+      // update user role
       const submitRoleChange = async (email: string, role: string) => {
         try {
           const data = { email, role };
 
           const updatedUser = await UpdateUserRole(data);
-          toast.success(`${user.name} now ${updatedUser.role}`);
+          toast.success(`${user.name}: Role - ${updatedUser.role}`);
           router.refresh();
         } catch (error) {
           console.log(error);

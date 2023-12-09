@@ -43,7 +43,7 @@ model Session {
   @@index([userId])
 }
 
-// user schema
+// user schema - ADMIN
 model User {
   id              String    @id @default(cuid())
   role Role       @default(ADMIN)
@@ -169,3 +169,7 @@ model CategoriesToProducts {
   @@index([productId])
   @@index([categoryId])
 }
+
+// ORDER / CLIENT / CART - LOGIN TO ACCESS SCHEMA
+// https://azimutt.app/
+// https://laracasts.com/discuss/channels/laravel/database-design-for-e-commerce-product-variants-with-laravel

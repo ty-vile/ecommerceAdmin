@@ -17,7 +17,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <section className="w-screen h-screen flex">
+    <section className="w-screen h-screen flex overflow-hidden">
       <div className="w-3/12 max-w-xs">
         <Sidebar />
       </div>
