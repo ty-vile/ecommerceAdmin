@@ -1,10 +1,21 @@
+// components
 import Sidebar from "@/components/sidebar/sidebar";
+// actions
+import getCurrentUser from "../actions/getCurrentUser";
+// next
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) {
+    redirect("/sign-in");
+  }
+
   return (
     <section className="w-screen h-screen flex">
       <div className="w-3/12 max-w-xs">

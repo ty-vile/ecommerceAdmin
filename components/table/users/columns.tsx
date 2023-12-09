@@ -15,15 +15,15 @@ import { Button } from "@/components/ui/button";
 // icons
 import { FaEllipsisVertical } from "react-icons/fa6";
 // actions
-import { DeleteUser } from "@/app/libs/api";
+import { DeleteUser, UpdateUserRole } from "@/app/libs/api";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
+import { Role } from "@prisma/client";
+
 type DashboardUsers = {
   name: string;
   email: string;
-  role: "ADMIN" | "VIEWER";
+  role: Role;
 };
 
 export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
@@ -58,6 +58,19 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
         }
       };
 
+      const submitRoleChange = async (email: string, role: string) => {
+        try {
+          const data = { email, role };
+
+          const updatedUser = await UpdateUserRole(data);
+          toast.success(`${user.name} now ${updatedUser.role}`);
+          router.refresh();
+        } catch (error) {
+          console.log(error);
+          toast.error("Error updating user");
+        }
+      };
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -69,12 +82,15 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(user.email)}
+              onClick={() => submitRoleChange(user.email, user.role)}
             >
               Change User Role
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => submitDelete(user.email)}>
+            <DropdownMenuItem
+              onClick={() => submitDelete(user.email)}
+              className="bg-red-500 text-white hover:bg-red-600 transition-300"
+            >
               Delete User
             </DropdownMenuItem>
           </DropdownMenuContent>

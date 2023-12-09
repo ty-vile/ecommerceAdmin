@@ -1,3 +1,4 @@
+// @types - body: {email:string, role:string}
 export const RegisterUser = async (values: {
   name: string;
   email: string;
@@ -19,6 +20,7 @@ export const RegisterUser = async (values: {
   throw new Error(response.statusText);
 };
 
+// @types - email:string
 export const DeleteUser = async (email: string) => {
   const response = await fetch("/api/user/delete", {
     method: "DELETE",
@@ -26,6 +28,24 @@ export const DeleteUser = async (email: string) => {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
     },
     body: JSON.stringify(email),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+// @types - body: {email:string, role:string}
+export const UpdateUserRole = async (body: { email: string; role: string }) => {
+  const response = await fetch("/api/user/role", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
   });
 
   if (response.ok) {

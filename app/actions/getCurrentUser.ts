@@ -17,10 +17,11 @@ export default async function getCurrentUser() {
     });
 
     const user = {
-      id: currentUser?.id!,
-      name: currentUser?.name!,
-      email: currentUser?.email!,
-      image: currentUser?.image!,
+      id: currentUser?.id,
+      name: currentUser?.name,
+      email: currentUser?.email,
+      image: currentUser?.image,
+      role: currentUser?.role,
     };
 
     return user;

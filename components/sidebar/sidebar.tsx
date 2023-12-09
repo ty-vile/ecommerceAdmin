@@ -10,6 +10,7 @@ import { IoMdSettings } from "react-icons/io";
 import { FaUsersCog } from "react-icons/fa";
 import { FaDatabase } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
+import { Role } from "@prisma/client";
 
 const EcommerceSidebarItems = [
   {
@@ -73,17 +74,19 @@ const Sidebar = async () => {
       </div>
       {/* END TOP SIDEBAR ITEMS */}
       {/* BOTTOM SIDEBAR ITEMS */}
-      <div className="flex flex-col gap-4">
-        <div className="">
-          <h3>ADMIN SETTINGS</h3>
-        </div>
+      {currentUser?.role === Role.ADMIN && (
         <div className="flex flex-col gap-4">
-          {AdminSidebarItems.map((item, i) => {
-            return <SidebarItem item={item} key={i} />;
-          })}
+          <div className="">
+            <h3>ADMIN SETTINGS</h3>
+          </div>
+          <div className="flex flex-col gap-4">
+            {AdminSidebarItems.map((item, i) => {
+              return <SidebarItem item={item} key={i} />;
+            })}
+          </div>
+          <Button className="w-full">View Store</Button>
         </div>
-        <Button className="w-full">View Store</Button>
-      </div>
+      )}
     </div>
   );
 };
