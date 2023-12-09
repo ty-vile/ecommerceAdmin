@@ -11,6 +11,7 @@ datasource db {
   relationMode = "prisma"
 }
 
+// account schema as provided by next-auth
 model Account {
   id                 String  @id @default(cuid())
   userId             String
@@ -25,35 +26,146 @@ model Account {
   id_token           String?  @db.Text
   session_state      String?
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
   @@unique([provider, providerAccountId])
 
 }
 
+// session schema as provided by next-auth
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
   userId       String
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   @@index([userId])
 }
 
+// user schema
 model User {
-  id            String    @id @default(cuid())
-  role Role     @default(ADMIN)
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  hashedPassword String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  accounts      Account[]
-  sessions      Session[]
+  id              String    @id @default(cuid())
+  role Role       @default(ADMIN)
+  name            String?
+  email           String?   @unique
+  phone           String? @unique
+  image           String?
+  hashedPassword  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  accounts        Account[]
+  sessions        Session[]
 }
 
+// ENUM FOR USER
 enum Role {
   ADMIN
   VIEWER
+}
+
+model Product {
+  id            String @id @default(cuid())
+  name          String
+  description   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  categories    CategoriesToProducts[]
+  sku           ProductSku[]
+  productAttribute ProductAttribute[]
+}
+
+model ProductSku {
+  id            String @id @default(cuid())
+  sku           String
+  productId     String
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  price         Float
+  quantity      Int
+  productImage  ProductImage[]
+  productAttributeSku ProductAttributeSku[]
+  
+  @@index([productId])
+}
+
+
+
+// e.g - productAttribue is a parent level variant - SIZE, COLOUR etc.
+model ProductAttribute {
+  id            String @id @default(cuid())
+  productId     String
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name          String
+  productAttributeValues ProductAttributeValue[]
+
+  @@index([productId])
+}
+
+
+// productAttributeValue is a child level varient
+// e.g productAttributeId would be SIZE, COLOUR etc. (PARENT)
+// value would be s, xs, md, lg, xl, 2xl - if productAttributeId refrenced SIZE
+// value would be red, yellow, green - if productAttributeId refrenced COLOUR
+model ProductAttributeValue {
+   id                   String @id @default(cuid())
+   value                String 
+   hexCode              String? 
+   productAttributeId   String
+   productAttribute     ProductAttribute @relation(fields: [productAttributeId], references: [id], onDelete: Cascade)
+   productAttributeSku  ProductAttributeSku[]
+   @@index([productAttributeId])
+}
+
+// JOIN TABLE - for m-n relationships as:
+// a sku can have many or none related attribute
+// a attribue can have many or none related skus
+// ----------------------------------------
+// if sku = 1 appears in two rows &&
+// sku = 1 and attributeValueId.value = red
+// sku = 1 and attributeValueId.value = large
+// then whatever the productId of sky
+model ProductAttributeSku {
+  skuId               String
+  sku                 ProductSku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  attributeValueId    String
+  attribute           ProductAttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+  comment             String?
+
+  @@id([skuId, attributeValueId])
+  @@index([skuId])
+  @@index([attributeValueId])
+}
+
+
+model ProductImage {
+  id              String @id @default(cuid())
+  url             String @unique
+  productSkuId    String
+  product         ProductSku @relation(fields: [productSkuId], references: [id], onDelete: Cascade)
+
+  @@index([productSkuId])
+}
+
+model Category {
+  id          String @id @default(cuid())
+  name        String @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    CategoriesToProducts[]
+}
+
+// JOIN TABLE - for m-n relationships as:
+// a category can have many or none related products
+// a product can have many or none related categories
+model CategoriesToProducts {
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)  
+  productId   String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)  
+  categoryId  String
+  createdAt   DateTime @default(now())
+  createdBy   String
+
+  @@id([productId, categoryId])
+  @@index([productId])
+  @@index([categoryId])
 }
