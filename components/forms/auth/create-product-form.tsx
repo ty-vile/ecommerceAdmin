@@ -24,7 +24,10 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 // icons
 import { FaPlus } from "react-icons/fa";
+// nextjs
 import Image from "next/image";
+// aws
+import { getSignedS3Url } from "@/lib/s3";
 
 const formSchema = z.object({
   name: z
@@ -54,6 +57,12 @@ const CreateProductForm = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+
+    const signedS3Url = await getSignedS3Url();
+
+    if (signedS3Url) {
+      const url = signedS3Url.url;
+    }
 
     setIsLoading(false);
   };
@@ -172,7 +181,6 @@ const CreateProductForm = () => {
                 isLoading && "bg-gray-100/70"
               }`}
               disabled={isLoading}
-              onClick={() => console.log(files)}
             >
               <FaPlus />
               {isLoading ? "Creating Product..." : "Create Product"}
