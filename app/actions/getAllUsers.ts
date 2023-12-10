@@ -12,7 +12,7 @@ export default async function getAllUsers() {
 
     return users;
   } catch (error: any) {
-    console.log(["ALLUSERS_GET"], error);
+    console.error(["ALLUSERS_GET"], error);
     throw new Error(error);
   }
 }

@@ -14,7 +14,7 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.log("[REGISTER_POST]", error);
+    console.error("[REGISTER_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

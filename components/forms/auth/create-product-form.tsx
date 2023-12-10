@@ -55,36 +55,40 @@ const CreateProductForm = () => {
     },
   });
 
+  // submit form
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    const signedS3Url = await getSignedS3Url();
+    // ADD PRODUCT - SKU - ATTRIBUTE - ATTRIBUTE VALUE TO DB
 
-    if (signedS3Url) {
-      const url = signedS3Url.url;
+    try {
+      if (files) {
+        for (let i = 0; i < files.length; i++) {
+          const signedS3Url = await getSignedS3Url(`test-file-${i}`);
+
+          if (!signedS3Url) {
+            throw new Error("Error creating S3 URL");
+          }
+
+          const url = signedS3Url;
+          await fetch(url, {
+            method: "PUT",
+            body: files[i],
+            headers: {
+              "Content-Type": files[i].type,
+            },
+          });
+        }
+      }
+    } catch (error: any) {
+      console.error(error);
+      throw new Error(error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
-  useEffect(() => {
-    if (filesUrl.length > 0) {
-      setFileUrls([]);
-    }
-
-    if (files) {
-      const fileUrlArr = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const url = URL.createObjectURL(files[i]);
-
-        fileUrlArr.push(url);
-      }
-
-      setFileUrls(fileUrlArr);
-    }
-  }, [files]);
-
+  // handle file change - input
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const localFiles = e.target.files;
 
@@ -162,16 +166,15 @@ const CreateProductForm = () => {
             {filesUrl.length > 0 &&
               filesUrl.map((file, i) => {
                 return (
-                  <>
+                  <div key={i}>
                     <Image
                       src={file as string}
                       alt="Product Image"
                       height={0}
                       width={0}
                       className="h-auto w-auto max-h-64"
-                      key={i}
                     />
-                  </>
+                  </div>
                 );
               })}
           </div>

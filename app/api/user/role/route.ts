@@ -22,7 +22,7 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
     return NextResponse.json(user);
     // return NextResponse.json(user);
   } catch (error) {
-    console.log("[UPDATEROLE_PATCH]", error);
+    console.error("[UPDATEROLE_PATCH]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

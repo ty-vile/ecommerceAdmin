@@ -4,6 +4,7 @@
 import getCurrentUser from "@/app/actions/getCurrentUser";
 // s3
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 const s3 = new S3Client({
   region: process.env.AWS_BUCKET_REGION!,
@@ -13,14 +14,21 @@ const s3 = new S3Client({
   },
 });
 
-export async function getSignedS3Url() {
+export async function getSignedS3Url(fileKey: string) {
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
     throw new Error("Not authenticated");
   }
 
-  const;
+  const PutS3ObjectCommand = new PutObjectCommand({
+    Bucket: process.env.AWS_BUCKET_NAME!,
+    Key: fileKey,
+  });
 
-  return { url: "" };
+  const signedS3Url = await getSignedUrl(s3, PutS3ObjectCommand, {
+    expiresIn: 60,
+  });
+
+  return signedS3Url;
 }
