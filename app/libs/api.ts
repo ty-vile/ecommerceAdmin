@@ -55,3 +55,23 @@ export const UpdateUserRole = async (body: { email: string; role: string }) => {
 
   throw new Error(response.statusText);
 };
+
+export const CreateProduct = async (body: {
+  name: string;
+  description: string;
+}) => {
+  const response = await fetch("/api/product/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};

@@ -45,17 +45,18 @@ model Session {
 
 // user schema - ADMIN
 model User {
-  id              String    @id @default(cuid())
-  role Role       @default(ADMIN)
-  name            String?
-  email           String?   @unique
-  phone           String? @unique
-  image           String?
-  hashedPassword  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  accounts        Account[]
-  sessions        Session[]
+  id                        String    @id @default(cuid())
+  role Role                 @default(ADMIN)
+  name                      String?
+  email                     String?   @unique
+  phone                     String? @unique
+  image                     String?
+  hashedPassword            String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+  products                  Product[]
+  accounts                  Account[]
+  sessions                  Session[]
 }
 
 // ENUM FOR USER
@@ -66,6 +67,8 @@ enum Role {
 
 model Product {
   id            String @id @default(cuid())
+  userId        String
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
   name          String
   description   String
   createdAt     DateTime @default(now())
@@ -73,6 +76,8 @@ model Product {
   categories    CategoriesToProducts[]
   sku           ProductSku[]
   productAttribute ProductAttribute[]
+ 
+  @@index([userId])
 }
 
 model ProductSku {
@@ -84,7 +89,8 @@ model ProductSku {
   quantity      Int
   productImage  ProductImage[]
   productAttributeSku ProductAttributeSku[]
-  
+  isDefault Boolean
+
   @@index([productId])
 }
 
@@ -99,6 +105,7 @@ model ProductAttribute {
   productAttributeValues ProductAttributeValue[]
 
   @@index([productId])
+
 }
 
 
@@ -107,13 +114,15 @@ model ProductAttribute {
 // value would be s, xs, md, lg, xl, 2xl - if productAttributeId refrenced SIZE
 // value would be red, yellow, green - if productAttributeId refrenced COLOUR
 model ProductAttributeValue {
-   id                   String @id @default(cuid())
+   id                   String @id @default(cuid()) 
    value                String 
    hexCode              String? 
    productAttributeId   String
    productAttribute     ProductAttribute @relation(fields: [productAttributeId], references: [id], onDelete: Cascade)
    productAttributeSku  ProductAttributeSku[]
+
    @@index([productAttributeId])
+
 }
 
 // JOIN TABLE - for m-n relationships as:
@@ -141,7 +150,7 @@ model ProductImage {
   id              String @id @default(cuid())
   url             String @unique
   productSkuId    String
-  product         ProductSku @relation(fields: [productSkuId], references: [id], onDelete: Cascade)
+  productSku      ProductSku @relation(fields: [productSkuId], references: [id], onDelete: Cascade)
 
   @@index([productSkuId])
 }
