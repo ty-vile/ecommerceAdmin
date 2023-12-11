@@ -47,6 +47,18 @@ const CreateProductForm = () => {
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
   const router = useRouter();
 
+  // https://remarkablemark.medium.com/how-to-generate-a-sha-256-hash-with-javascript-d3b2696382fd
+  // modified first line to take file as buffer not text
+  const generateSHA256 = async (file: File) => {
+    const buffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray
+      .map((bytes) => bytes.toString(16).padStart(2, "0"))
+      .join("");
+    return hashHex;
+  };
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,6 +66,25 @@ const CreateProductForm = () => {
       description: "",
     },
   });
+
+  // generates local urls of images to preview on frontend when files state is updated
+  useEffect(() => {
+    if (filesUrl.length > 0) {
+      setFileUrls([]);
+    }
+
+    if (files) {
+      const fileUrlArr = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const url = URL.createObjectURL(files[i]);
+
+        fileUrlArr.push(url);
+      }
+
+      setFileUrls(fileUrlArr);
+    }
+  }, [files]);
 
   // submit form
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -64,7 +95,15 @@ const CreateProductForm = () => {
     try {
       if (files) {
         for (let i = 0; i < files.length; i++) {
-          const signedS3Url = await getSignedS3Url(`test-file-${i}`);
+          const checkSum = await generateSHA256(files[i]);
+
+          const signedS3Url = await getSignedS3Url(
+            // replace test file with product-name/sku
+            `test-file-${i}`,
+            files[i].type,
+            files[i].size,
+            checkSum
+          );
 
           if (!signedS3Url) {
             throw new Error("Error creating S3 URL");
