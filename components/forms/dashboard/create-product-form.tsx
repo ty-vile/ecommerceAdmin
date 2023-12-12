@@ -38,9 +38,15 @@ import { toast } from "react-toastify";
 // icons
 import { FaPlus } from "react-icons/fa";
 // api
-import { CreateCategory, CreateProduct } from "@/app/libs/api";
+import {
+  CreateCategory,
+  CreateProduct,
+  CreateProductSku,
+  ProductCategoryJoin,
+} from "@/app/libs/api";
 // types
 import { Category } from "@prisma/client";
+import { generateSKUCode } from "@/app/libs/functions";
 
 const formSchema = z.object({
   name: z
@@ -105,21 +111,51 @@ const CreateProductForm = ({ categories }: Props) => {
 
     // ADD PRODUCT - SKU - ATTRIBUTE - ATTRIBUTE VALUE TO DB
 
-    console.log(values);
+    const product = await CreateProduct(values);
 
-    const createProduct = await CreateProduct(values);
-
-    if (!createProduct) {
-      throw new Error("Error creating product");
+    if (!product) {
+      toast.error("Error creating product");
+      return;
     }
 
     const productCategory = await CreateCategory(values);
 
     if (!productCategory) {
-      throw new Error("Error creating category");
+      toast.error("Error creating category");
+      return;
     }
 
-    // CREATE SKU
+    const joinData = {
+      productId: product.id,
+      categoryId: productCategory.id,
+      createdByUser: product.userId,
+    };
+
+    const productCategoryJoin = await ProductCategoryJoin(joinData);
+
+    if (!productCategoryJoin) {
+      toast.error("Error joining category with product");
+      return;
+    }
+
+    const skuCode = await generateSKUCode(product.name, productCategory.name);
+
+    if (!skuCode) {
+      toast.error("Error generating SKU code");
+      return;
+    }
+
+    const skuData = {
+      productId: product.id,
+      sku: skuCode,
+    };
+
+    const productSku = await CreateProductSku(skuData);
+
+    if (!productSku) {
+      toast.error("Error creating product SKU");
+      return;
+    }
 
     try {
       //   if (files) {
@@ -154,6 +190,7 @@ const CreateProductForm = ({ categories }: Props) => {
       //   }
 
       toast.success("Product sucessfully created");
+      router.push(`/dashboard/products/${product.id}/${productSku.id}`);
     } catch (error: any) {
       console.error(error);
       toast.error(error);

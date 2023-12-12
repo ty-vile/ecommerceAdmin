@@ -6,12 +6,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
 
-    const { productId, sku, price, quantity } = body;
+    const { productId, sku } = body;
+
+    if (!productId || !sku) {
+      throw new Error("Product Id and SKU are required fields");
+    }
 
     const productSku = await prisma.productSku.create({
       data: {
-        productId: "",
-        sku: "",
+        productId: productId,
+        sku: sku,
         price: 0,
         quantity: 0,
         isDefault: false,

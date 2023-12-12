@@ -82,7 +82,7 @@ model Product {
 
 model ProductSku {
   id            String @id @default(cuid())
-  sku           String
+  sku           String @unique
   productId     String
   product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   price         Float

@@ -8,6 +8,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const { url, productSkuId } = body;
 
+    if (!url || !productSkuId) {
+      throw new Error("URL and Product Sku Id are required fields");
+    }
+
     const product = await prisma.productImage.create({
       data: {
         url: "",

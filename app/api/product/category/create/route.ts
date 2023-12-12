@@ -9,6 +9,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const { name } = body;
 
+    if (!name) {
+      throw new Error("Name is a required field.");
+    }
+
     const category = await prisma.category.create({
       data: {
         name,

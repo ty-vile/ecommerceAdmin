@@ -8,6 +8,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const { email, name, password } = body;
 
+    if (!email || !name || !password) {
+      throw new Error("Name, Email and Password are required fields");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 12);
 
     const user = await prisma.user.create({

@@ -94,3 +94,45 @@ export const CreateCategory = async (body: { name: string }) => {
 
   throw new Error(response.statusText);
 };
+
+// @types - body: {productId: string, categoryId: string, createdByUser: string}
+export const ProductCategoryJoin = async (body: {
+  productId: string;
+  categoryId: string;
+  createdByUser: string;
+}) => {
+  const response = await fetch("/api/product/category/join", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+export const CreateProductSku = async (body: {
+  productId: string;
+  sku: string;
+}) => {
+  const response = await fetch("/api/product/sku/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
