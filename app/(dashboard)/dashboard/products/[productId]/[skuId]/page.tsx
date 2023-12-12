@@ -1,10 +1,15 @@
+// actions
+import getProduct from "@/app/actions/products/product/getProduct";
+
 type Props = {
   productId: string;
   skuId: string;
 };
 
 const ProductSKUPage = async ({ params }: { params: Props }) => {
-  console.log(params);
+  const { productId, skuId } = params;
+
+  const product = await getProduct(productId);
 
   return (
     <div className="p-4">

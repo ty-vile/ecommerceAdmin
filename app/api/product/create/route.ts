@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 // prisma
 import prisma from "@/app/libs/prismadb";
 // actions
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {

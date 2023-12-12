@@ -1,5 +1,5 @@
 // actions
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 // components
 import RegisterForm from "@/components/forms/auth/register-form";
 import { redirect } from "next/navigation";

@@ -1,5 +1,5 @@
 // actions
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 // tabledata
 import { DataTable } from "@/components/table/data-table";
 // components

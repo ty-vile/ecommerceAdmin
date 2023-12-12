@@ -1,7 +1,7 @@
 // components
 import Sidebar from "@/components/sidebar/sidebar";
 // actions
-import getCurrentUser from "../actions/getCurrentUser";
+import getCurrentUser from "../actions/users/getCurrentUser";
 // next
 import { redirect } from "next/navigation";
 

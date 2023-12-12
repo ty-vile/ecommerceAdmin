@@ -1,4 +1,4 @@
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 import SignOutButton from "@/components/buttons/auth/sign-out-button";
 
 import { redirect } from "next/navigation";

@@ -1,5 +1,5 @@
 // actions
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 // next
 import { redirect } from "next/navigation";
 // components

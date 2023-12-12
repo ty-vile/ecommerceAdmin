@@ -7,19 +7,19 @@ export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
 
-    const { name } = body;
+    const { category } = body;
 
-    if (!name) {
+    if (!category) {
       throw new Error("Name is a required field.");
     }
 
-    const category = await prisma.category.create({
+    const productCategory = await prisma.category.create({
       data: {
-        name,
+        name: category,
       },
     });
 
-    return NextResponse.json(category);
+    return NextResponse.json(productCategory);
   } catch (error) {
     console.error("[CATEGORY_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });

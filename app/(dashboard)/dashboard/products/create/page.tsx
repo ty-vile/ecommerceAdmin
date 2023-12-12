@@ -1,6 +1,6 @@
 // actions
 import getAllCategories from "@/app/actions/products/category/getAllCategories";
-import getCurrentUser from "@/app/actions/getCurrentUser";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 // form
 import CreateProductForm from "@/components/forms/dashboard/create-product-form";
 

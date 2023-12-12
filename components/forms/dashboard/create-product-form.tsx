@@ -45,7 +45,7 @@ import {
   ProductCategoryJoin,
 } from "@/app/libs/api";
 // types
-import { Category } from "@prisma/client";
+import { Category, Product, ProductSku } from "@prisma/client";
 import { generateSKUCode } from "@/app/libs/functions";
 
 const formSchema = z.object({
@@ -111,57 +111,75 @@ const CreateProductForm = ({ categories }: Props) => {
 
     // ADD PRODUCT - SKU - ATTRIBUTE - ATTRIBUTE VALUE TO DB
 
-    const product = await CreateProduct(values);
+    let product: Product;
+    let productCategory: Category;
+    let productSku: ProductSku;
 
-    if (!product) {
-      toast.error("Error creating product");
-      return;
-    }
+    CreateProduct(values)
+      .then((createdProduct) => {
+        product = createdProduct;
 
-    const productCategory = await CreateCategory(values);
+        if (!product) {
+          toast.error("Error creating product");
+          return Promise.reject("Error creating product");
+        }
 
-    if (!productCategory) {
-      toast.error("Error creating category");
-      return;
-    }
+        return CreateCategory(values);
+      })
+      .then((createdProductCategory) => {
+        productCategory = createdProductCategory;
 
-    const joinData = {
-      productId: product.id,
-      categoryId: productCategory.id,
-      createdByUser: product.userId,
-    };
+        if (!productCategory) {
+          toast.error("Error creating category");
+          return Promise.reject("Error creating category");
+        }
 
-    const productCategoryJoin = await ProductCategoryJoin(joinData);
+        const joinData = {
+          productId: product.id,
+          categoryId: productCategory.id,
+          createdByUser: product.userId,
+        };
 
-    if (!productCategoryJoin) {
-      toast.error("Error joining category with product");
-      return;
-    }
+        return ProductCategoryJoin(joinData);
+      })
+      .then((productCategoryJoin) => {
+        if (!productCategoryJoin) {
+          toast.error("Error joining category with product");
+          return Promise.reject("Error joining category with product");
+        }
 
-    const skuCode = await generateSKUCode(product.name, productCategory.name);
+        return generateSKUCode(product.name, productCategory.name);
+      })
+      .then((skuCode) => {
+        if (!skuCode) {
+          toast.error("Error generating SKU code");
+          return Promise.reject("Error generating SKU code");
+        }
 
-    if (!skuCode) {
-      toast.error("Error generating SKU code");
-      return;
-    }
+        const skuData = {
+          productId: product.id,
+          sku: skuCode,
+        };
 
-    const skuData = {
-      productId: product.id,
-      sku: skuCode,
-    };
+        return CreateProductSku(skuData);
+      })
+      .then((createdProductSku) => {
+        productSku = createdProductSku;
 
-    const productSku = await CreateProductSku(skuData);
-
-    if (!productSku) {
-      toast.error("Error creating product SKU");
-      return;
-    }
+        if (!createdProductSku) {
+          toast.error("Error creating product SKU");
+          return Promise.reject("Error creating product SKU");
+        }
+      })
+      .finally(() => {
+        toast.success("Product sucessfully created");
+        router.push(`/dashboard/products/${product.id}/${productSku.id}`);
+      });
 
     try {
       //   if (files) {
       //     for (let i = 0; i < files.length; i++) {
       //       const checkSum = await generateSHA256(files[i]);
-
       //       const signedS3Url = await getSignedS3Url(
       //         // replace test file with product-name/sku
       //         `test-file-${i}`,
@@ -169,11 +187,9 @@ const CreateProductForm = ({ categories }: Props) => {
       //         files[i].size,
       //         checkSum
       //       );
-
       //       if (!signedS3Url) {
       //         throw new Error("Error creating S3 URL");
       //       }
-
       //       const url = signedS3Url;
       //       const response = await fetch(url, {
       //         method: "PUT",
@@ -182,15 +198,11 @@ const CreateProductForm = ({ categories }: Props) => {
       //           "Content-Type": files[i].type,
       //         },
       //       });
-
       //       if (response.ok) {
       //         // upload image to db
       //       }
       //     }
       //   }
-
-      toast.success("Product sucessfully created");
-      router.push(`/dashboard/products/${product.id}/${productSku.id}`);
     } catch (error: any) {
       console.error(error);
       toast.error(error);
