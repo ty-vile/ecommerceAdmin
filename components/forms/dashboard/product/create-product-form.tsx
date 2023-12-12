@@ -28,7 +28,7 @@ import {
 // components
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "../../ui/button";
+import { Button } from "../../../ui/button";
 // hooks
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -46,6 +46,7 @@ import {
 } from "@/app/libs/api";
 // types
 import { Category, Product, ProductSku } from "@prisma/client";
+// functions
 import { generateSKUCode } from "@/app/libs/functions";
 
 const formSchema = z.object({

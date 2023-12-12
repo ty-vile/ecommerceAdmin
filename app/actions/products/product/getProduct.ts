@@ -6,15 +6,18 @@ export default async function getProduct(productId: string) {
       throw new Error("Must provide product ID");
     }
 
-    const categories = await prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: {
         id: productId,
       },
+      include: {
+        categories: true,
+      },
     });
 
-    return categories;
+    return product;
   } catch (error: any) {
-    console.error(["ALLCATEGORIES_GET"], error);
+    console.error(["SINGLEPRODUCT_GET"], error);
     throw new Error(error);
   }
 }
