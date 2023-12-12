@@ -1,23 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// prisma
 import prisma from "@/app/libs/prismadb";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
 
-    const { url, productSkuId } = body;
+    const { name } = body;
 
-    const product = await prisma.productImage.create({
+    const category = await prisma.category.create({
       data: {
-        url: "",
-        productSkuId: "",
+        name,
       },
     });
 
-    return NextResponse.json(product);
+    return NextResponse.json(category);
   } catch (error) {
-    console.error("[PRODUCTIMAGE_POST]", error);
+    console.error("[CATEGORY_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

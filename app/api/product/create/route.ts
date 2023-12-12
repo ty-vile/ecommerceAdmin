@@ -17,6 +17,10 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const { name, description } = body;
 
+    if (!name || !description) {
+      throw new Error("Name and description are required fields.");
+    }
+
     const product = await prisma.product.create({
       data: {
         name,
@@ -27,7 +31,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(product);
   } catch (error) {
-    console.error("[REGISTER_POST]", error);
+    console.error("[PRODUCT_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

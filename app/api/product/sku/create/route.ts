@@ -6,18 +6,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
 
-    const { url, productSkuId } = body;
+    const { productId, sku, price, quantity } = body;
 
-    const product = await prisma.productImage.create({
+    const productSku = await prisma.productSku.create({
       data: {
-        url: "",
-        productSkuId: "",
+        productId: "",
+        sku: "",
+        price: 0,
+        quantity: 0,
+        isDefault: false,
       },
     });
 
-    return NextResponse.json(product);
+    return NextResponse.json(productSku);
   } catch (error) {
-    console.error("[PRODUCTIMAGE_POST]", error);
+    console.error("[PRODUCTSKU_POST]", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
