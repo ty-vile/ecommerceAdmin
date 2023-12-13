@@ -4,7 +4,7 @@ export const RegisterUser = async (values: {
   email: string;
   password: string;
 }) => {
-  const response = await fetch("/api/user/register", {
+  const response = await fetch("/api/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
@@ -22,7 +22,7 @@ export const RegisterUser = async (values: {
 
 // @types - email:string
 export const DeleteUser = async (email: string) => {
-  const response = await fetch("/api/user/delete", {
+  const response = await fetch("/api/user", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
@@ -61,7 +61,7 @@ export const CreateProduct = async (body: {
   name: string;
   description: string;
 }) => {
-  const response = await fetch("/api/product/create", {
+  const response = await fetch("/api/product", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -79,7 +79,7 @@ export const CreateProduct = async (body: {
 
 // @types - body: {name: string}
 export const CreateCategory = async (body: { name: string }) => {
-  const response = await fetch("/api/product/category/create", {
+  const response = await fetch("/api/product/category", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -122,7 +122,7 @@ export const CreateProductSku = async (body: {
   productId: string;
   sku: string;
 }) => {
-  const response = await fetch("/api/product/sku/create", {
+  const response = await fetch("/api/product/sku", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -143,7 +143,7 @@ export const CreateProductImage = async (body: {
   url: string;
   productSkuId: string;
 }) => {
-  const response = await fetch("/api/product/image/create", {
+  const response = await fetch("/api/product/image", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
