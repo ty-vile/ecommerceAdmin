@@ -3,7 +3,7 @@ import prisma from "@/app/libs/prismadb";
 export default async function getProductSku(skuId: string) {
   try {
     if (!skuId) {
-      throw new Error("Must provide product ID");
+      return null;
     }
 
     const sku = await prisma.productSku.findUnique({
@@ -14,7 +14,7 @@ export default async function getProductSku(skuId: string) {
 
     return sku;
   } catch (error: any) {
-    console.error(["PRODUCTSSKU_GET"], error);
+    console.error("PRODUCTSSKU_GET", error);
     throw new Error(error);
   }
 }

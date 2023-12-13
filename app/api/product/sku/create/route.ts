@@ -9,7 +9,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const { productId, sku } = body;
 
     if (!productId || !sku) {
-      throw new Error("Product Id and SKU are required fields");
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
+      });
     }
 
     const productSku = await prisma.productSku.create({
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(productSku);
   } catch (error) {
-    console.error("[PRODUCTSKU_POST]", error);
+    console.error("PRODUCTSKU_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

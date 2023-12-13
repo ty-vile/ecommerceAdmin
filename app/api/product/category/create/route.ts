@@ -3,14 +3,16 @@ import { NextRequest, NextResponse } from "next/server";
 // prisma
 import prisma from "@/app/libs/prismadb";
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: Request) {
   try {
     const body = await req.json();
 
     const { category } = body;
 
     if (!category) {
-      throw new Error("Name is a required field.");
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
+      });
     }
 
     const productCategory = await prisma.category.create({
@@ -21,7 +23,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(productCategory);
   } catch (error) {
-    console.error("[CATEGORY_POST]", error);
+    console.error("CATEGORY_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

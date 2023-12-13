@@ -9,7 +9,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const { email, name, password } = body;
 
     if (!email || !name || !password) {
-      throw new Error("Name, Email and Password are required fields");
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("[REGISTER_POST]", error);
+    console.error("REGISTER_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

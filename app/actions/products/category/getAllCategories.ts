@@ -6,7 +6,7 @@ export default async function getAllCategories() {
 
     return categories;
   } catch (error: any) {
-    console.error(["ALLCATEGORIES_GET"], error);
+    console.error("ALLCATEGORIES_GET", error);
     throw new Error(error);
   }
 }

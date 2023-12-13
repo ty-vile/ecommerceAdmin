@@ -3,7 +3,7 @@ import prisma from "@/app/libs/prismadb";
 export default async function getCategory(categoryId: string) {
   try {
     if (!categoryId) {
-      throw new Error("Must provide category ID");
+      return null;
     }
 
     const productCategory = await prisma.category.findUnique({
@@ -14,7 +14,7 @@ export default async function getCategory(categoryId: string) {
 
     return productCategory;
   } catch (error: any) {
-    console.error(["SINGLECATEGORY_GET"], error);
+    console.error("SINGLECATEGORY_GET", error);
     throw new Error(error);
   }
 }
