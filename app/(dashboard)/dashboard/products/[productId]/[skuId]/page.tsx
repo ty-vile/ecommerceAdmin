@@ -20,10 +20,11 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
       categoryArr.push(cat?.name!);
     }
-
     return productData;
   });
   const sku = await getProductSku(skuId);
+
+  console.log(sku);
 
   if (!product) {
     // add error route (error.tsx)

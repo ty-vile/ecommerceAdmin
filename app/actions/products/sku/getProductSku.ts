@@ -10,6 +10,9 @@ export default async function getProductSku(skuId: string) {
       where: {
         id: skuId,
       },
+      include: {
+        productImage: true,
+      },
     });
 
     return sku;

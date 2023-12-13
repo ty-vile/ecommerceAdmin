@@ -71,10 +71,6 @@ type Props = {
 const CreateProductForm = ({ categories }: Props) => {
   // form state
   const [isLoading, setIsLoading] = useState(false);
-  // file state
-  const [files, setFiles] = useState<FileList | undefined>(undefined);
-  const [filesUrl, setFileUrls] = useState<String[] | []>([]);
-  // progress-bar state
 
   const router = useRouter();
 
@@ -86,25 +82,6 @@ const CreateProductForm = ({ categories }: Props) => {
       category: "",
     },
   });
-
-  // generates local urls of images to preview on frontend when files state is updated
-  useEffect(() => {
-    if (filesUrl.length > 0) {
-      setFileUrls([]);
-    }
-
-    if (files) {
-      const fileUrlArr = [];
-
-      for (let i = 0; i < files.length; i++) {
-        const url = URL.createObjectURL(files[i]);
-
-        fileUrlArr.push(url);
-      }
-
-      setFileUrls(fileUrlArr);
-    }
-  }, [files]);
 
   // submit form
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -176,49 +153,6 @@ const CreateProductForm = ({ categories }: Props) => {
         toast.success("Product sucessfully created");
         router.push(`/dashboard/products/${product.id}/${productSku.id}`);
       });
-
-    try {
-      //   if (files) {
-      //     for (let i = 0; i < files.length; i++) {
-      //       const checkSum = await generateSHA256(files[i]);
-      //       const signedS3Url = await getSignedS3Url(
-      //         // replace test file with product-name/sku
-      //         `test-file-${i}`,
-      //         files[i].type,
-      //         files[i].size,
-      //         checkSum
-      //       );
-      //       if (!signedS3Url) {
-      //         throw new Error("Error creating S3 URL");
-      //       }
-      //       const url = signedS3Url;
-      //       const response = await fetch(url, {
-      //         method: "PUT",
-      //         body: files[i],
-      //         headers: {
-      //           "Content-Type": files[i].type,
-      //         },
-      //       });
-      //       if (response.ok) {
-      //         // upload image to db
-      //       }
-      //     }
-      //   }
-    } catch (error: any) {
-      console.error(error);
-      toast.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // handle file change - input
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const localFiles = e.target.files;
-
-    if (localFiles) {
-      setFiles(localFiles);
-    }
   };
 
   return (
@@ -260,27 +194,7 @@ const CreateProductForm = ({ categories }: Props) => {
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="image"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Select Image(s)</FormLabel>
-                <FormControl>
-                  <Input
-                    multiple={true}
-                    placeholder="Enter Product Name"
-                    type="file"
-                    disabled={isLoading}
-                    {...field}
-                    onChange={handleFileChange}
-                    accept=".jpg, .jpeg, .png"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          /> */}
+
           <div className="flex items-end gap-4">
             <FormField
               control={form.control}
@@ -347,27 +261,7 @@ const CreateProductForm = ({ categories }: Props) => {
               </Popover>
             </div>
           </div>
-          {/* {filesUrl.length > 0 && (
-            <div className="pt-2">
-              <FormLabel>Product Image{filesUrl.length > 1 && "s"}</FormLabel>
-            </div>
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 gap-10">
-            {filesUrl.length > 0 &&
-              filesUrl.map((file, i) => {
-                return (
-                  <div key={i}>
-                    <Image
-                      src={file as string}
-                      alt="Product Image"
-                      height={0}
-                      width={0}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                );
-              })}
-          </div> */}
+
           <div>
             <Button
               className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${

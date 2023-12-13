@@ -41,7 +41,7 @@ export async function getSignedS3Url(
 
   const PutS3ObjectCommand = new PutObjectCommand({
     Bucket: process.env.AWS_BUCKET_NAME!,
-    Key: fileKey + uuid(),
+    Key: `${fileKey}/${uuid()}`,
     ContentLength: size,
     ChecksumSHA256: checkSum,
     Metadata: {
