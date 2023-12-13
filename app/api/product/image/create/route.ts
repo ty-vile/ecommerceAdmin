@@ -14,14 +14,14 @@ export async function POST(req: Request) {
       });
     }
 
-    const product = await prisma.productImage.create({
+    const productImage = await prisma.productImage.create({
       data: {
-        url: "",
-        productSkuId: "",
+        url: url,
+        productSkuId: productSkuId,
       },
     });
 
-    return NextResponse.json(product);
+    return NextResponse.json(productImage);
   } catch (error) {
     console.error("PRODUCTIMAGE_POST", error);
     return new NextResponse("Internal Error", { status: 500 });

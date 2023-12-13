@@ -2,6 +2,7 @@
 
 // actions
 import getCurrentUser from "@/app/actions/users/getCurrentUser";
+import { CreateProductImage } from "@/app/libs/api";
 // s3
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -23,7 +24,8 @@ export async function getSignedS3Url(
   fileKey: string,
   type: string,
   size: number,
-  checkSum: string
+  checkSum: string,
+  productSkuId: string
 ) {
   const currentUser = await getCurrentUser();
 
@@ -52,6 +54,16 @@ export async function getSignedS3Url(
   const signedS3Url = await getSignedUrl(s3, PutS3ObjectCommand, {
     expiresIn: 60,
   });
+
+  const imgUrl = signedS3Url.split("?")[0];
+
+  const productImageData = {
+    url: imgUrl,
+    productSkuId: productSkuId,
+  };
+
+  // CALL PUT REQUEST HERE FOR PRODUCT IMAGE
+  const productImage = await CreateProductImage(productImageData);
 
   return signedS3Url;
 }

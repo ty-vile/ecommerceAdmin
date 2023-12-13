@@ -85,7 +85,8 @@ const ProductSkuForm = ({ product, sku }: Props) => {
             sku?.sku!,
             files[i].type,
             files[i].size,
-            checkSum
+            checkSum,
+            sku?.id!
           );
           if (!signedS3Url) {
             throw new Error("Error creating S3 URL");
