@@ -1,7 +1,7 @@
 "use server";
-
+import getCurrentUser from "@/actions/users/getCurrentUser";
 // actions
-import getCurrentUser from "@/app/actions/users/getCurrentUser";
+
 import { CreateProductImage } from "@/app/libs/api";
 // s3
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
@@ -30,7 +30,7 @@ export async function getSignedS3Url(
   const currentUser = await getCurrentUser();
 
   if (!currentUser) {
-    throw new Error("Not authenticated");
+    throw new Error("Unauthorized Credentials");
   }
 
   if (size > maxFileSize) {
@@ -62,8 +62,5 @@ export async function getSignedS3Url(
     productSkuId: productSkuId,
   };
 
-  // CALL PUT REQUEST HERE FOR PRODUCT IMAGE
-  const productImage = await CreateProductImage(productImageData);
-
-  return signedS3Url;
+  return { signedS3Url, productImageData };
 }

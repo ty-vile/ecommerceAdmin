@@ -1,15 +1,20 @@
-// api
-import getCurrentUser from "@/app/actions/users/getCurrentUser";
-import { GetProduct } from "@/app/libs/api";
+// actions
+import getProduct from "@/actions/products/getProduct";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 // tables
 import { DataTable } from "@/components/table/data-table";
 import { DashboardProductColumns } from "@/components/table/products/columns";
 // types
 import { Role } from "@prisma/client";
 // nextjs
+import Link from "next/link";
 import { redirect } from "next/navigation";
-// types
-import { GETREQUESTS } from "@/app/libs/types";
+
+// components
+import { Button } from "@/components/ui/button";
+// icons
+import { FaPlus } from "react-icons/fa";
+import getAllProducts from "@/actions/products/getAllProducts";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();
@@ -18,12 +23,19 @@ const ProductsPage = async () => {
     redirect("/dashboard");
   }
 
-  const products = await GetProduct({ productId: "", task: GETREQUESTS.ALL });
+  const products = await getAllProducts();
 
   return (
     <div className="p-4">
-      <h3 className="text-4xl font-bold pb-6">PRODUCTS ADMIN</h3>
-      {/* @ts-ignore */}
+      <div className="flex items-center justify-between pb-6">
+        <h3 className="text-4xl font-bold">PRODUCTS ADMIN</h3>
+        <Link href="/dashboard/products/create">
+          <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300">
+            <FaPlus />
+            Create new product
+          </Button>
+        </Link>
+      </div>
       <div className="p-4 bg-white rounded-md">
         {/* @ts-ignore */}
         <DataTable columns={DashboardProductColumns} data={products} />

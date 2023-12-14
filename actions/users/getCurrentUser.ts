@@ -12,21 +12,20 @@ export default async function getCurrentUser() {
 
     const currentUser = await prisma.user.findUnique({
       where: {
-        email: session?.user?.email as string,
+        email: session.user.email,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        role: true,
       },
     });
 
-    const user = {
-      id: currentUser?.id,
-      name: currentUser?.name,
-      email: currentUser?.email,
-      image: currentUser?.image,
-      role: currentUser?.role,
-    };
-
-    return user;
+    return currentUser;
   } catch (error: any) {
-    console.error(["CURRENTUSER_GET"], error);
+    console.error(["USER_CURRENT_GET"], error);
     throw new Error(error);
   }
 }

@@ -1,18 +1,18 @@
-import { NextResponse } from "next/server";
-
+import { NextRequest, NextResponse } from "next/server";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-import getCurrentUser from "@/app/actions/users/getCurrentUser";
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const user = await getCurrentUser();
 
+    console.log(user, "USER");
+
     if (!user) {
-      return NextResponse.json("Unathorized", {
+      return NextResponse.json("Unauthorized", {
         status: 401,
       });
     }
-
     const body = await req.json();
 
     const { url, productSkuId } = body;

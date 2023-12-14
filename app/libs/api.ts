@@ -4,7 +4,7 @@ export const RegisterUser = async (values: {
   email: string;
   password: string;
 }) => {
-  const response = await fetch("/api/user", {
+  const response = await fetch("http://localhost:3000/api/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
@@ -81,45 +81,6 @@ export const CreateProduct = async (body: {
   throw new Error(response.statusText);
 };
 
-// @types - body: {productId: string, task: string}
-export const GetProduct = async (body: { productId: string; task: number }) => {
-  const response = await fetch("/api/product", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    return data;
-  }
-
-  throw new Error(response.statusText);
-};
-
-// @types - body: {categoryId: string, task: string}
-export const GetCategory = async (body: {
-  categoryId: string;
-  task: number;
-}) => {
-  const response = await fetch("/api/product/category", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    return data;
-  }
-
-  throw new Error(response.statusText);
-};
-
 // @types - body: {name: string}
 export const CreateCategory = async (body: { name: string }) => {
   const response = await fetch("/api/product/category", {
@@ -181,34 +142,12 @@ export const CreateProductSku = async (body: {
   throw new Error(response.statusText);
 };
 
-// @types - body: {skuId: string, productId: string, task: string}
-export const GetProductSku = async (body: {
-  skuId?: string;
-  productId?: string;
-  task: number;
-}) => {
-  const response = await fetch("/api/product/sku", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-
-  if (response.ok) {
-    const data = await response.json();
-    return data;
-  }
-
-  throw new Error(response.statusText);
-};
-
 // @types - body: {url: string, productSkuId:string}
 export const CreateProductImage = async (body: {
   url: string;
   productSkuId: string;
 }) => {
-  const response = await fetch("/api/product/image", {
+  const response = await fetch("http://localhost:3000/api/product/image", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -220,6 +159,4 @@ export const CreateProductImage = async (body: {
     const data = await response.json();
     return data;
   }
-
-  throw new Error(response.statusText);
 };

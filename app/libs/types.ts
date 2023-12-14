@@ -1,4 +1,4 @@
-export const enum GETREQUESTS {
-  SINGLE = 0,
-  ALL = 1,
+export const enum ACTION_TYPE {
+  SINGLE = 1,
+  ALL = 2,
 }

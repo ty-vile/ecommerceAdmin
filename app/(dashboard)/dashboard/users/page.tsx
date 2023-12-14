@@ -1,6 +1,6 @@
 // actions
-import getAllUsers from "@/app/actions/users/getAllUsers";
-import getCurrentUser from "@/app/actions/users/getCurrentUser";
+import getAllUsers from "@/actions/users/getAllUsers";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 // tables
 import { DataTable } from "@/components/table/data-table";
 import { DashboardUsersColumns } from "@/components/table/users/columns";

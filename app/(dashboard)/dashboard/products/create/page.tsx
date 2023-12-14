@@ -1,14 +1,10 @@
-// api
-import { GETREQUESTS } from "@/app/libs/types";
-import { GetCategory } from "@/app/libs/api";
+// action
+import getAllCategorys from "@/actions/categories/getAllCategorys";
 // form
 import CreateProductForm from "@/components/forms/dashboard/product/create-product-form";
 
 const CreateProducstPage = async () => {
-  const categories = await GetCategory({
-    categoryId: "",
-    task: GETREQUESTS.ALL,
-  });
+  const categories = await getAllCategorys();
 
   return (
     <div className="p-4">

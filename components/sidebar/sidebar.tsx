@@ -1,5 +1,5 @@
 // actions
-import getCurrentUser from "@/app/actions/users/getCurrentUser";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 // components
 import SidebarItem from "@/components/sidebar/sidebar-item";
 import { Button } from "../ui/button";

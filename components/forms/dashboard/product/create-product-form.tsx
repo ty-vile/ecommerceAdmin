@@ -65,7 +65,7 @@ const formSchema = z.object({
 });
 
 type Props = {
-  categories: Category[];
+  categories: Category | Category[] | null;
 };
 
 const CreateProductForm = ({ categories }: Props) => {
@@ -212,14 +212,14 @@ const CreateProductForm = ({ categories }: Props) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {categories.length > 0 ? (
-                        categories?.map((category, i) => {
-                          return (
-                            <SelectItem value={category?.name} key={i}>
-                              {category?.name}
-                            </SelectItem>
-                          );
-                        })
+                      {categories &&
+                      Array.isArray(categories) &&
+                      categories.length > 0 ? (
+                        categories.map((category, i) => (
+                          <SelectItem value={category?.name} key={i}>
+                            {category?.name}
+                          </SelectItem>
+                        ))
                       ) : (
                         <SelectItem value="nocategory" disabled>
                           No categories
