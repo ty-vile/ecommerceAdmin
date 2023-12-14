@@ -38,9 +38,9 @@ export const DeleteUser = async (email: string) => {
   throw new Error(response.statusText);
 };
 
-// @types - body: {email:string, role:string}
-export const UpdateUserRole = async (body: { email: string; role: string }) => {
-  const response = await fetch("/api/user/role", {
+// @types - body: {email:string, role:string, task:string}
+export const UpdateUserRole = async (body: { email: string; role: string, task:string }) => {
+  const response = await fetch("/api/user", {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

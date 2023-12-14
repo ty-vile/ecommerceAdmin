@@ -67,9 +67,17 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
 
-    const { email, role } = body;
+    const { email, role, task } = body;
 
-    if (!email || !role) {
+    if (!email || !task) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
+
+   if (task === 'role') {
+
+    if (!role) {
       return NextResponse.json("Unathorized", {
         status: 401,
       });
@@ -87,6 +95,9 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
     });
 
     return NextResponse.json(user);
+   }
+
+   return null
   } catch (error) {
     console.error("USERROLE_PATCH", error);
     return new NextResponse("Internal Error", { status: 500 });

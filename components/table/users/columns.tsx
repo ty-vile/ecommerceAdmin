@@ -63,9 +63,13 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
       };
 
       // update user role
-      const submitRoleChange = async (email: string, role: string) => {
+      const submitRoleChange = async (
+        email: string,
+        role: string,
+        task: string
+      ) => {
         try {
-          const data = { email, role };
+          const data = { email, role, task };
 
           const updatedUser = await UpdateUserRole(data);
           toast.success(`${user.name}: Role - ${updatedUser.role}`);
@@ -87,7 +91,7 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => submitRoleChange(user.email, user.role)}
+              onClick={() => submitRoleChange(user.email, user.role, "role")}
             >
               Change User Role
             </DropdownMenuItem>
