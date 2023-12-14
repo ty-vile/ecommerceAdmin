@@ -8,6 +8,8 @@ import { DashboardProductColumns } from "@/components/table/products/columns";
 import { Role } from "@prisma/client";
 // nextjs
 import { redirect } from "next/navigation";
+// types
+import { GETREQUESTS } from "@/app/libs/types";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();
@@ -16,7 +18,7 @@ const ProductsPage = async () => {
     redirect("/dashboard");
   }
 
-  const products = await GetProduct({ productId: "", task: "allproducts" });
+  const products = await GetProduct({ productId: "", task: GETREQUESTS.ALL });
 
   return (
     <div className="p-4">

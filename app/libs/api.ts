@@ -82,7 +82,7 @@ export const CreateProduct = async (body: {
 };
 
 // @types - body: {productId: string, task: string}
-export const GetProduct = async (body: { productId: string; task: string }) => {
+export const GetProduct = async (body: { productId: string; task: number }) => {
   const response = await fetch("/api/product", {
     method: "GET",
     headers: {
@@ -102,7 +102,7 @@ export const GetProduct = async (body: { productId: string; task: string }) => {
 // @types - body: {categoryId: string, task: string}
 export const GetCategory = async (body: {
   categoryId: string;
-  task: string;
+  task: number;
 }) => {
   const response = await fetch("/api/product/category", {
     method: "GET",
@@ -185,7 +185,7 @@ export const CreateProductSku = async (body: {
 export const GetProductSku = async (body: {
   skuId?: string;
   productId?: string;
-  task: string;
+  task: number;
 }) => {
   const response = await fetch("/api/product/sku", {
     method: "GET",

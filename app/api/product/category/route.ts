@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/app/actions/users/getCurrentUser";
+import { GETREQUESTS } from "@/app/libs/types";
 
 export async function POST(req: Request, res: NextResponse) {
   try {
@@ -55,7 +56,7 @@ export async function GET(req: Request, res: NextResponse) {
       });
     }
 
-    if (task === "getcategory") {
+    if (task === GETREQUESTS.SINGLE) {
       if (!categoryId) {
         return NextResponse.json("Bad Request - Missing required parameters.", {
           status: 400,
@@ -71,7 +72,7 @@ export async function GET(req: Request, res: NextResponse) {
       return NextResponse.json(productCategory);
     }
 
-    if (task === "allcategories") {
+    if (task === GETREQUESTS.ALL) {
       const categories = await prisma.category.findMany({});
       return NextResponse.json(categories);
     }

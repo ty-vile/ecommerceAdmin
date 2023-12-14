@@ -1,4 +1,5 @@
 // api
+import { GETREQUESTS } from "@/app/libs/types";
 import { GetCategory } from "@/app/libs/api";
 // form
 import CreateProductForm from "@/components/forms/dashboard/product/create-product-form";
@@ -6,7 +7,7 @@ import CreateProductForm from "@/components/forms/dashboard/product/create-produ
 const CreateProducstPage = async () => {
   const categories = await GetCategory({
     categoryId: "",
-    task: "allcategories",
+    task: GETREQUESTS.ALL,
   });
 
   return (
