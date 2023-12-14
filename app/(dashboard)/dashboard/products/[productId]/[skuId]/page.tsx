@@ -1,7 +1,5 @@
-// actions
-import getCategory from "@/app/actions/products/category/getCategory";
-import getProduct from "@/app/actions/products/product/getProduct";
-import getProductSku from "@/app/actions/products/sku/getProductSku";
+// api
+import { GetProduct, GetCategory, GetProductSku } from "@/app/libs/api";
 // components
 import ProductSkuForm from "@/components/forms/dashboard/product/product-sku-form";
 
@@ -12,17 +10,29 @@ type Props = {
 
 const ProductSKUPage = async ({ params }: { params: Props }) => {
   const { productId, skuId } = params;
+  const getSkuData = {
+    task: "getsku",
+    skuId,
+  };
 
   const categoryArr: string[] = [];
-  const product = await getProduct(productId).then(async (productData) => {
-    for (const category of productData?.categories || []) {
-      const cat = await getCategory(category.categoryId);
+  const product = await GetProduct({ productId, task: "singleproduct" }).then(
+    async (productData) => {
+      for (const category of productData?.categories || []) {
+        const getCatData = {
+          categoryId: category.categoryId,
+          task: "getcategory",
+        };
 
-      categoryArr.push(cat?.name!);
+        const cat = await GetCategory(getCatData);
+
+        categoryArr.push(cat.name);
+      }
+      return productData;
     }
-    return productData;
-  });
-  const sku = await getProductSku(skuId);
+  );
+
+  const sku = await GetProductSku(getSkuData);
 
   console.log(sku);
 
@@ -51,7 +61,7 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
           })}
       </div>
       <div className="p-4 bg-white rounded-md">
-        <ProductSkuForm product={product!} sku={sku} />
+        <ProductSkuForm product={product} sku={sku} />
       </div>
     </div>
   );

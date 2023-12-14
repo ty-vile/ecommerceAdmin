@@ -1,29 +1,31 @@
-// actions
+// api
 import getCurrentUser from "@/app/actions/users/getCurrentUser";
-// tabledata
+import { GetProduct } from "@/app/libs/api";
+// tables
 import { DataTable } from "@/components/table/data-table";
-// components
-import { Button } from "@/components/ui/button";
-// next js
-import Link from "next/link";
-// icons
-import { FaPlus } from "react-icons/fa";
+import { DashboardProductColumns } from "@/components/table/products/columns";
+// types
+import { Role } from "@prisma/client";
+// nextjs
+import { redirect } from "next/navigation";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();
 
+  if (currentUser?.role !== Role.ADMIN) {
+    redirect("/dashboard");
+  }
+
+  const products = await GetProduct({ productId: "", task: "allproducts" });
+
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between pb-6">
-        <h3 className="text-4xl font-bold">PRODUCTS ADMIN</h3>
-        <Link href="/dashboard/products/create">
-          <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300">
-            <FaPlus />
-            Create new product
-          </Button>
-        </Link>
+      <h3 className="text-4xl font-bold pb-6">PRODUCTS ADMIN</h3>
+      {/* @ts-ignore */}
+      <div className="p-4 bg-white rounded-md">
+        {/* @ts-ignore */}
+        <DataTable columns={DashboardProductColumns} data={products} />
       </div>
-      <div className="p-4 bg-white rounded-md">{/* DATA TABLE HERE */}</div>
     </div>
   );
 };

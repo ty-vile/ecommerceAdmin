@@ -1,9 +1,18 @@
 import { NextResponse } from "next/server";
 
 import prisma from "@/app/libs/prismadb";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 
 export async function POST(req: Request) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
+
     const body = await req.json();
 
     const { url, productSkuId } = body;

@@ -39,7 +39,11 @@ export const DeleteUser = async (email: string) => {
 };
 
 // @types - body: {email:string, role:string, task:string}
-export const UpdateUserRole = async (body: { email: string; role: string, task:string }) => {
+export const UpdateUserRole = async (body: {
+  email: string;
+  role: string;
+  task: string;
+}) => {
   const response = await fetch("/api/user", {
     method: "PATCH",
     headers: {
@@ -77,6 +81,45 @@ export const CreateProduct = async (body: {
   throw new Error(response.statusText);
 };
 
+// @types - body: {productId: string, task: string}
+export const GetProduct = async (body: { productId: string; task: string }) => {
+  const response = await fetch("/api/product", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+// @types - body: {categoryId: string, task: string}
+export const GetCategory = async (body: {
+  categoryId: string;
+  task: string;
+}) => {
+  const response = await fetch("/api/product/category", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
 // @types - body: {name: string}
 export const CreateCategory = async (body: { name: string }) => {
   const response = await fetch("/api/product/category", {
@@ -96,7 +139,7 @@ export const CreateCategory = async (body: { name: string }) => {
 };
 
 // @types - body: {productId: string, categoryId: string, createdByUser: string}
-export const ProductCategoryJoin = async (body: {
+export const CreateProductCategoryJoin = async (body: {
   productId: string;
   categoryId: string;
   createdByUser: string;
@@ -124,6 +167,28 @@ export const CreateProductSku = async (body: {
 }) => {
   const response = await fetch("/api/product/sku", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+// @types - body: {skuId: string, productId: string, task: string}
+export const GetProductSku = async (body: {
+  skuId?: string;
+  productId?: string;
+  task: string;
+}) => {
+  const response = await fetch("/api/product/sku", {
+    method: "GET",
     headers: {
       "Content-Type": "application/json",
     },

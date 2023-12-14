@@ -42,7 +42,7 @@ import {
   CreateCategory,
   CreateProduct,
   CreateProductSku,
-  ProductCategoryJoin,
+  CreateProductCategoryJoin,
 } from "@/app/libs/api";
 // types
 import { Category, Product, ProductSku } from "@prisma/client";
@@ -118,7 +118,7 @@ const CreateProductForm = ({ categories }: Props) => {
           createdByUser: product.userId,
         };
 
-        return ProductCategoryJoin(joinData);
+        return CreateProductCategoryJoin(joinData);
       })
       .then((productCategoryJoin) => {
         if (!productCategoryJoin) {

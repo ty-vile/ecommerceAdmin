@@ -5,7 +5,6 @@ import { Role } from "@prisma/client";
 
 // NOTES - CREATE
 
-
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
     const body = await req.json();
@@ -30,7 +29,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("REGISTER_POST", error);
+    console.error("USER_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
@@ -55,13 +54,12 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(user);
   } catch (error) {
-    console.error("REGISTER_POST", error);
+    console.error("USER_DELETE", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
 
 // NOTES UPDATE
-
 
 export async function PATCH(req: NextRequest, res: NextResponse) {
   try {
@@ -69,37 +67,36 @@ export async function PATCH(req: NextRequest, res: NextResponse) {
 
     const { email, role, task } = body;
 
-    if (!email || !task) {
-      return NextResponse.json("Unathorized", {
-        status: 401,
+    if (!task) {
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
       });
     }
 
-   if (task === 'role') {
+    if (task === "role") {
+      if (!email || !role) {
+        return NextResponse.json("Bad Request - Missing required parameters.", {
+          status: 400,
+        });
+      }
 
-    if (!role) {
-      return NextResponse.json("Unathorized", {
-        status: 401,
+      let newRole: Role = role === Role.ADMIN ? Role.VIEWER : Role.ADMIN;
+
+      const user = await prisma.user.update({
+        where: {
+          email: email,
+        },
+        data: {
+          role: newRole,
+        },
       });
+
+      return NextResponse.json(user);
     }
 
-    let newRole: Role = role === Role.ADMIN ? Role.VIEWER : Role.ADMIN;
-
-    const user = await prisma.user.update({
-      where: {
-        email: email,
-      },
-      data: {
-        role: newRole,
-      },
-    });
-
-    return NextResponse.json(user);
-   }
-
-   return null
+    return null;
   } catch (error) {
-    console.error("USERROLE_PATCH", error);
+    console.error("USER_PATCH", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

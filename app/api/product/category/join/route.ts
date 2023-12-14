@@ -2,9 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 
 // prisma
 import prisma from "@/app/libs/prismadb";
+import getCurrentUser from "@/app/actions/users/getCurrentUser";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
+
     const body = await req.json();
 
     const { productId, categoryId, createdByUser } = body;

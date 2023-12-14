@@ -1,7 +1,5 @@
 // https://remarkablemark.medium.com/how-to-generate-a-sha-256-hash-with-javascript-d3b2696382fd
 
-import getAllProductsOfSku from "../actions/products/sku/getAllProductsOfSku";
-
 // modified first line to take file as buffer not text
 export const generateSHA256 = async (file: File) => {
   const buffer = await file.arrayBuffer();
