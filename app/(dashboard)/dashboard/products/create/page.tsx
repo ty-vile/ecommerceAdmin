@@ -4,7 +4,7 @@ import getAllCategories from "@/app/actions/products/category/getAllCategories";
 // form
 import CreateProductForm from "@/components/forms/dashboard/product/create-product-form";
 
-const AddProductsPage = async () => {
+const CreateProducstPage = async () => {
   const categories = await getAllCategories();
 
   return (
@@ -19,4 +19,4 @@ const AddProductsPage = async () => {
   );
 };
 
-export default AddProductsPage;
+export default CreateProducstPage;
