@@ -39,3 +39,16 @@ export async function POST(req: NextRequest, res: NextResponse) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest, res: NextResponse) {
+  try {
+    const user = await getCurrentUser();
+
+    console.log("USER", user);
+
+    return NextResponse.json("");
+  } catch (error) {
+    console.error("PRODUCT_POST", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}

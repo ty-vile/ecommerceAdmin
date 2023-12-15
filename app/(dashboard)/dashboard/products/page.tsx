@@ -1,5 +1,5 @@
 // actions
-import getProduct from "@/actions/products/getProduct";
+import getAllProducts from "@/actions/products/getAllProducts";
 import getCurrentUser from "@/actions/users/getCurrentUser";
 // tables
 import { DataTable } from "@/components/table/data-table";
@@ -14,7 +14,6 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 // icons
 import { FaPlus } from "react-icons/fa";
-import getAllProducts from "@/actions/products/getAllProducts";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();

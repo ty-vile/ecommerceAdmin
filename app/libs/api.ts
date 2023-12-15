@@ -4,7 +4,7 @@ export const RegisterUser = async (values: {
   email: string;
   password: string;
 }) => {
-  const response = await fetch("http://localhost:3000/api/user", {
+  const response = await fetch("api/user", {
     method: "POST",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
@@ -147,7 +147,7 @@ export const CreateProductImage = async (body: {
   url: string;
   productSkuId: string;
 }) => {
-  const response = await fetch("http://localhost:3000/api/product/image", {
+  const response = await fetch("/api/product/image", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

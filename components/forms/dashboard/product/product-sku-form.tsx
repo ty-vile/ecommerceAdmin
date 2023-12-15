@@ -100,9 +100,8 @@ const ProductSkuForm = ({ product, sku }: Props) => {
             headers: {
               "Content-Type": files[i].type,
             },
-          }).then(async () => {
-            await CreateProductImage(productImageData);
           });
+          await CreateProductImage(productImageData);
         }
         toast.success("Images succesfully uploaded");
       }
