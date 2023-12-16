@@ -7,11 +7,11 @@ const CreateProductsPage = async () => {
   const categories = await getAllCategorys();
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between pb-6">
-        <h3 className="text-4xl font-bold ">CREATE PRODUCT</h3>
+    <div>
+      <div className="flex items-center justify-between p-6 bg-black text-white">
+        <h1 className="text-4xl font-bold">CREATE PRODUCT</h1>
       </div>
-      <div className="p-4 bg-white rounded-md">
+      <div className="p-4 m-4 bg-white rounded-md">
         <CreateProductForm categories={categories} />
       </div>
     </div>

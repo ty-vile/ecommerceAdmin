@@ -19,11 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 // components
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -32,7 +27,7 @@ import FormStep from "@/components/cards/form-step";
 // hooks
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 // toast
 import { toast } from "react-toastify";
 // icons
@@ -44,13 +39,16 @@ import {
   CreateProduct,
   CreateProductSku,
   CreateProductCategoryJoin,
+  CreateProductImage,
 } from "@/app/libs/api";
 // types
 import { Category, Product, ProductSku } from "@prisma/client";
 // functions
-import { generateSKUCode } from "@/app/libs/functions";
+import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
 import CreateCategoryForm from "../category/create-category-form";
 import CreateAttributeForm from "../attribute/create-attribute-form";
+import ImageUpload from "@/components/image/image-upload";
+import { getSignedS3Url } from "@/lib/s3";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,
@@ -88,7 +86,13 @@ const formSchema = z.object({
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
   categories: z.array(categorySchema),
-  attributes: z.array(productAttributeSchema),
+  quantity: z.string().max(999999999, "Quantity must be less than 999999999"),
+  price: z
+    .string()
+    .min(1, "Price must at least $1")
+    .max(999999999, "Price must be less than $999999999"),
+  // attributes: z.array(productAttributeSchema),
+  image: z.any(),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
@@ -101,6 +105,10 @@ const CreateProductForm = ({ categories }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(PRODUCTFORMSTEP.PRODUCT);
   const [isLoading, setIsLoading] = useState(false);
+  // file state
+
+  const [files, setFiles] = useState<any[]>([]);
+  const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
   const router = useRouter();
 
@@ -110,9 +118,11 @@ const CreateProductForm = ({ categories }: Props) => {
       name: "",
       description: "",
       categories: [{ name: "" }],
-      attributes: [
-        { productAttribute: undefined, productAttributeValue: undefined },
-      ],
+      quantity: "",
+      price: "",
+      // attributes: [
+      //   { productAttribute: undefined, productAttributeValue: undefined },
+      // ],
     },
   });
 
@@ -145,8 +155,24 @@ const CreateProductForm = ({ categories }: Props) => {
     productAttributeValue: "",
   };
 
+  // generates local urls of images to preview on frontend when files state is updated
+  useEffect(() => {
+    if (files) {
+      const fileUrlArr = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const url = URL.createObjectURL(files[i]);
+
+        fileUrlArr.push(url);
+      }
+
+      setFileUrls(fileUrlArr);
+    }
+  }, [files]);
+
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
+    console.log(123);
     setIsLoading(true);
     try {
       const createdProduct = await CreateProduct(values);
@@ -216,6 +242,8 @@ const CreateProductForm = ({ categories }: Props) => {
       const skuData = {
         productId: createdProduct.id,
         sku: createdSkuCode,
+        price: values.price,
+        quantity: values.quantity,
       };
 
       const createdProductSku = await CreateProductSku(skuData);
@@ -223,6 +251,39 @@ const CreateProductForm = ({ categories }: Props) => {
       if (!createdProductSku) {
         toast.error("Error creating product SKU");
         throw new Error("Error creating product SKU");
+      }
+
+      if (files) {
+        for (let i = 0; i < files.length; i++) {
+          const checkSum = await generateSHA256(files[i]);
+          const { signedS3Url, productImageData } = await getSignedS3Url(
+            createdProductSku.sku,
+            files[i].type,
+            files[i].size,
+            checkSum,
+            createdProductSku.sku
+          );
+
+          if (!signedS3Url) {
+            throw new Error("Error creating S3 URL");
+          }
+          const url = signedS3Url;
+          const repsone = await fetch(url, {
+            method: "PUT",
+            body: files[i],
+            headers: {
+              "Content-Type": files[i].type,
+            },
+          });
+          const createdProductImage = await CreateProductImage(
+            productImageData
+          );
+
+          if (!createdProductImage) {
+            toast.error("Error creating product imagee");
+            throw new Error("Error creating product imagee");
+          }
+        }
       }
 
       toast.success("Product successfully created");
@@ -373,6 +434,7 @@ const CreateProductForm = ({ categories }: Props) => {
                               <Button
                                 type="button"
                                 onClick={() => categoryRemove(index)}
+                                className="bg-red-500 hover:bg-red-600 transition-300"
                               >
                                 Remove Category
                               </Button>
@@ -391,6 +453,33 @@ const CreateProductForm = ({ categories }: Props) => {
                 )}
                 {formStep === PRODUCTFORMSTEP.SKU && (
                   <>
+                    <h2 className="text-2xl font-bold">Unit Details</h2>
+                    <FormField
+                      control={form.control}
+                      name="price"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Product Price</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="quantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Product Quantity</FormLabel>
+                          <FormControl>
+                            <Input type="text" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <div className="flex items-center justify-between">
                       <h2 className="text-2xl font-bold">Product Attributes</h2>
                       <Button
@@ -403,7 +492,7 @@ const CreateProductForm = ({ categories }: Props) => {
                         Create attribute
                       </Button>
                     </div>
-                    <div className="flex flex-col gap-4">
+                    {/* <div className="flex flex-col gap-4">
                       {attributeFields.map((field, index) => {
                         return (
                           <div key={index} className="flex items-end gap-4">
@@ -420,7 +509,7 @@ const CreateProductForm = ({ categories }: Props) => {
                                   >
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="No attributes found" />
+                                        <SelectValue placeholder="Select Attribute" />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -435,7 +524,7 @@ const CreateProductForm = ({ categories }: Props) => {
                               <Button
                                 type="button"
                                 onClick={() => attributeRemove(index)}
-                                className="bg-red-500 hover:bg-red-600"
+                                className="bg-red-500 hover:bg-red-600 transition-300"
                               >
                                 Remove Attribute
                               </Button>
@@ -450,16 +539,27 @@ const CreateProductForm = ({ categories }: Props) => {
                       >
                         Add Attribute
                       </Button>
-                    </div>
+                    </div> */}
                   </>
                 )}
-
+                {formStep === PRODUCTFORMSTEP.IMAGES && (
+                  <>
+                    <ImageUpload
+                      files={files}
+                      filesUrl={filesUrl}
+                      isLoading={isLoading}
+                      form={form}
+                      setFiles={setFiles}
+                    />
+                  </>
+                )}
                 <div>
                   <Button
                     className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
                       isLoading && "bg-gray-100/70"
                     }`}
                     disabled={isLoading}
+                    type="submit"
                   >
                     <FaPlus />
                     {isLoading ? "Creating Product..." : "Create Product"}
@@ -469,6 +569,7 @@ const CreateProductForm = ({ categories }: Props) => {
             </Form>
           </>
         )}
+
       {formStep === PRODUCTFORMSTEP.CREATECATEGORY && (
         <>
           <CreateCategoryForm

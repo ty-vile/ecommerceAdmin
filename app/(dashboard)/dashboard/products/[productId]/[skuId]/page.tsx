@@ -21,15 +21,9 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between p-6 bg-blue-500 text-white">
+      <div className="flex items-center justify-between p-6 bg-black text-white">
         <h1 className="text-4xl font-bold">{product.name}</h1>
-        {/* {productCategories.length > 0 &&
-          productCategories.map((category, i) => (
-            <div key={i} className="px-4 p-2 rounded-md">
-              {category}
-            </div>
-          ))} */}
-        <h5>{sku.sku}</h5>
+        <h5 className="font-bold">SKU: {sku.sku.toUpperCase()}</h5>
       </div>
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
         <ProductSkuForm product={product} sku={sku} />
@@ -39,3 +33,11 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 };
 
 export default ProductSKUPage;
+{
+  /* {productCategories.length > 0 &&
+          productCategories.map((category, i) => (
+            <div key={i} className="px-4 p-2 rounded-md">
+              {category}
+            </div>
+          ))} */
+}

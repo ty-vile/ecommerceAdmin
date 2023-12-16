@@ -1,6 +1,5 @@
 "use client";
 
-import { Label } from "@radix-ui/react-label";
 import {
   FormControl,
   FormField,
@@ -8,12 +7,15 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-
+// components
+import { Label } from "@radix-ui/react-label";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+// next
 import Image from "next/image";
+// icons
 import { FaTrash } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
-import { Input } from "../ui/input";
 
 type Props = {
   isLoading: boolean;
@@ -42,6 +44,7 @@ const ImageUpload = ({ isLoading, files, filesUrl, form, setFiles }: Props) => {
 
   return (
     <div>
+      <h2 className="text-2xl font-bold pb-4">Product Images</h2>
       <FormField
         control={form.control}
         name="image"

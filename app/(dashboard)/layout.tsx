@@ -21,7 +21,7 @@ export default async function DashboardLayout({
       <div className="w-3/12 max-w-xs">
         <Sidebar />
       </div>
-      <div className="bg-gray-500 w-full">{children}</div>
+      <div className="bg-gray-100 w-full">{children}</div>
     </section>
   );
 }

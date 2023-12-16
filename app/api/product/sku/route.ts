@@ -14,9 +14,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { productId, sku } = body;
+    const { productId, sku, price, quantity } = body;
 
-    if (!productId || !sku) {
+    if (!productId || !sku || !price || !quantity) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest, res: NextResponse) {
       data: {
         productId: productId,
         sku: sku,
-        price: 0,
-        quantity: 0,
+        price: Number(price),
+        quantity: Number(price),
         isDefault: false,
       },
     });

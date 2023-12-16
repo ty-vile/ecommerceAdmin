@@ -25,9 +25,9 @@ const ProductsPage = async () => {
   const products = await getAllProducts();
 
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between pb-6">
-        <h3 className="text-4xl font-bold">PRODUCTS ADMIN</h3>
+    <div>
+      <div className="flex items-center justify-between p-6 bg-black text-white">
+        <h1 className="text-4xl font-bold">PRODUCTS ADMIN</h1>
         <Link href="/dashboard/products/create">
           <Button className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300">
             <FaPlus />
@@ -35,7 +35,7 @@ const ProductsPage = async () => {
           </Button>
         </Link>
       </div>
-      <div className="p-4 bg-white rounded-md">
+      <div className="p-4 m-4 bg-white rounded-md">
         <DataTable columns={DashboardProductColumns} data={products} />
       </div>
     </div>

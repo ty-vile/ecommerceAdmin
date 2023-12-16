@@ -19,10 +19,11 @@ const UsersPage = async () => {
   const users = await getAllUsers();
 
   return (
-    <div className="p-4">
-      <h3 className="text-4xl font-bold pb-6">USERS ADMIN</h3>
-      {/* @ts-ignore */}
-      <div className="p-4 bg-white rounded-md">
+    <div>
+      <div className="p-6 bg-black text-white">
+        <h1 className="text-4xl font-bold">USERS ADMIN</h1>
+      </div>
+      <div className="p-4 m-4 bg-white rounded-md">
         {/* @ts-ignore */}
         <DataTable columns={DashboardUsersColumns} data={users} />
       </div>
