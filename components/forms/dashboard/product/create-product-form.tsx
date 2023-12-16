@@ -49,11 +49,13 @@ import {
 import { Category, Product, ProductSku } from "@prisma/client";
 // functions
 import { generateSKUCode } from "@/app/libs/functions";
+import CreateCategoryForm from "../category/create-category-form";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,
   SKU = 1,
   IMAGES = 2,
+  CREATECATEGORY = 3,
 }
 
 const categorySchema = z.object({
@@ -166,30 +168,6 @@ const CreateProductForm = ({ categories }: Props) => {
         }
       }
 
-      // NOTES - OLD
-      // const createdProductCategory = await CreateCategory(values);
-
-      // if (!createdProductCategory) {
-      //   toast.error("Error creating category");
-      //   throw new Error("Error creating category");
-      // }
-
-      // const joinData = {
-      //   productId: createdProduct.id,
-      //   categoryId: createdProductCategory.id,
-      //   createdByUser: createdProduct.userId,
-      // };
-
-      // const createdProductCategoryJoin = await CreateProductCategoryJoin(
-      //   joinData
-      // );
-
-      // if (!createdProductCategoryJoin) {
-      //   toast.error("Error joining category with product");
-      //   throw new Error("Error joining category with product");
-      // }
-      // NOTES - END OLD
-
       const createdSkuCode = await generateSKUCode(createdProduct.name);
 
       if (!createdSkuCode) {
@@ -223,208 +201,164 @@ const CreateProductForm = ({ categories }: Props) => {
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="flex items-center gap-4 mb-8">
-        <FormStep
-          formStep={formStep}
-          formStepValue={PRODUCTFORMSTEP.PRODUCT}
-          stepNumber={1}
-          setFormStep={setFormStep}
-          content="Product Overview"
-        >
-          <FaShoppingBag className="text-3xl" />
-        </FormStep>
-        <FormStep
-          formStep={formStep}
-          formStepValue={PRODUCTFORMSTEP.SKU}
-          stepNumber={2}
-          setFormStep={setFormStep}
-          content="Product Attributes"
-        >
-          <FaBoxesPacking className="text-3xl" />
-        </FormStep>
-        <FormStep
-          formStep={formStep}
-          formStepValue={PRODUCTFORMSTEP.IMAGES}
-          stepNumber={3}
-          setFormStep={setFormStep}
-          content="Product Images"
-        >
-          <FaImages className="text-3xl" />
-        </FormStep>
-      </div>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Name</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter Product Name"
-                    type="text"
-                    disabled={isLoading}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Description</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter Product Description"
-                    disabled={isLoading}
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex flex-col gap-4">
-            {fields.map((field, index) => {
-              return (
-                <div key={index} className="flex items-end gap-4">
-                  <FormField
-                    key={field.id}
-                    control={form.control}
-                    name={`categories.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product Category</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select product category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories &&
-                            Array.isArray(categories) &&
-                            categories.length > 0 ? (
-                              categories.map((category, i) => (
-                                <SelectItem value={category?.name} key={i}>
-                                  {category?.name}
-                                </SelectItem>
-                              ))
-                            ) : (
-                              <SelectItem value="nocategory" disabled>
-                                No categories
-                              </SelectItem>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {index > 0 && (
-                    <Button type="button" onClick={() => remove(index)}>
-                      Remove Category
-                    </Button>
-                  )}
-                  <div className="flex justify-end">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline">
-                          <FaPlus />
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 absolute -right-6">
-                        <FormField
-                          control={form.control}
-                          name={`categories.${index}.name`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Category Name</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="Enter Category Name"
-                                  type="text"
-                                  disabled={isLoading}
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-                </div>
-              );
-            })}
-            <Button type="button" onClick={() => append(defaultCategory)}>
-              Add Category
-            </Button>
-          </div>
-
-          <div>
-            <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                isLoading && "bg-gray-100/70"
-              }`}
-              disabled={isLoading}
+      {formStep !== PRODUCTFORMSTEP.CREATECATEGORY && (
+        <>
+          <div className="flex items-center gap-4 mb-8">
+            <FormStep
+              formStep={formStep}
+              formStepValue={PRODUCTFORMSTEP.PRODUCT}
+              stepNumber={1}
+              setFormStep={setFormStep}
+              content="Product Overview"
             >
-              <FaPlus />
-              {isLoading ? "Creating Product..." : "Create Product"}
-            </Button>
+              <FaShoppingBag className="text-3xl" />
+            </FormStep>
+            <FormStep
+              formStep={formStep}
+              formStepValue={PRODUCTFORMSTEP.SKU}
+              stepNumber={2}
+              setFormStep={setFormStep}
+              content="Product Attributes"
+            >
+              <FaBoxesPacking className="text-3xl" />
+            </FormStep>
+            <FormStep
+              formStep={formStep}
+              formStepValue={PRODUCTFORMSTEP.IMAGES}
+              stepNumber={3}
+              setFormStep={setFormStep}
+              content="Product Images"
+            >
+              <FaImages className="text-3xl" />
+            </FormStep>
           </div>
-        </form>
-      </Form>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <h2 className="text-2xl font-bold">Product Details</h2>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Enter Product Name"
+                        type="text"
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Enter Product Description"
+                        disabled={isLoading}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">Product Categories</h2>
+                <Button
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
+                  onClick={() => setFormStep(PRODUCTFORMSTEP.CREATECATEGORY)}
+                >
+                  <FaPlus />
+                  Create category
+                </Button>
+              </div>
+              <div className="flex flex-col gap-4">
+                {fields.map((field, index) => {
+                  return (
+                    <div key={index} className="flex items-end gap-4">
+                      <FormField
+                        key={field.id}
+                        control={form.control}
+                        name={`categories.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Category</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select product category" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {categories &&
+                                Array.isArray(categories) &&
+                                categories.length > 0 ? (
+                                  categories.map((category, i) => (
+                                    <SelectItem value={category?.name} key={i}>
+                                      {category?.name}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value="nocategory" disabled>
+                                    No categories
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {index > 0 && (
+                        <Button type="button" onClick={() => remove(index)}>
+                          Remove Category
+                        </Button>
+                      )}
+                    </div>
+                  );
+                })}
+                <Button type="button" onClick={() => append(defaultCategory)}>
+                  Add Category
+                </Button>
+              </div>
+
+              <div>
+                <Button
+                  className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+                    isLoading && "bg-gray-100/70"
+                  }`}
+                  disabled={isLoading}
+                >
+                  <FaPlus />
+                  {isLoading ? "Creating Product..." : "Create Product"}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </>
+      )}
+      {formStep === PRODUCTFORMSTEP.CREATECATEGORY && (
+        <>
+          <CreateCategoryForm
+            formStep={PRODUCTFORMSTEP.PRODUCT}
+            setFormStep={setFormStep}
+            categories={categories}
+          />
+        </>
+      )}
     </section>
   );
 };
 
 export default CreateProductForm;
-
-{
-  /* <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Product Category</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select product category" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories &&
-                      Array.isArray(categories) &&
-                      categories.length > 0 ? (
-                        categories.map((category, i) => (
-                          <SelectItem value={category?.name} key={i}>
-                            {category?.name}
-                          </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem value="nocategory" disabled>
-                          No categories
-                        </SelectItem>
-                      )}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            /> */
-}
