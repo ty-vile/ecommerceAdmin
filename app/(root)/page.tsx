@@ -1,7 +1,7 @@
 // next
 import { redirect } from "next/navigation";
 // actions
-import getCurrentUser from "@/actions/users/getCurrentUser"; from "../actions/users/getCurrentUser";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 
 const HomePage = async () => {
   const currentUser = await getCurrentUser();

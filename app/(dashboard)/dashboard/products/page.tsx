@@ -14,6 +14,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 // icons
 import { FaPlus } from "react-icons/fa";
+import { Suspense } from "react";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();
@@ -36,7 +37,6 @@ const ProductsPage = async () => {
         </Link>
       </div>
       <div className="p-4 bg-white rounded-md">
-        {/* @ts-ignore */}
         <DataTable columns={DashboardProductColumns} data={products} />
       </div>
     </div>

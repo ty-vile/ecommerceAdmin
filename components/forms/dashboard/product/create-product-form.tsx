@@ -150,6 +150,7 @@ const CreateProductForm = ({ categories }: Props) => {
         }
       })
       .finally(() => {
+        setIsLoading(false);
         toast.success("Product sucessfully created");
         router.push(`/dashboard/products/${product.id}/${productSku.id}`);
       });

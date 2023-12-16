@@ -17,7 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 // react-hook-form
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 // react-hooks
 import React, { useEffect, useState } from "react";
 // toast
@@ -29,11 +29,26 @@ import { getSignedS3Url } from "@/lib/s3";
 // component
 import ImageUpload from "@/components/image/image-upload";
 import { CreateProductImage } from "@/app/libs/api";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import FormStep from "@/components/cards/form-step";
+import { SiGoogleforms } from "react-icons/si";
+import { FaBoxesPacking } from "react-icons/fa6";
+import { FaImages } from "react-icons/fa";
 
 type Props = {
   product: Product;
   sku: ProductSku;
 };
+
+const productAttributeSchema = z.object({
+  productAttribute: z.string(),
+  productAttributeValue: z.string(),
+});
 
 const formSchema = z.object({
   sku: z
@@ -45,22 +60,47 @@ const formSchema = z.object({
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
   image: z.any(),
+  attributes: z.array(productAttributeSchema),
 });
+
+type ProductFormValues = z.infer<typeof formSchema>;
+
+export const enum SKUFORMSTEP {
+  OVERVIEW = 0,
+  ATTRIBUTES = 1,
+  IMAGES = 2,
+}
 
 const ProductSkuForm = ({ product, sku }: Props) => {
   // form state
+  const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
   // file state
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       sku: sku?.sku,
       description: product?.description,
+      attributes: [
+        { productAttribute: undefined, productAttributeValue: undefined },
+      ],
     },
   });
+
+  const { control } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    name: "attributes",
+    control,
+  });
+
+  const defaultAttribute = {
+    productAttribute: "",
+    productAttributeValue: "",
+  };
 
   // generates local urls of images to preview on frontend when files state is updated
   useEffect(() => {
@@ -115,6 +155,35 @@ const ProductSkuForm = ({ product, sku }: Props) => {
 
   return (
     <section className="flex flex-col gap-4">
+      <div className="flex items-center gap-4 mb-8">
+        <FormStep
+          formStep={formStep}
+          skuFormStep={SKUFORMSTEP.OVERVIEW}
+          stepNumber={1}
+          setFormStep={setFormStep}
+          content="Product Overview"
+        >
+          <SiGoogleforms className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          skuFormStep={SKUFORMSTEP.ATTRIBUTES}
+          stepNumber={2}
+          setFormStep={setFormStep}
+          content="Product Attributes"
+        >
+          <FaBoxesPacking className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          skuFormStep={SKUFORMSTEP.IMAGES}
+          stepNumber={3}
+          setFormStep={setFormStep}
+          content="Product Images"
+        >
+          <FaImages className="text-3xl" />
+        </FormStep>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -143,6 +212,43 @@ const ProductSkuForm = ({ product, sku }: Props) => {
               </FormItem>
             )}
           />
+          {fields.map((field, index) => {
+            return (
+              <div key={index}>
+                <FormField
+                  key={field.id}
+                  control={form.control}
+                  name={`attributes.${index}.productAttribute`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Attribute</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="No attributes found" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>No attributes found</SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {index > 0 && (
+                  <Button type="button" onClick={() => remove(index)}>
+                    Remove Attribute
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+          <Button type="button" onClick={() => append(defaultAttribute)}>
+            Add Attribute
+          </Button>
+
           <ImageUpload
             files={files}
             filesUrl={filesUrl}
@@ -150,17 +256,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
             form={form}
             setFiles={setFiles}
           />
-          <Button>Submit</Button>
-          <Button
-            onClick={() =>
-              CreateProductImage({
-                url: "123",
-                productSkuId: "123",
-              })
-            }
-          >
-            TEST
-          </Button>
+          <Button type="submit">Submit</Button>
         </form>
       </Form>
     </section>
@@ -168,3 +264,5 @@ const ProductSkuForm = ({ product, sku }: Props) => {
 };
 
 export default ProductSkuForm;
+
+// http://localhost:3000/dashboard/products/clq7iidds0001ln8dfsj4egq0/clq7iie640004ln8d6lva29q7

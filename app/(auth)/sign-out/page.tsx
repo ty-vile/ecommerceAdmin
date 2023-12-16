@@ -1,6 +1,8 @@
-import getCurrentUser from "@/actions/users/getCurrentUser"; from "@/app/actions/users/getCurrentUser";
+// actions
+import getCurrentUser from "@/actions/users/getCurrentUser";
+// components
 import SignOutButton from "@/components/buttons/auth/sign-out-button";
-
+// nextjs
 import { redirect } from "next/navigation";
 
 const SignOut = async () => {
