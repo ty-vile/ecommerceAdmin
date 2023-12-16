@@ -12,9 +12,7 @@ type Props = {
 const ProductSKUPage = async ({ params }: { params: Props }) => {
   const { productId, skuId } = params;
 
-  const categoryArr: string[] = [];
-
-  const product = await getProduct(productId);
+  const { product, productCategories } = await getProduct(productId);
   const sku = await getSku(skuId);
 
   if (!product || !sku) {
@@ -23,14 +21,15 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   return (
     <div>
-      <div className="flex items-center justify-between p-6 bg-blue-500">
-        <h3 className="text-4xl text-white font-bold">{product.name}</h3>
-        {categoryArr.length > 0 &&
-          categoryArr.map((category, i) => (
-            <div key={i} className="bg-blue-600 text-white px-4 p-2 rounded-md">
+      <div className="flex items-center justify-between p-6 bg-blue-500 text-white">
+        <h1 className="text-4xl font-bold">{product.name}</h1>
+        {/* {productCategories.length > 0 &&
+          productCategories.map((category, i) => (
+            <div key={i} className="px-4 p-2 rounded-md">
               {category}
             </div>
-          ))}
+          ))} */}
+        <h5>{sku.sku}</h5>
       </div>
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
         <ProductSkuForm product={product} sku={sku} />

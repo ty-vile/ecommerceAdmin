@@ -45,31 +45,36 @@ type Props = {
   sku: ProductSku;
 };
 
+enum SKUFORMSTEP {
+  OVERVIEW = 0,
+  ATTRIBUTES = 1,
+  IMAGES = 2,
+}
+
 const productAttributeSchema = z.object({
   productAttribute: z.string(),
   productAttributeValue: z.string(),
 });
 
 const formSchema = z.object({
-  sku: z
+  name: z
     .string()
-    .min(8, { message: "Product sku must be at least 8 characters" })
-    .max(50, "Product sku must be less than 50 characters"),
+    .min(8, { message: "Product name must be at least 8 characters" })
+    .max(50, "Product name must be less than 50 characters"),
   description: z
     .string()
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
   image: z.any(),
+  quantity: z.number().max(999999999, "Quantity must be less than 999999999"),
+  price: z
+    .number()
+    .min(1, "Price must at least $1")
+    .max(999999999, "Price must be less than $999999999"),
   attributes: z.array(productAttributeSchema),
 });
 
 type ProductFormValues = z.infer<typeof formSchema>;
-
-export const enum SKUFORMSTEP {
-  OVERVIEW = 0,
-  ATTRIBUTES = 1,
-  IMAGES = 2,
-}
 
 const ProductSkuForm = ({ product, sku }: Props) => {
   // form state
@@ -82,8 +87,10 @@ const ProductSkuForm = ({ product, sku }: Props) => {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      sku: sku?.sku,
+      name: product.name,
       description: product?.description,
+      quantity: 0,
+      price: 0,
       attributes: [
         { productAttribute: undefined, productAttributeValue: undefined },
       ],
@@ -158,7 +165,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
       <div className="flex items-center gap-4 mb-8">
         <FormStep
           formStep={formStep}
-          skuFormStep={SKUFORMSTEP.OVERVIEW}
+          formStepValue={SKUFORMSTEP.OVERVIEW}
           stepNumber={1}
           setFormStep={setFormStep}
           content="Product Overview"
@@ -167,7 +174,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
         </FormStep>
         <FormStep
           formStep={formStep}
-          skuFormStep={SKUFORMSTEP.ATTRIBUTES}
+          formStepValue={SKUFORMSTEP.ATTRIBUTES}
           stepNumber={2}
           setFormStep={setFormStep}
           content="Product Attributes"
@@ -176,7 +183,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
         </FormStep>
         <FormStep
           formStep={formStep}
-          skuFormStep={SKUFORMSTEP.IMAGES}
+          formStepValue={SKUFORMSTEP.IMAGES}
           stepNumber={3}
           setFormStep={setFormStep}
           content="Product Images"
@@ -186,76 +193,115 @@ const ProductSkuForm = ({ product, sku }: Props) => {
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="sku"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Sku</FormLabel>
-                <FormControl>
-                  <Input type="text" disabled {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Product Description</FormLabel>
-                <FormControl>
-                  <Textarea disabled {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {fields.map((field, index) => {
-            return (
-              <div key={index}>
-                <FormField
-                  key={field.id}
-                  control={form.control}
-                  name={`attributes.${index}.productAttribute`}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Product Attribute</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="No attributes found" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>No attributes found</SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {index > 0 && (
-                  <Button type="button" onClick={() => remove(index)}>
-                    Remove Attribute
-                  </Button>
+          {formStep === SKUFORMSTEP.OVERVIEW && (
+            <>
+              <h2 className="text-2xl font-bold">Product Details</h2>
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Name</FormLabel>
+                    <FormControl>
+                      <Input type="text" disabled {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-            );
-          })}
-          <Button type="button" onClick={() => append(defaultAttribute)}>
-            Add Attribute
-          </Button>
-
-          <ImageUpload
-            files={files}
-            filesUrl={filesUrl}
-            isLoading={isLoading}
-            form={form}
-            setFiles={setFiles}
-          />
+              />
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Description</FormLabel>
+                    <FormControl>
+                      <Textarea disabled {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <h2 className="text-2xl font-bold">Unit Details</h2>
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Price</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="quantity"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Product Quantity</FormLabel>
+                    <FormControl>
+                      <Input type="number" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </>
+          )}
+          {formStep === SKUFORMSTEP.ATTRIBUTES && (
+            <>
+              {fields.map((field, index) => {
+                return (
+                  <div key={index}>
+                    <FormField
+                      key={field.id}
+                      control={form.control}
+                      name={`attributes.${index}.productAttribute`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Product Attribute</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="No attributes found" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>No attributes found</SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {index > 0 && (
+                      <Button type="button" onClick={() => remove(index)}>
+                        Remove Attribute
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+              <Button type="button" onClick={() => append(defaultAttribute)}>
+                Add Attribute
+              </Button>
+            </>
+          )}
+          {formStep === SKUFORMSTEP.IMAGES && (
+            <>
+              <ImageUpload
+                files={files}
+                filesUrl={filesUrl}
+                isLoading={isLoading}
+                form={form}
+                setFiles={setFiles}
+              />
+            </>
+          )}
           <Button type="submit">Submit</Button>
         </form>
       </Form>

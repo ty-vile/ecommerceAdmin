@@ -16,9 +16,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { category } = body;
+    console.log(body);
 
-    if (!category) {
+    const { name } = body;
+
+    if (!name) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
@@ -26,7 +28,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const productCategory = await prisma.category.create({
       data: {
-        name: category,
+        name,
       },
     });
 

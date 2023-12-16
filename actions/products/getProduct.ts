@@ -26,12 +26,14 @@ export default async function getProduct(productId: string) {
         let categoryName = await getCategory(category.categoryId);
 
         if (categoryName) {
-          // productCategories.push(categoryName?.name);
+          productCategories.push(categoryName?.name);
         }
       }
     }
 
-    return product;
+    console.log("CATEGORY", productCategories);
+
+    return { product, productCategories };
   } catch (error: any) {
     console.error("PRODUCT_SINGLE_GET", error);
     throw new Error(error);

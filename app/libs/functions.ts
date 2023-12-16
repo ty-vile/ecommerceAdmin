@@ -11,21 +11,31 @@ export const generateSHA256 = async (file: File) => {
   return hashHex;
 };
 
-export const generateSKUCode = async (
-  productName: string,
-  productCategory: string
-) => {
+export const generateSKUCode = async (productName: string) => {
   const productNameWords = productName.split(" ");
-  const categorySuffix = productCategory.substring(0, 2).toUpperCase();
-  const randomSixDigitNumber = Math.floor(100000 + Math.random() * 900000);
+  const randomTenDigitCombination = generateRandomString(10);
 
   const productNameInitials = productNameWords
     .map((word) => word.charAt(0))
     .join("");
 
-  const skuCode = `${productNameInitials}${categorySuffix}${randomSixDigitNumber}`;
+  const skuCode = `${productNameInitials}${randomTenDigitCombination}`;
 
   return skuCode;
+};
+
+const generateRandomString = (length: number) => {
+  let result = "";
+  const characters =
+    "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const charactersLength = characters.length;
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charactersLength);
+    result += characters.charAt(randomIndex);
+  }
+
+  return result;
 };
 
 async function getData() {

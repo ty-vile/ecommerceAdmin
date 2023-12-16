@@ -1,11 +1,10 @@
 "use client";
 
-import { SKUFORMSTEP } from "@/components/forms/dashboard/product/product-sku-form";
 import { ReactElement } from "react";
 
 type Props = {
   formStep: number;
-  skuFormStep: number;
+  formStepValue: number;
   stepNumber: number;
   setFormStep: (formStep: number) => void;
   children: React.ReactNode;
@@ -14,13 +13,13 @@ type Props = {
 
 const FormStep = ({
   formStep,
+  formStepValue,
   setFormStep,
   children,
   content,
-  skuFormStep,
   stepNumber,
 }: Props) => {
-  const isActive = formStep === skuFormStep ? true : false;
+  const isActive = formStep === formStepValue ? true : false;
 
   return (
     <>
@@ -30,7 +29,7 @@ const FormStep = ({
             ? "border-blue-500 border-2 shadow-md"
             : "border-gray-200 border-2"
         }`}
-        onClick={() => setFormStep(skuFormStep)}
+        onClick={() => setFormStep(formStepValue)}
       >
         {children}
         <span className="font-bold pt-2">Step {stepNumber}:</span>

@@ -19,7 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// shadcnui
 import {
   Popover,
   PopoverContent,
@@ -29,14 +28,16 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "../../../ui/button";
+import FormStep from "@/components/cards/form-step";
 // hooks
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { useEffect, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import { useState } from "react";
 // toast
 import { toast } from "react-toastify";
 // icons
-import { FaPlus } from "react-icons/fa";
+import { FaShoppingBag, FaImages, FaPlus } from "react-icons/fa";
+import { FaBoxesPacking } from "react-icons/fa6";
 // api
 import {
   CreateCategory,
@@ -49,6 +50,16 @@ import { Category, Product, ProductSku } from "@prisma/client";
 // functions
 import { generateSKUCode } from "@/app/libs/functions";
 
+enum PRODUCTFORMSTEP {
+  PRODUCT = 0,
+  SKU = 1,
+  IMAGES = 2,
+}
+
+const categorySchema = z.object({
+  name: z.string().min(4, "Category name must be at least 4 characters"),
+});
+
 const formSchema = z.object({
   name: z
     .string()
@@ -58,106 +69,189 @@ const formSchema = z.object({
     .string()
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
-  category: z
-    .string()
-    .min(3, { message: "Category must be at least 3 characters" })
-    .max(50, "Category name must be less than 50 characters"),
+  categories: z.array(categorySchema),
 });
 
+type ProductFormValues = z.infer<typeof formSchema>;
+
 type Props = {
-  categories: Category | Category[] | null;
+  categories: Category[] | [];
 };
 
 const CreateProductForm = ({ categories }: Props) => {
   // form state
+  const [formStep, setFormStep] = useState(PRODUCTFORMSTEP.PRODUCT);
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
       description: "",
-      category: "",
+      categories: [{ name: "" }],
     },
   });
 
+  const { control } = form;
+
+  const { fields, append, remove } = useFieldArray({
+    name: "categories",
+    control,
+  });
+
+  const defaultCategory = {
+    name: "",
+  };
+
   // submit form
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
+    try {
+      const createdProduct = await CreateProduct(values);
 
-    // ADD PRODUCT - SKU - ATTRIBUTE - ATTRIBUTE VALUE TO DB
+      if (!createdProduct) {
+        toast.error("Error creating product");
+        throw new Error("Error creating product");
+      }
 
-    let product: Product;
-    let productCategory: Category;
-    let productSku: ProductSku;
+      for (const category of values.categories) {
+        // CHECK IF CATEGORY ALREADY EXISTS IN DP
+        const resultArray = categories?.filter(
+          (categoryObj) => categoryObj.name === category.name
+        );
 
-    CreateProduct(values)
-      .then((createdProduct) => {
-        product = createdProduct;
+        // IF CATEGORY DOES NOT EXIST
+        if (resultArray.length === 0) {
+          const createdProductCategory = await CreateCategory(category);
 
-        if (!product) {
-          toast.error("Error creating product");
-          return Promise.reject("Error creating product");
+          if (!createdProductCategory) {
+            toast.error("Error creating category");
+            throw new Error("Error creating category");
+          }
+
+          const joinData = {
+            productId: createdProduct.id,
+            categoryId: createdProductCategory.id,
+            createdByUser: createdProduct.userId,
+          };
+
+          const createdProductCategoryJoin = await CreateProductCategoryJoin(
+            joinData
+          );
+
+          if (!createdProductCategoryJoin) {
+            toast.error("Error joining category with product");
+            throw new Error("Error joining category with product");
+          }
+        } else {
+          // IF CATEGORY DOES EXIST
+          const matchingCategory = resultArray[0];
+
+          const joinData = {
+            productId: createdProduct.id,
+            categoryId: matchingCategory.id,
+            createdByUser: createdProduct.userId,
+          };
+
+          const createdProductCategoryJoin = await CreateProductCategoryJoin(
+            joinData
+          );
+
+          if (!createdProductCategoryJoin) {
+            toast.error("Error joining category with product");
+            throw new Error("Error joining category with product");
+          }
         }
+      }
 
-        return CreateCategory(values);
-      })
-      .then((createdProductCategory) => {
-        productCategory = createdProductCategory;
+      // NOTES - OLD
+      // const createdProductCategory = await CreateCategory(values);
 
-        if (!productCategory) {
-          toast.error("Error creating category");
-          return Promise.reject("Error creating category");
-        }
+      // if (!createdProductCategory) {
+      //   toast.error("Error creating category");
+      //   throw new Error("Error creating category");
+      // }
 
-        const joinData = {
-          productId: product.id,
-          categoryId: productCategory.id,
-          createdByUser: product.userId,
-        };
+      // const joinData = {
+      //   productId: createdProduct.id,
+      //   categoryId: createdProductCategory.id,
+      //   createdByUser: createdProduct.userId,
+      // };
 
-        return CreateProductCategoryJoin(joinData);
-      })
-      .then((productCategoryJoin) => {
-        if (!productCategoryJoin) {
-          toast.error("Error joining category with product");
-          return Promise.reject("Error joining category with product");
-        }
+      // const createdProductCategoryJoin = await CreateProductCategoryJoin(
+      //   joinData
+      // );
 
-        return generateSKUCode(product.name, productCategory.name);
-      })
-      .then((skuCode) => {
-        if (!skuCode) {
-          toast.error("Error generating SKU code");
-          return Promise.reject("Error generating SKU code");
-        }
+      // if (!createdProductCategoryJoin) {
+      //   toast.error("Error joining category with product");
+      //   throw new Error("Error joining category with product");
+      // }
+      // NOTES - END OLD
 
-        const skuData = {
-          productId: product.id,
-          sku: skuCode,
-        };
+      const createdSkuCode = await generateSKUCode(createdProduct.name);
 
-        return CreateProductSku(skuData);
-      })
-      .then((createdProductSku) => {
-        productSku = createdProductSku;
+      if (!createdSkuCode) {
+        toast.error("Error generating SKU code");
+        throw new Error("Error generating SKU code");
+      }
 
-        if (!createdProductSku) {
-          toast.error("Error creating product SKU");
-          return Promise.reject("Error creating product SKU");
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-        toast.success("Product sucessfully created");
-        router.push(`/dashboard/products/${product.id}/${productSku.id}`);
-      });
+      const skuData = {
+        productId: createdProduct.id,
+        sku: createdSkuCode,
+      };
+
+      const createdProductSku = await CreateProductSku(skuData);
+
+      if (!createdProductSku) {
+        toast.error("Error creating product SKU");
+        throw new Error("Error creating product SKU");
+      }
+
+      toast.success("Product successfully created");
+      router.push(
+        `/dashboard/products/${createdProduct.id}/${createdProductSku.id}`
+      );
+    } catch (error) {
+      console.error("Error in createProductWorkflow:", error);
+      toast.error("An error occurred during product creation");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <section className="flex flex-col gap-4">
+      <div className="flex items-center gap-4 mb-8">
+        <FormStep
+          formStep={formStep}
+          formStepValue={PRODUCTFORMSTEP.PRODUCT}
+          stepNumber={1}
+          setFormStep={setFormStep}
+          content="Product Overview"
+        >
+          <FaShoppingBag className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          formStepValue={PRODUCTFORMSTEP.SKU}
+          stepNumber={2}
+          setFormStep={setFormStep}
+          content="Product Attributes"
+        >
+          <FaBoxesPacking className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          formStepValue={PRODUCTFORMSTEP.IMAGES}
+          stepNumber={3}
+          setFormStep={setFormStep}
+          content="Product Images"
+        >
+          <FaImages className="text-3xl" />
+        </FormStep>
+      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -196,8 +290,109 @@ const CreateProductForm = ({ categories }: Props) => {
             )}
           />
 
-          <div className="flex items-end gap-4">
-            <FormField
+          <div className="flex flex-col gap-4">
+            {fields.map((field, index) => {
+              return (
+                <div key={index} className="flex items-end gap-4">
+                  <FormField
+                    key={field.id}
+                    control={form.control}
+                    name={`categories.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Category</FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select product category" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {categories &&
+                            Array.isArray(categories) &&
+                            categories.length > 0 ? (
+                              categories.map((category, i) => (
+                                <SelectItem value={category?.name} key={i}>
+                                  {category?.name}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <SelectItem value="nocategory" disabled>
+                                No categories
+                              </SelectItem>
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {index > 0 && (
+                    <Button type="button" onClick={() => remove(index)}>
+                      Remove Category
+                    </Button>
+                  )}
+                  <div className="flex justify-end">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline">
+                          <FaPlus />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 absolute -right-6">
+                        <FormField
+                          control={form.control}
+                          name={`categories.${index}.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category Name</FormLabel>
+                              <FormControl>
+                                <Input
+                                  placeholder="Enter Category Name"
+                                  type="text"
+                                  disabled={isLoading}
+                                  {...field}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
+              );
+            })}
+            <Button type="button" onClick={() => append(defaultCategory)}>
+              Add Category
+            </Button>
+          </div>
+
+          <div>
+            <Button
+              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+                isLoading && "bg-gray-100/70"
+              }`}
+              disabled={isLoading}
+            >
+              <FaPlus />
+              {isLoading ? "Creating Product..." : "Create Product"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </section>
+  );
+};
+
+export default CreateProductForm;
+
+{
+  /* <FormField
               control={form.control}
               name="category"
               render={({ field }) => (
@@ -231,53 +426,5 @@ const CreateProductForm = ({ categories }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
-            <div className="flex justify-end">
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline">
-                    <FaPlus />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-80 absolute -right-6">
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Category Name"
-                            type="text"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-          </div>
-
-          <div>
-            <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                isLoading && "bg-gray-100/70"
-              }`}
-              disabled={isLoading}
-            >
-              <FaPlus />
-              {isLoading ? "Creating Product..." : "Create Product"}
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </section>
-  );
-};
-
-export default CreateProductForm;
+            /> */
+}
