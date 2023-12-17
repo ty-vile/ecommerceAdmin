@@ -122,34 +122,39 @@ const CreateCategoryForm = ({ categories, formStep, setFormStep }: Props) => {
             </div>
             {fields.map((field, index) => {
               return (
-                <div key={index} className="flex items-end gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`categories.${index}.name`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Category Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Category Name"
-                            type="text"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                <div key={index} className="flex flex-col gap-4">
+                  <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1">
+                    Category {index + 1}
+                  </h2>
+                  <div className="flex items-end gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`categories.${index}.name`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Category Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter Category Name"
+                              type="text"
+                              disabled={isLoading}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-red-500 hover:bg-red-600 transition-300"
+                      >
+                        Remove Category
+                      </Button>
                     )}
-                  />
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="bg-red-500 hover:bg-red-600 transition-300"
-                    >
-                      Remove Category
-                    </Button>
-                  )}
+                  </div>
                 </div>
               );
             })}

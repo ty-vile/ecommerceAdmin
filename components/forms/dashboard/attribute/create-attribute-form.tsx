@@ -26,16 +26,21 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 // types
 import { ProductAttribute, ProductAttributeValue } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import NestedAttribute from "./nested-attribute";
+
+const productAtrtibuteValueSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Attribute value must be at least 1 character")
+    .max(20, "Attribute value must be less then 20 characters"),
+});
 
 const productAttributeSchema = z.object({
   productAttribute: z
     .string()
     .min(3, "Attribute name must be at least 3 character")
     .max(20, "Attribute name must be less then 20 characters"),
-  productAttributeValue: z
-    .string()
-    .min(1, "Attribute value must be at least 1 character")
-    .max(20, "Attribute value must be less then 20 characters"),
+  productAttributeValues: z.array(productAtrtibuteValueSchema),
 });
 
 const formSchema = z.object({
@@ -60,21 +65,26 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       attributes: [
-        { productAttribute: undefined, productAttributeValue: undefined },
+        {
+          productAttribute: "",
+          productAttributeValues: [{ name: "" }],
+        },
       ],
     },
   });
 
-  const { control } = form;
+  const { control, setValue, getValues } = form;
 
   const { fields, append, remove } = useFieldArray({
     name: "attributes",
     control,
   });
 
+  // Assuming you want to manage the array of productAttributeValues within each attribute
+
   const defaultAttribute = {
     productAttribute: "",
-    productAttributeValue: "",
+    productAttributeValues: [{ name: "" }],
   };
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
@@ -88,22 +98,19 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
       //   const resultArray = categories?.filter(
       //     (categoryObj) => categoryObj.name === category.name
       //   );
-
       //   // IF CATEGORY DOES NOT EXIST
       //   if (resultArray.length === 1) {
       //     continue;
       //   }
-
       //   const createdProductCategory = await CreateCategory(category);
-
       //   if (!createdProductCategory) {
       //     toast.error("Error creating category");
       //     throw new Error("Error creating category");
       //   }
       // }
-      toast.success("Category successfully created");
-      setFormStep(formStep);
-      router.refresh();
+      // toast.success("Category successfully created");
+      // setFormStep(formStep);
+      // router.refresh();
     } catch (error) {
       console.error("Error in createProductWorkflow:", error);
       toast.error("An error occurred during product creation");
@@ -129,34 +136,44 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
           <div className="flex flex-col gap-4">
             {fields.map((field, index) => {
               return (
-                <div key={index} className="flex items-end gap-4">
-                  <FormField
-                    control={form.control}
-                    name={`attributes.${index}.productAttribute`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Attribute Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Enter Attribute Name"
-                            type="text"
-                            disabled={isLoading}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
+                <div key={field.id} className="flex flex-col gap-4">
+                  <h2 className="text-2xl font-bold border-b-2 border-gray-300 pb-1">
+                    Attribute {index + 1}
+                  </h2>
+                  <div className="flex items-end gap-4">
+                    <FormField
+                      control={form.control}
+                      name={`attributes.${index}.productAttribute`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Attribute Name</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Enter Attribute Name"
+                              type="text"
+                              disabled={isLoading}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {index > 0 && (
+                      <Button
+                        type="button"
+                        onClick={() => remove(index)}
+                        className="bg-red-500 hover:bg-red-600 transition-300"
+                      >
+                        Remove Attribute
+                      </Button>
                     )}
+                  </div>
+                  <NestedAttribute
+                    nestIndex={index}
+                    control={control}
+                    isLoading={isLoading}
                   />
-                  {index > 0 && (
-                    <Button
-                      type="button"
-                      onClick={() => remove(index)}
-                      className="bg-red-500 hover:bg-red-600 transition-300"
-                    >
-                      Remove Category
-                    </Button>
-                  )}
                 </div>
               );
             })}
@@ -171,6 +188,7 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
                 isLoading && "bg-gray-100/70"
               }`}
               disabled={isLoading}
+              type="submit"
             >
               <FaPlus />
               {isLoading ? "Creating Attribute..." : "Create Attribute"}
