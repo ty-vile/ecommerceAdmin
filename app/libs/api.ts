@@ -1,3 +1,5 @@
+import { ProductAttributeValue } from "@prisma/client";
+
 // @types - body: {email:string, role:string}
 export const RegisterUser = async (values: {
   name: string;
@@ -159,4 +161,46 @@ export const CreateProductImage = async (body: {
     const data = await response.json();
     return data;
   }
+};
+
+export const CreateAttribute = async (body: {
+  attributes: {
+    productAttribute: string;
+    productAttributeValues: { name: string }[];
+  }[];
+}) => {
+  const response = await fetch("/api/product/attribute", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+export const CreateAttributeValue = async (body: {
+  name: string;
+  productAttributeId: string;
+}) => {
+  const response = await fetch("/api/product/attribute/value", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
 };

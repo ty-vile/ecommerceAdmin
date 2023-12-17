@@ -27,6 +27,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { ProductAttribute, ProductAttributeValue } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import NestedAttribute from "./nested-attribute";
+import { CreateAttribute } from "@/app/libs/api";
 
 const productAtrtibuteValueSchema = z.object({
   name: z
@@ -111,6 +112,8 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
       // toast.success("Category successfully created");
       // setFormStep(formStep);
       // router.refresh();
+
+      const createdAttribute = await CreateAttribute(values);
     } catch (error) {
       console.error("Error in createProductWorkflow:", error);
       toast.error("An error occurred during product creation");

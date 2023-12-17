@@ -14,23 +14,24 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { name } = body;
+    const { name, productAttributeId } = body;
 
-    if (!name) {
+    if (!name || !productAttributeId) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
     }
 
-    const productCategory = await prisma.category.create({
+    const createdAttributeValue = await prisma.productAttributeValue.create({
       data: {
-        name,
+        name: name,
+        productAttributeId,
       },
     });
 
-    return NextResponse.json(productCategory);
+    return NextResponse.json(createdAttributeValue);
   } catch (error) {
-    console.error("CATEGORY_POST", error);
+    console.error("ATTRIBUTE_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
