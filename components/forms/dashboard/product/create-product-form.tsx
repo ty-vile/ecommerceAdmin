@@ -42,7 +42,12 @@ import {
   CreateProductImage,
 } from "@/app/libs/api";
 // types
-import { Category, Product, ProductSku } from "@prisma/client";
+import {
+  Category,
+  Product,
+  ProductAttribute,
+  ProductSku,
+} from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
 import CreateCategoryForm from "../category/create-category-form";
@@ -91,7 +96,7 @@ const formSchema = z.object({
     .string()
     .min(1, "Price must at least $1")
     .max(999999999, "Price must be less than $999999999"),
-  // attributes: z.array(productAttributeSchema),
+  attributes: z.array(productAttributeSchema),
   image: z.any(),
 });
 
@@ -99,9 +104,10 @@ type ProductFormValues = z.infer<typeof formSchema>;
 
 type Props = {
   categories: Category[] | [];
+  attributes: ProductAttribute[] | [];
 };
 
-const CreateProductForm = ({ categories }: Props) => {
+const CreateProductForm = ({ categories, attributes }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(PRODUCTFORMSTEP.PRODUCT);
   const [isLoading, setIsLoading] = useState(false);
@@ -120,9 +126,7 @@ const CreateProductForm = ({ categories }: Props) => {
       categories: [{ name: "" }],
       quantity: "",
       price: "",
-      // attributes: [
-      //   { productAttribute: undefined, productAttributeValue: undefined },
-      // ],
+      attributes: [{ productAttribute: "", productAttributeValue: "" }],
     },
   });
 
@@ -390,7 +394,7 @@ const CreateProductForm = ({ categories }: Props) => {
                     <div className="flex flex-col gap-4">
                       {categoryFields.map((field, index) => {
                         return (
-                          <div key={index} className="flex items-end gap-4">
+                          <div key={field.id} className="flex items-end gap-4">
                             <FormField
                               key={field.id}
                               control={form.control}
@@ -492,12 +496,11 @@ const CreateProductForm = ({ categories }: Props) => {
                         Create attribute
                       </Button>
                     </div>
-                    {/* <div className="flex flex-col gap-4">
+                    <div className="flex flex-col gap-4">
                       {attributeFields.map((field, index) => {
                         return (
-                          <div key={index} className="flex items-end gap-4">
+                          <div key={field.id} className="flex items-end gap-4">
                             <FormField
-                              key={field.id}
                               control={form.control}
                               name={`attributes.${index}.productAttribute`}
                               render={({ field }) => (
@@ -513,7 +516,25 @@ const CreateProductForm = ({ categories }: Props) => {
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
-                                      No attributes found
+                                      {attributes &&
+                                      Array.isArray(attributes) &&
+                                      attributes.length > 0 ? (
+                                        attributes.map((attribute, i) => (
+                                          <SelectItem
+                                            value={attribute?.name}
+                                            key={i}
+                                          >
+                                            {attribute?.name}
+                                          </SelectItem>
+                                        ))
+                                      ) : (
+                                        <SelectItem
+                                          value="noattribute"
+                                          disabled
+                                        >
+                                          No attributes
+                                        </SelectItem>
+                                      )}
                                     </SelectContent>
                                   </Select>
                                   <FormMessage />
@@ -539,7 +560,7 @@ const CreateProductForm = ({ categories }: Props) => {
                       >
                         Add Attribute
                       </Button>
-                    </div> */}
+                    </div>
                   </>
                 )}
                 {formStep === PRODUCTFORMSTEP.IMAGES && (

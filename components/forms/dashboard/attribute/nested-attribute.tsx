@@ -27,9 +27,8 @@ const NestedAttribute = ({ nestIndex, control, isLoading }: Props) => {
     <div className="flex flex-col gap-4">
       {fields.map((field, index) => {
         return (
-          <div className="flex items-end gap-4">
+          <div className="flex items-end gap-4" key={field.id}>
             <FormField
-              key={field.id}
               control={control}
               name={`attributes.${nestIndex}.productAttributeValues.${index}.name`}
               render={({ field }) => (

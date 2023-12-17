@@ -27,7 +27,7 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { ProductAttribute, ProductAttributeValue } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import NestedAttribute from "./nested-attribute";
-import { CreateAttribute } from "@/app/libs/api";
+import { CreateAttribute, CreateAttributeValue } from "@/app/libs/api";
 
 const productAtrtibuteValueSchema = z.object({
   name: z
@@ -94,26 +94,36 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
     console.log(values);
 
     try {
-      // for (const category of values.categories) {
-      //   // CHECK IF CATEGORY ALREADY EXISTS IN DP
-      //   const resultArray = categories?.filter(
-      //     (categoryObj) => categoryObj.name === category.name
-      //   );
-      //   // IF CATEGORY DOES NOT EXIST
-      //   if (resultArray.length === 1) {
-      //     continue;
-      //   }
-      //   const createdProductCategory = await CreateCategory(category);
-      //   if (!createdProductCategory) {
-      //     toast.error("Error creating category");
-      //     throw new Error("Error creating category");
-      //   }
-      // }
-      // toast.success("Category successfully created");
-      // setFormStep(formStep);
-      // router.refresh();
+      for (const attribute of values.attributes) {
+        const createdAttribute = await CreateAttribute({
+          productAttribute: attribute.productAttribute,
+        });
 
-      const createdAttribute = await CreateAttribute(values);
+        if (!createdAttribute) {
+          toast.error("Error creating product attributes");
+          throw new Error("Error creating product attributes");
+        }
+
+        for (const attributeValue of attribute.productAttributeValues) {
+          const attributeValueData = {
+            name: attributeValue.name,
+            productAttributeId: createdAttribute.id,
+          };
+
+          const createdAttributeValue = await CreateAttributeValue(
+            attributeValueData
+          );
+
+          if (!createdAttributeValue) {
+            toast.error("Error creating product attribute value");
+            throw new Error("Error creating product attribute value");
+          }
+        }
+      }
+
+      toast.success("Attributes successfully created");
+      setFormStep(formStep);
+      router.refresh();
     } catch (error) {
       console.error("Error in createProductWorkflow:", error);
       toast.error("An error occurred during product creation");

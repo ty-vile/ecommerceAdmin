@@ -15,46 +15,27 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { attributes } = body;
+    const { productAttribute } = body;
 
-    if (!attributes) {
+    if (!productAttribute) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
     }
 
-    for (const attribute of attributes) {
-      const createdAttribute = await prisma.productAttribute.create({
-        data: {
-          name: attribute.productAttribute,
-        },
+    const createdAttribute = await prisma.productAttribute.create({
+      data: {
+        name: productAttribute,
+      },
+    });
+
+    if (!createdAttribute) {
+      return NextResponse.json("Error creating attribute.", {
+        status: 400,
       });
-
-      if (!createdAttribute) {
-        return NextResponse.json("Error creating attribute.", {
-          status: 400,
-        });
-      }
-
-      for (const attributeValue of attribute.productAttributeValues) {
-        const attributeValueData = {
-          name: attributeValue.name,
-          productAttributeId: createdAttribute.id,
-        };
-
-        const createdAttributeValue = await CreateAttributeValue(
-          attributeValueData
-        );
-
-        if (!createdAttributeValue) {
-          return NextResponse.json("Error creating attribute.", {
-            status: 400,
-          });
-        }
-      }
     }
 
-    return NextResponse.json({});
+    return NextResponse.json(createdAttribute);
   } catch (error) {
     console.error("ATTRIBUTE_POST", error);
     return new NextResponse("Internal Error", { status: 500 });

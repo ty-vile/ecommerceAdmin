@@ -1,10 +1,12 @@
 // action
+import getAllAttributes from "@/actions/attributes/getAllAttributes";
 import getAllCategorys from "@/actions/categories/getAllCategorys";
 // form
 import CreateProductForm from "@/components/forms/dashboard/product/create-product-form";
 
 const CreateProductsPage = async () => {
   const categories = await getAllCategorys();
+  const attributes = await getAllAttributes();
 
   return (
     <div>
@@ -12,7 +14,7 @@ const CreateProductsPage = async () => {
         <h1 className="text-4xl font-bold">CREATE PRODUCT</h1>
       </div>
       <div className="p-4 m-4 bg-white rounded-md">
-        <CreateProductForm categories={categories} />
+        <CreateProductForm categories={categories} attributes={attributes} />
       </div>
     </div>
   );

@@ -163,12 +163,8 @@ export const CreateProductImage = async (body: {
   }
 };
 
-export const CreateAttribute = async (body: {
-  attributes: {
-    productAttribute: string;
-    productAttributeValues: { name: string }[];
-  }[];
-}) => {
+// @types - body: {attributes: {productAttribute: string;productAttributeValues: { name: string }[];}[];}
+export const CreateAttribute = async (body: { productAttribute: string }) => {
   const response = await fetch("/api/product/attribute", {
     method: "POST",
     headers: {
@@ -185,6 +181,7 @@ export const CreateAttribute = async (body: {
   throw new Error(response.statusText);
 };
 
+// @types - body: {name: string, productAttributeId: string}
 export const CreateAttributeValue = async (body: {
   name: string;
   productAttributeId: string;
