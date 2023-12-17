@@ -75,7 +75,7 @@ model Product {
   updatedAt     DateTime @updatedAt
   categories    CategoriesToProducts[]
   sku           ProductSku[]
-  productAttribute ProductAttribute[]
+ 
  
   @@index([userId])
 }
@@ -99,13 +99,8 @@ model ProductSku {
 // e.g - productAttribue is a parent level variant - SIZE, COLOUR etc.
 model ProductAttribute {
   id            String @id @default(cuid())
-  productId     String
-  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  name          String
+  name          String @unique
   productAttributeValues ProductAttributeValue[]
-
-  @@index([productId])
-
 }
 
 
@@ -115,7 +110,7 @@ model ProductAttribute {
 // value would be red, yellow, green - if productAttributeId refrenced COLOUR
 model ProductAttributeValue {
    id                   String @id @default(cuid()) 
-   value                String 
+   name                 String 
    hexCode              String? 
    productAttributeId   String
    productAttribute     ProductAttribute @relation(fields: [productAttributeId], references: [id], onDelete: Cascade)
