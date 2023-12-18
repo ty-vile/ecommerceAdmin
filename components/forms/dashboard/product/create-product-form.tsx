@@ -96,7 +96,7 @@ const formSchema = z.object({
     .string()
     .min(1, "Price must at least $1")
     .max(999999999, "Price must be less than $999999999"),
-  attributes: z.array(productAttributeSchema),
+  // attributes: z.array(productAttributeSchema),
   image: z.any(),
 });
 
@@ -123,10 +123,10 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
     defaultValues: {
       name: "",
       description: "",
-      categories: [{ name: "" }],
+      // categories: [{ name: "" }],
       quantity: "",
       price: "",
-      attributes: [{ productAttribute: "", productAttributeValue: "" }],
+      // attributes: [{ productAttribute: "", productAttributeValue: "" }],
     },
   });
 
@@ -438,7 +438,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                               <Button
                                 type="button"
                                 onClick={() => categoryRemove(index)}
-                                className="bg-red-600 bg-red-700 transition-300"
+                                className="bg-red-600 hover:bg-red-700 transition-300"
                               >
                                 Remove Category
                               </Button>
@@ -497,7 +497,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                       </Button>
                     </div>
                     <div className="flex flex-col gap-4">
-                      {attributeFields.map((field, index) => {
+                      {/* {attributeFields.map((field, index) => {
                         return (
                           <div key={field.id} className="flex items-end gap-4">
                             <FormField
@@ -552,7 +552,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                             )}
                           </div>
                         );
-                      })}
+                      })} */}
 
                       <Button
                         type="button"

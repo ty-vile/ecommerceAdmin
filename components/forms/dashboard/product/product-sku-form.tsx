@@ -17,6 +17,7 @@ import {
 import {
   Select,
   SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -78,17 +79,20 @@ const productAttributeSchema = z.object({
   productAttributeValue: z.string(),
 });
 
-const productCategorySchema = z
-  .string()
-  .min(3, "Category name must be at least 3 characters")
-  .max(20, "Category name must be less then 20 characters");
+const categorySchema = z.object({
+  name: z
+    .string()
+    .min(3, "Category name must be at least 3 characters")
+    .max(20, "Category name must be less then 20 characters"),
+  id: z.string(),
+});
 
 const formSchema = z.object({
   name: z
     .string()
     .min(8, { message: "Product name must be at least 8 characters" })
     .max(50, "Product name must be less than 50 characters"),
-  categories: z.array(productCategorySchema),
+  categories: z.array(categorySchema),
   description: z
     .string()
     .min(10, { message: "Product description must be at least 10 characters" })
@@ -113,12 +117,14 @@ const ProductSkuForm = ({ product, sku }: Props) => {
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
+  const categoryNames = product.categories.map((cat) => cat.category);
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: product.name,
       description: product?.description,
-      categories: [""],
+      categories: categoryNames,
       quantity: sku.quantity,
       price: sku.price,
       attributes: [
@@ -129,8 +135,21 @@ const ProductSkuForm = ({ product, sku }: Props) => {
 
   const { control } = form;
 
-  const { fields, append, remove } = useFieldArray({
+  const {
+    fields: fieldsAttribute,
+    append: appendAttribute,
+    remove: removeAttribute,
+  } = useFieldArray({
     name: "attributes",
+    control,
+  });
+
+  const {
+    fields: fieldsCategory,
+    append: appendCategory,
+    remove: removeCategory,
+  } = useFieldArray({
+    name: "categories",
     control,
   });
 
@@ -220,21 +239,57 @@ const ProductSkuForm = ({ product, sku }: Props) => {
               />
               {/* MAP OVER CATEGORIES HERE AND RETURN FIELDS */}
               <h2 className="text-2xl font-bold">Product Details</h2>
-              {product.categories.map((category, index) => {
+              {fieldsCategory.map((field, index) => {
                 return (
-                  <FormField
-                    control={form.control}
-                    name={`categories.${index}`}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Product Description</FormLabel>
-                        <FormControl>
-                          <Input type="text" disabled={isEditing} {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div key={field.id}>
+                    <FormField
+                      control={form.control}
+                      name={`categories.${index}.name`}
+                      render={({ field }) => (
+                        <>
+                          {console.log(field)}
+                          <FormItem>
+                            <FormLabel>Category {index + 1}</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              disabled={!isEditing}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="No categrory found" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {categoryNames &&
+                                Array.isArray(categoryNames) &&
+                                categoryNames.length > 0 ? (
+                                  categoryNames.map((category, i) => (
+                                    <SelectItem value={category?.name} key={i}>
+                                      {category?.name}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value="nocategory" disabled>
+                                    No categories
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        </>
+                      )}
+                    />
+                    {/* {index > 0 && (
+                      <Button
+                        type="button"
+                        onClick={() => removeAttribute(index)}
+                      >
+                        Remove Attribute
+                      </Button>
+                    )} */}
+                  </div>
                 );
               })}
             </>
@@ -278,11 +333,10 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                   Create attribute
                 </Button>
               </div>
-              {fields.map((field, index) => {
+              {fieldsAttribute.map((field, index) => {
                 return (
-                  <div key={index}>
+                  <div key={field.id}>
                     <FormField
-                      key={field.id}
                       control={form.control}
                       name={`attributes.${index}.productAttribute`}
                       render={({ field }) => (
@@ -305,14 +359,20 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                       )}
                     />
                     {index > 0 && (
-                      <Button type="button" onClick={() => remove(index)}>
+                      <Button
+                        type="button"
+                        onClick={() => removeAttribute(index)}
+                      >
                         Remove Attribute
                       </Button>
                     )}
                   </div>
                 );
               })}
-              <Button type="button" onClick={() => append(defaultAttribute)}>
+              <Button
+                type="button"
+                onClick={() => appendAttribute(defaultAttribute)}
+              >
                 Add Attribute
               </Button>
             </>
@@ -342,7 +402,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
               <MdEditDocument />
               {isEditing ? "Cancel SKU" : "Edit SKU"}
             </Button>
-            {isEditing && (
+            {/* {isEditing && (
               <Button
                 className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
                   isLoading && "bg-gray-100/70"
@@ -353,7 +413,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                 <FaPlus />
                 {isLoading ? "Creating Product..." : "Create Product"}
               </Button>
-            )}
+            )} */}
           </div>
         </form>
       </Form>

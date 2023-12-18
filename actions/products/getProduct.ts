@@ -17,7 +17,12 @@ export default async function getProduct(productId: string) {
       include: {
         categories: {
           include: {
-            category: true,
+            category: {
+              select: {
+                name: true,
+                id: true,
+              },
+            },
           },
         },
       },

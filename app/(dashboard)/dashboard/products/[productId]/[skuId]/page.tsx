@@ -16,6 +16,9 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
   const product = await getProduct(productId);
   const sku = await getSku(skuId);
 
+  console.log(product?.categories, "PRODUCT");
+  console.log(sku, "SKU");
+
   if (!product || !sku) {
     return notFound();
   }
