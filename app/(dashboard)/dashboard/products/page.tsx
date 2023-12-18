@@ -36,7 +36,11 @@ const ProductsPage = async () => {
         </Link>
       </div>
       <div className="p-4 m-4 bg-white rounded-md">
-        <DataTable columns={DashboardProductColumns} data={products} />
+        <DataTable
+          columns={DashboardProductColumns}
+          data={products}
+          searchValue={"name"}
+        />
       </div>
     </div>
   );

@@ -98,7 +98,7 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => submitDelete(user.email)}
-              className="bg-red-500 text-white hover:bg-red-600 transition-300"
+              className="bg-red-600 text-white bg-red-700 transition-300"
             >
               Delete User
             </DropdownMenuItem>

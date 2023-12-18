@@ -15,25 +15,15 @@ export default async function getProduct(productId: string) {
         id: productId,
       },
       include: {
-        categories: true,
+        categories: {
+          include: {
+            category: true,
+          },
+        },
       },
     });
 
-    let productCategories: string[] = [];
-
-    if (product) {
-      for (let category of product.categories) {
-        let categoryName = await getCategory(category.categoryId);
-
-        if (categoryName) {
-          productCategories.push(categoryName?.name);
-        }
-      }
-    }
-
-    console.log("CATEGORY", productCategories);
-
-    return { product, productCategories };
+    return product;
   } catch (error: any) {
     console.error("PRODUCT_SINGLE_GET", error);
     throw new Error(error);

@@ -313,7 +313,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                 formStepValue={PRODUCTFORMSTEP.PRODUCT}
                 stepNumber={1}
                 setFormStep={setFormStep}
-                content="Product Overview"
+                content="Product Details"
               >
                 <FaShoppingBag className="text-3xl" />
               </FormStep>
@@ -438,7 +438,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                               <Button
                                 type="button"
                                 onClick={() => categoryRemove(index)}
-                                className="bg-red-500 hover:bg-red-600 transition-300"
+                                className="bg-red-600 bg-red-700 transition-300"
                               >
                                 Remove Category
                               </Button>
@@ -485,7 +485,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                       )}
                     />
                     <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold">Product Attributes</h2>
+                      <h2 className="text-2xl font-bold">SKU Attributes</h2>
                       <Button
                         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
                         onClick={() =>
@@ -545,7 +545,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                               <Button
                                 type="button"
                                 onClick={() => attributeRemove(index)}
-                                className="bg-red-500 hover:bg-red-600 transition-300"
+                                className="bg-red-600 bg-red-700 transition-300"
                               >
                                 Remove Attribute
                               </Button>

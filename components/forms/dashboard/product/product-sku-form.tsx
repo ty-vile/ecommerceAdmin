@@ -5,9 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 // shadcn
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
 import { Textarea } from "@/components/ui/textarea";
-import { Product, ProductSku } from "@prisma/client";
 import {
   Form,
   FormControl,
@@ -16,6 +14,12 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 // react-hook-form
 import { useForm, useFieldArray } from "react-hook-form";
 // react-hooks
@@ -27,28 +31,46 @@ import { generateSHA256 } from "@/app/libs/functions";
 // aws
 import { getSignedS3Url } from "@/lib/s3";
 // component
-import ImageUpload from "@/components/image/image-upload";
-import { CreateProductImage } from "@/app/libs/api";
-import {
-  Select,
-  SelectContent,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import FormStep from "@/components/cards/form-step";
+import ImageUpload from "@/components/image/image-upload";
+// api
+import { CreateProductImage } from "@/app/libs/api";
+// types
+import {
+  Category,
+  Product,
+  ProductAttribute,
+  ProductAttributeSku,
+  ProductImage,
+  ProductSku,
+} from "@prisma/client";
+// icons
 import { SiGoogleforms } from "react-icons/si";
 import { FaBoxesPacking } from "react-icons/fa6";
-import { FaImages } from "react-icons/fa";
+import { FaImages, FaPlus } from "react-icons/fa";
+import { MdEditDocument } from "react-icons/md";
 
 type Props = {
-  product: Product;
-  sku: ProductSku;
+  product: Product & {
+    categories: {
+      category: Category;
+    }[];
+  };
+  sku: ProductSku &
+    {
+      productImage: ProductImage[];
+      productAttributeSku: (ProductAttributeSku & {
+        attribute: ProductAttribute;
+      })[];
+    }[];
 };
 
 enum SKUFORMSTEP {
   OVERVIEW = 0,
-  ATTRIBUTES = 1,
+  SKU = 1,
   IMAGES = 2,
+  CREATEATTRIBUTE = 3,
+  CREATECATEGORY = 4,
 }
 
 const productAttributeSchema = z.object({
@@ -56,11 +78,17 @@ const productAttributeSchema = z.object({
   productAttributeValue: z.string(),
 });
 
+const productCategorySchema = z
+  .string()
+  .min(3, "Category name must be at least 3 characters")
+  .max(20, "Category name must be less then 20 characters");
+
 const formSchema = z.object({
   name: z
     .string()
     .min(8, { message: "Product name must be at least 8 characters" })
     .max(50, "Product name must be less than 50 characters"),
+  categories: z.array(productCategorySchema),
   description: z
     .string()
     .min(10, { message: "Product description must be at least 10 characters" })
@@ -80,6 +108,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   // file state
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
@@ -89,8 +118,9 @@ const ProductSkuForm = ({ product, sku }: Props) => {
     defaultValues: {
       name: product.name,
       description: product?.description,
-      quantity: 0,
-      price: 0,
+      categories: [""],
+      quantity: sku.quantity,
+      price: sku.price,
       attributes: [
         { productAttribute: undefined, productAttributeValue: undefined },
       ],
@@ -124,41 +154,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
     }
   }, [files]);
 
-  const onSubmit = async () => {
-    try {
-      if (files) {
-        for (let i = 0; i < files.length; i++) {
-          const checkSum = await generateSHA256(files[i]);
-          const { signedS3Url, productImageData } = await getSignedS3Url(
-            sku?.sku!,
-            files[i].type,
-            files[i].size,
-            checkSum,
-            sku?.id!
-          );
-
-          if (!signedS3Url) {
-            throw new Error("Error creating S3 URL");
-          }
-          const url = signedS3Url;
-          const response = await fetch(url, {
-            method: "PUT",
-            body: files[i],
-            headers: {
-              "Content-Type": files[i].type,
-            },
-          });
-          await CreateProductImage(productImageData);
-        }
-        toast.success("Images succesfully uploaded");
-      }
-    } catch (error: any) {
-      console.log(error);
-      toast.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const onSubmit = async () => {};
 
   return (
     <section className="flex flex-col gap-4">
@@ -168,16 +164,16 @@ const ProductSkuForm = ({ product, sku }: Props) => {
           formStepValue={SKUFORMSTEP.OVERVIEW}
           stepNumber={1}
           setFormStep={setFormStep}
-          content="Product Overview"
+          content="Product Details"
         >
           <SiGoogleforms className="text-3xl" />
         </FormStep>
         <FormStep
           formStep={formStep}
-          formStepValue={SKUFORMSTEP.ATTRIBUTES}
+          formStepValue={SKUFORMSTEP.SKU}
           stepNumber={2}
           setFormStep={setFormStep}
-          content="Product Attributes"
+          content="SKU Details"
         >
           <FaBoxesPacking className="text-3xl" />
         </FormStep>
@@ -222,6 +218,29 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                   </FormItem>
                 )}
               />
+              {/* MAP OVER CATEGORIES HERE AND RETURN FIELDS */}
+              <h2 className="text-2xl font-bold">Product Details</h2>
+              {product.categories.map((category, index) => {
+                return (
+                  <FormField
+                    control={form.control}
+                    name={`categories.${index}`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Description</FormLabel>
+                        <FormControl>
+                          <Input type="text" disabled={isEditing} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                );
+              })}
+            </>
+          )}
+          {formStep === SKUFORMSTEP.SKU && (
+            <>
               <h2 className="text-2xl font-bold">Unit Details</h2>
               <FormField
                 control={form.control}
@@ -230,7 +249,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                   <FormItem>
                     <FormLabel>Product Price</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="text" disabled={!isEditing} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -243,16 +262,22 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                   <FormItem>
                     <FormLabel>Product Quantity</FormLabel>
                     <FormControl>
-                      <Input type="number" {...field} />
+                      <Input type="text" disabled={!isEditing} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </>
-          )}
-          {formStep === SKUFORMSTEP.ATTRIBUTES && (
-            <>
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">SKU Attributes</h2>
+                <Button
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
+                  onClick={() => setFormStep(SKUFORMSTEP.CREATEATTRIBUTE)}
+                >
+                  <FaPlus />
+                  Create attribute
+                </Button>
+              </div>
               {fields.map((field, index) => {
                 return (
                   <div key={index}>
@@ -266,6 +291,7 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
+                            disabled={!isEditing}
                           >
                             <FormControl>
                               <SelectTrigger>
@@ -302,7 +328,33 @@ const ProductSkuForm = ({ product, sku }: Props) => {
               />
             </>
           )}
-          <Button type="submit">Submit</Button>
+          <div>
+            <Button
+              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+                isLoading && "bg-gray-100/70"
+              }`}
+              disabled={isLoading}
+              type="button"
+              onClick={() => {
+                setIsEditing(!isEditing);
+              }}
+            >
+              <MdEditDocument />
+              {isEditing ? "Cancel SKU" : "Edit SKU"}
+            </Button>
+            {isEditing && (
+              <Button
+                className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+                  isLoading && "bg-gray-100/70"
+                }`}
+                disabled={isLoading}
+                type="submit"
+              >
+                <FaPlus />
+                {isLoading ? "Creating Product..." : "Create Product"}
+              </Button>
+            )}
+          </div>
         </form>
       </Form>
     </section>

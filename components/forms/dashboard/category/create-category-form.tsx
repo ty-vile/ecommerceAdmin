@@ -149,7 +149,7 @@ const CreateCategoryForm = ({ categories, formStep, setFormStep }: Props) => {
                       <Button
                         type="button"
                         onClick={() => remove(index)}
-                        className="bg-red-500 hover:bg-red-600 transition-300"
+                        className="bg-red-600 bg-red-700 transition-300"
                       >
                         Remove Category
                       </Button>

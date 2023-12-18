@@ -19,6 +19,16 @@ export default async function getSku(skuId: string) {
       },
       include: {
         productImage: true,
+        // gets product attribute & attribute values
+        productAttributeSku: {
+          include: {
+            attribute: {
+              include: {
+                productAttribute: true,
+              },
+            },
+          },
+        },
       },
     });
 

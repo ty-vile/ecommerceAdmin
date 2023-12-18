@@ -3,6 +3,7 @@ import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
 // components
 import ProductSkuForm from "@/components/forms/dashboard/product/product-sku-form";
+import { notFound } from "next/navigation";
 
 type Props = {
   productId: string;
@@ -12,11 +13,11 @@ type Props = {
 const ProductSKUPage = async ({ params }: { params: Props }) => {
   const { productId, skuId } = params;
 
-  const { product, productCategories } = await getProduct(productId);
+  const product = await getProduct(productId);
   const sku = await getSku(skuId);
 
   if (!product || !sku) {
-    return;
+    return notFound();
   }
 
   return (
@@ -33,11 +34,3 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 };
 
 export default ProductSKUPage;
-{
-  /* {productCategories.length > 0 &&
-          productCategories.map((category, i) => (
-            <div key={i} className="px-4 p-2 rounded-md">
-              {category}
-            </div>
-          ))} */
-}
