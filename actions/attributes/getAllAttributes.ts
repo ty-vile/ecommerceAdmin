@@ -9,7 +9,11 @@ export default async function getAllAttributes() {
       throw new Error("Unauthorised credentials");
     }
 
-    const attributes = await prisma.productAttribute.findMany({});
+    const attributes = await prisma.productAttribute.findMany({
+      include: {
+        productAttributeValues: true,
+      },
+    });
 
     return attributes;
   } catch (error: any) {

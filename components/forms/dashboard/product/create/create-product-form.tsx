@@ -22,7 +22,7 @@ import {
 // components
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "../../../ui/button";
+import { Button } from "../../../../ui/button";
 import FormStep from "@/components/cards/form-step";
 // hooks
 import { useRouter } from "next/navigation";
@@ -46,14 +46,17 @@ import {
   Category,
   Product,
   ProductAttribute,
+  // ProductAttribute,
   ProductSku,
 } from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
-import CreateCategoryForm from "../category/create-category-form";
-import CreateAttributeForm from "../attribute/create-attribute-form";
+import CreateCategoryForm from "../../category/create-category-form";
+import CreateAttributeForm from "../../attribute/create/create-attribute-form";
 import ImageUpload from "@/components/image/image-upload";
 import { getSignedS3Url } from "@/lib/s3";
+import NestedAttribute from "../../attribute/create/nested-attribute";
+import NestedProductAttribute from "./nested-product-attribute";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,
@@ -70,15 +73,16 @@ const categorySchema = z.object({
     .max(20, "Category name must be less then 20 characters"),
 });
 
-const productAttributeSchema = z.object({
-  productAttribute: z
-    .string()
-    .min(3, "Attribute name must be at least 3 character")
-    .max(20, "Attribute name must be less then 20 characters"),
-  productAttributeValue: z
+const productAtrtibuteValueSchema = z.object({
+  name: z
     .string()
     .min(1, "Attribute value must be at least 1 character")
     .max(20, "Attribute value must be less then 20 characters"),
+});
+
+const productAttributeSchema = z.object({
+  productAttribute: z.string(),
+  productAttributeValues: z.array(productAtrtibuteValueSchema),
 });
 
 const formSchema = z.object({
@@ -96,7 +100,7 @@ const formSchema = z.object({
     .string()
     .min(1, "Price must at least $1")
     .max(999999999, "Price must be less than $999999999"),
-  // attributes: z.array(productAttributeSchema),
+  attributes: z.array(productAttributeSchema),
   image: z.any(),
 });
 
@@ -104,7 +108,16 @@ type ProductFormValues = z.infer<typeof formSchema>;
 
 type Props = {
   categories: Category[] | [];
-  attributes: ProductAttribute[] | [];
+  attributes: {
+    id: string;
+    name: string;
+    productAttributeValues: {
+      id: string;
+      name: string;
+      hexCode: string | null;
+      productAttributeId: string;
+    }[];
+  }[];
 };
 
 const CreateProductForm = ({ categories, attributes }: Props) => {
@@ -123,10 +136,15 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
     defaultValues: {
       name: "",
       description: "",
-      // categories: [{ name: "" }],
+      categories: [{ name: "" }],
       quantity: "",
       price: "",
-      // attributes: [{ productAttribute: "", productAttributeValue: "" }],
+      attributes: [
+        {
+          productAttribute: "",
+          productAttributeValues: [{ name: "" }],
+        },
+      ],
     },
   });
 
@@ -156,7 +174,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
 
   const defaultAttribute = {
     productAttribute: "",
-    productAttributeValue: "",
+    productAttributeValues: [{ name: "" }],
   };
 
   // generates local urls of images to preview on frontend when files state is updated
@@ -176,130 +194,132 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
 
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
-    console.log(123);
-    setIsLoading(true);
-    try {
-      const createdProduct = await CreateProduct(values);
+    console.log(values);
+    // setIsLoading(true);
+    // try {
+    //   const createdProduct = await CreateProduct(values);
 
-      if (!createdProduct) {
-        toast.error("Error creating product");
-        throw new Error("Error creating product");
-      }
+    //   if (!createdProduct) {
+    //     toast.error("Error creating product");
+    //     throw new Error("Error creating product");
+    //   }
 
-      for (const category of values.categories) {
-        // CHECK IF CATEGORY ALREADY EXISTS IN DP
-        const resultArray = categories?.filter(
-          (categoryObj) => categoryObj.name === category.name
-        );
+    //   for (const category of values.categories) {
+    //     // CHECK IF CATEGORY ALREADY EXISTS IN DP
+    //     const resultArray = categories?.filter(
+    //       (categoryObj) => categoryObj.name === category.name
+    //     );
 
-        // IF CATEGORY DOES NOT EXIST
-        if (resultArray.length === 0) {
-          const createdProductCategory = await CreateCategory(category);
+    //     // IF CATEGORY DOES NOT EXIST
+    //     if (resultArray.length === 0) {
+    //       const createdProductCategory = await CreateCategory(category);
 
-          if (!createdProductCategory) {
-            toast.error("Error creating category");
-            throw new Error("Error creating category");
-          }
+    //       if (!createdProductCategory) {
+    //         toast.error("Error creating category");
+    //         throw new Error("Error creating category");
+    //       }
 
-          const joinData = {
-            productId: createdProduct.id,
-            categoryId: createdProductCategory.id,
-            createdByUser: createdProduct.userId,
-          };
+    //       const joinData = {
+    //         productId: createdProduct.id,
+    //         categoryId: createdProductCategory.id,
+    //         createdByUser: createdProduct.userId,
+    //       };
 
-          const createdProductCategoryJoin = await CreateProductCategoryJoin(
-            joinData
-          );
+    //       const createdProductCategoryJoin = await CreateProductCategoryJoin(
+    //         joinData
+    //       );
 
-          if (!createdProductCategoryJoin) {
-            toast.error("Error joining category with product");
-            throw new Error("Error joining category with product");
-          }
-        } else {
-          // IF CATEGORY DOES EXIST
-          const matchingCategory = resultArray[0];
+    //       if (!createdProductCategoryJoin) {
+    //         toast.error("Error joining category with product");
+    //         throw new Error("Error joining category with product");
+    //       }
+    //     } else {
+    //       // IF CATEGORY DOES EXIST
+    //       const matchingCategory = resultArray[0];
 
-          const joinData = {
-            productId: createdProduct.id,
-            categoryId: matchingCategory.id,
-            createdByUser: createdProduct.userId,
-          };
+    //       const joinData = {
+    //         productId: createdProduct.id,
+    //         categoryId: matchingCategory.id,
+    //         createdByUser: createdProduct.userId,
+    //       };
 
-          const createdProductCategoryJoin = await CreateProductCategoryJoin(
-            joinData
-          );
+    //       const createdProductCategoryJoin = await CreateProductCategoryJoin(
+    //         joinData
+    //       );
 
-          if (!createdProductCategoryJoin) {
-            toast.error("Error joining category with product");
-            throw new Error("Error joining category with product");
-          }
-        }
-      }
+    //       if (!createdProductCategoryJoin) {
+    //         toast.error("Error joining category with product");
+    //         throw new Error("Error joining category with product");
+    //       }
+    //     }
+    //   }
 
-      const createdSkuCode = await generateSKUCode(createdProduct.name);
+    //   const createdSkuCode = await generateSKUCode(createdProduct.name);
 
-      if (!createdSkuCode) {
-        toast.error("Error generating SKU code");
-        throw new Error("Error generating SKU code");
-      }
+    //   if (!createdSkuCode) {
+    //     toast.error("Error generating SKU code");
+    //     throw new Error("Error generating SKU code");
+    //   }
 
-      const skuData = {
-        productId: createdProduct.id,
-        sku: createdSkuCode,
-        price: values.price,
-        quantity: values.quantity,
-      };
+    //   const skuData = {
+    //     productId: createdProduct.id,
+    //     sku: createdSkuCode,
+    //     price: values.price,
+    //     quantity: values.quantity,
+    //   };
 
-      const createdProductSku = await CreateProductSku(skuData);
+    //   const createdProductSku = await CreateProductSku(skuData);
 
-      if (!createdProductSku) {
-        toast.error("Error creating product SKU");
-        throw new Error("Error creating product SKU");
-      }
+    //   if (!createdProductSku) {
+    //     toast.error("Error creating product SKU");
+    //     throw new Error("Error creating product SKU");
+    //   }
 
-      if (files) {
-        for (let i = 0; i < files.length; i++) {
-          const checkSum = await generateSHA256(files[i]);
-          const { signedS3Url, productImageData } = await getSignedS3Url(
-            createdProductSku.sku,
-            files[i].type,
-            files[i].size,
-            checkSum,
-            createdProductSku.sku
-          );
+    //   NOTES - ADD ATTRIBUTE -> PRODUCT JOIN
 
-          if (!signedS3Url) {
-            throw new Error("Error creating S3 URL");
-          }
-          const url = signedS3Url;
-          const repsone = await fetch(url, {
-            method: "PUT",
-            body: files[i],
-            headers: {
-              "Content-Type": files[i].type,
-            },
-          });
-          const createdProductImage = await CreateProductImage(
-            productImageData
-          );
+    //   if (files) {
+    //     for (let i = 0; i < files.length; i++) {
+    //       const checkSum = await generateSHA256(files[i]);
+    //       const { signedS3Url, productImageData } = await getSignedS3Url(
+    //         createdProductSku.sku,
+    //         files[i].type,
+    //         files[i].size,
+    //         checkSum,
+    //         createdProductSku.sku
+    //       );
 
-          if (!createdProductImage) {
-            toast.error("Error creating product imagee");
-            throw new Error("Error creating product imagee");
-          }
-        }
-      }
+    //       if (!signedS3Url) {
+    //         throw new Error("Error creating S3 URL");
+    //       }
+    //       const url = signedS3Url;
+    //       const repsone = await fetch(url, {
+    //         method: "PUT",
+    //         body: files[i],
+    //         headers: {
+    //           "Content-Type": files[i].type,
+    //         },
+    //       });
+    //       const createdProductImage = await CreateProductImage(
+    //         productImageData
+    //       );
 
-      toast.success("Product successfully created");
-      router.push(
-        `/dashboard/products/${createdProduct.id}/${createdProductSku.id}`
-      );
-    } catch (error) {
-      console.error("Error in createProductWorkflow:", error);
-      toast.error("An error occurred during product creation");
-    } finally {
-      setIsLoading(false);
-    }
+    //       if (!createdProductImage) {
+    //         toast.error("Error creating product imagee");
+    //         throw new Error("Error creating product imagee");
+    //       }
+    //     }
+    //   }
+
+    //   toast.success("Product successfully created");
+    //   router.push(
+    //     `/dashboard/products/${createdProduct.id}/${createdProductSku.id}`
+    //   );
+    // } catch (error) {
+    //   console.error("Error in createProductWorkflow:", error);
+    //   toast.error("An error occurred during product creation");
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (
@@ -497,63 +517,68 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                       </Button>
                     </div>
                     <div className="flex flex-col gap-4">
-                      {/* {attributeFields.map((field, index) => {
+                      {attributeFields.map((field, index) => {
                         return (
-                          <div key={field.id} className="flex items-end gap-4">
-                            <FormField
-                              control={form.control}
-                              name={`attributes.${index}.productAttribute`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Product Attribute</FormLabel>
-                                  <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Select Attribute" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {attributes &&
-                                      Array.isArray(attributes) &&
-                                      attributes.length > 0 ? (
-                                        attributes.map((attribute, i) => (
+                          <div key={field.id} className="flex flex-col gap-4">
+                            <h2 className="text-2xl font-bold border-b-2 border-gray-300 pb-1">
+                              Attribute {index + 1}
+                            </h2>
+                            <div className="flex items-end gap-4">
+                              <FormField
+                                control={form.control}
+                                name={`attributes.${index}.productAttribute`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Category {index + 1}</FormLabel>
+                                    <Select
+                                      onValueChange={field.onChange}
+                                      defaultValue={field.value}
+                                      disabled={isLoading}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="No attribute found" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {attributes &&
+                                        Array.isArray(attributes) &&
+                                        attributes.length > 0 ? (
+                                          attributes.map((attribute, i) => (
+                                            <SelectItem
+                                              value={attribute.id}
+                                              key={i}
+                                            >
+                                              {attribute?.name}
+                                            </SelectItem>
+                                          ))
+                                        ) : (
                                           <SelectItem
-                                            value={attribute?.name}
-                                            key={i}
+                                            value="nocategory"
+                                            disabled
                                           >
-                                            {attribute?.name}
+                                            No categories
                                           </SelectItem>
-                                        ))
-                                      ) : (
-                                        <SelectItem
-                                          value="noattribute"
-                                          disabled
-                                        >
-                                          No attributes
-                                        </SelectItem>
-                                      )}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
+                                        )}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <NestedProductAttribute
+                              nestIndex={index}
+                              control={control}
+                              isLoading={isLoading}
+                              productAttributeId={form.watch(
+                                `attributes.${index}.productAttribute`
                               )}
+                              attributes={attributes}
                             />
-                            {index > 0 && (
-                              <Button
-                                type="button"
-                                onClick={() => attributeRemove(index)}
-                                className="bg-red-600 bg-red-700 transition-300"
-                              >
-                                Remove Attribute
-                              </Button>
-                            )}
                           </div>
                         );
-                      })} */}
-
+                      })}
                       <Button
                         type="button"
                         onClick={() => attributeAppend(defaultAttribute)}

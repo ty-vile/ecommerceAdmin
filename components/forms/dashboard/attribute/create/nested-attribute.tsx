@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+
 import { useFieldArray } from "react-hook-form";
 import {
   Form,
@@ -50,7 +51,7 @@ const NestedAttribute = ({ nestIndex, control, isLoading }: Props) => {
               <Button
                 type="button"
                 onClick={() => remove(index)}
-                className="bg-red-600 bg-red-700 transition-300"
+                className="bg-red-600 hover:red-bg-700 transition-300"
               >
                 Remove Value
               </Button>

@@ -51,7 +51,7 @@ const Sidebar = async () => {
   const currentUser = await getCurrentUser();
 
   return (
-    <div className="h-screen flex flex-col justify-between p-4">
+    <div className="fixed top-0 left-o h-screen flex flex-col justify-between p-4">
       {/* TOP SIDEBAR ITEMS */}
       <div className="flex flex-col">
         <h3 className="text-4xl pb-6 border-b-2 border-primary">

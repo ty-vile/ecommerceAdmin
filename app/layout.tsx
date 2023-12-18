@@ -21,7 +21,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className="overflow-x-hidden">
         <ToastContainer
           position="top-center"
           autoClose={5000}

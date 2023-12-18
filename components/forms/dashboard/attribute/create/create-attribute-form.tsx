@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "../../../ui/button";
+import { Button } from "../../../../ui/button";
 // hooks
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -90,8 +90,6 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
-
-    console.log(values);
 
     try {
       for (const attribute of values.attributes) {
@@ -176,7 +174,7 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
                       <Button
                         type="button"
                         onClick={() => remove(index)}
-                        className="bg-red-600 bg-red-700 transition-300"
+                        className="bg-red-600 hover:bg-red-700 transition-300"
                       >
                         Remove Attribute
                       </Button>

@@ -54,7 +54,7 @@ import { MdEditDocument } from "react-icons/md";
 type Props = {
   product: Product & {
     categories: {
-      category: Category;
+      category: { name: string; id: string };
     }[];
   };
   sku: ProductSku &
@@ -246,39 +246,36 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                       control={form.control}
                       name={`categories.${index}.name`}
                       render={({ field }) => (
-                        <>
-                          {console.log(field)}
-                          <FormItem>
-                            <FormLabel>Category {index + 1}</FormLabel>
-                            <Select
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              disabled={!isEditing}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="No categrory found" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {categoryNames &&
-                                Array.isArray(categoryNames) &&
-                                categoryNames.length > 0 ? (
-                                  categoryNames.map((category, i) => (
-                                    <SelectItem value={category?.name} key={i}>
-                                      {category?.name}
-                                    </SelectItem>
-                                  ))
-                                ) : (
-                                  <SelectItem value="nocategory" disabled>
-                                    No categories
+                        <FormItem>
+                          <FormLabel>Category {index + 1}</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            disabled={!isEditing}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="No categrory found" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categoryNames &&
+                              Array.isArray(categoryNames) &&
+                              categoryNames.length > 0 ? (
+                                categoryNames.map((category, i) => (
+                                  <SelectItem value={category?.name} key={i}>
+                                    {category?.name}
                                   </SelectItem>
-                                )}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        </>
+                                ))
+                              ) : (
+                                <SelectItem value="nocategory" disabled>
+                                  No categories
+                                </SelectItem>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
                       )}
                     />
                     {/* {index > 0 && (

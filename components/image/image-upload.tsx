@@ -91,7 +91,7 @@ const ImageUpload = ({ isLoading, files, filesUrl, form, setFiles }: Props) => {
                 {/* overlay to remove image - desktop only */}
                 <div className="flex items-center justify-center absolute top-0 left-0 h-full w-full bg-black/50 invisible lg:group-hover:visible">
                   <Button
-                    className="p-2 bg-red-600 bg-red-700 z-20 text-white rounded-full"
+                    className="p-2 bg-red-600 hover:red-bg-700 z-20 text-white rounded-full"
                     type="button"
                     onClick={() => handleRemoveImage(i)}
                   >
@@ -107,7 +107,7 @@ const ImageUpload = ({ isLoading, files, filesUrl, form, setFiles }: Props) => {
                 />
                 {/* button to remove image - mobile only */}
                 <Button
-                  className="flex items-center gap-4 bg-red-600 bg-red-700 transition-300 w-full  visible lg:hidden"
+                  className="flex items-center gap-4 bg-red-600 hover:red-bg-700 transition-300 w-full  visible lg:hidden"
                   type="button"
                 >
                   Remove <FaTrash />

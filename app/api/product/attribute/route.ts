@@ -29,12 +29,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
       },
     });
 
-    if (!createdAttribute) {
-      return NextResponse.json("Error creating attribute.", {
-        status: 400,
-      });
-    }
-
     return NextResponse.json(createdAttribute);
   } catch (error) {
     console.error("ATTRIBUTE_POST", error);
