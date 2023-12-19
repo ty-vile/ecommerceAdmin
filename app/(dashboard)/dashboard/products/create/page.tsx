@@ -2,7 +2,7 @@
 import getAllAttributes from "@/actions/attributes/getAllAttributes";
 import getAllCategorys from "@/actions/categories/getAllCategorys";
 // form
-import CreateProductForm from "@/components/forms/dashboard/product/create/create-product-form";
+import CreateProductForm from "@/app/(dashboard)/dashboard/products/create/components/forms/create-product-form";
 
 const CreateProductsPage = async () => {
   const categories = await getAllCategorys();

@@ -2,7 +2,7 @@
 import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
 // components
-import ProductSkuForm from "@/components/forms/dashboard/product/product-sku-form";
+import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/product-sku-form";
 import { notFound } from "next/navigation";
 
 type Props = {

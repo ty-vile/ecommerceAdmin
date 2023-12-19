@@ -26,8 +26,8 @@ const FormStep = ({
       <div
         className={`flex flex-col  px-8 py-6  w-1/5 min-w-[100px] transition-300 cursor-pointer ${
           isActive
-            ? "border-blue-500 border-2 shadow-md"
-            : "border-gray-200 border-2"
+            ? "bg-blue-700 text-white shadow-md"
+            : "bg-white text-black border-2"
         }`}
         onClick={() => setFormStep(formStepValue)}
       >

@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "../../../../ui/button";
+import { Button } from "@/components/ui/button";
 // hooks
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -20,13 +20,15 @@ import { useState } from "react";
 // toast
 import { toast } from "react-toastify";
 // icons
-import { FaPlus } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
-// api
 // types
 import { ProductAttribute, ProductAttributeValue } from "@prisma/client";
+// components
 import { Input } from "@/components/ui/input";
-import NestedAttribute from "./nested-attribute";
+import DeleteButton from "@/components/buttons/forms/delete-button";
+import CreateButton from "@/components/buttons/forms/create-button";
+import NestedAttribute from "@/app/(dashboard)/dashboard/products/create/components/forms/nested-attribute";
+// api
 import { CreateAttribute, CreateAttributeValue } from "@/app/libs/api";
 
 const productAtrtibuteValueSchema = z.object({
@@ -74,19 +76,18 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
     },
   });
 
-  const { control, setValue, getValues } = form;
+  const { control } = form;
 
   const { fields, append, remove } = useFieldArray({
     name: "attributes",
     control,
   });
 
-  // Assuming you want to manage the array of productAttributeValues within each attribute
-
   const defaultAttribute = {
     productAttribute: "",
     productAttributeValues: [{ name: "" }],
   };
+
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
@@ -131,11 +132,13 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
   };
 
   return (
-    <section className="flex flex-col gap-4">
+    <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">Create Attributes</h2>
+            <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+              Create Attributes
+            </h2>
             <Button
               className="flex items-center gap-2 transition-300"
               onClick={() => setFormStep(formStep)}
@@ -144,70 +147,63 @@ const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
               Go back
             </Button>
           </div>
-          <div className="flex flex-col gap-4">
-            {fields.map((field, index) => {
-              return (
-                <div key={field.id} className="flex flex-col gap-4">
-                  <h2 className="text-2xl font-bold border-b-2 border-gray-300 pb-1">
-                    Attribute {index + 1}
-                  </h2>
-                  <div className="flex items-end gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`attributes.${index}.productAttribute`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Attribute Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter Attribute Name"
-                              type="text"
-                              disabled={isLoading}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="bg-red-600 hover:bg-red-700 transition-300"
-                      >
-                        Remove Attribute
-                      </Button>
+
+          {fields.map((field, index) => {
+            return (
+              <div
+                key={field.id}
+                className="flex flex-col gap-4 bg-gray-50 p-4"
+              >
+                <h2 className="text-2xl font-bold">Attribute {index + 1}</h2>
+                <div className="flex items-end gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`attributes.${index}.productAttribute`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Attribute Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter Attribute Name"
+                            type="text"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
-                  <NestedAttribute
-                    nestIndex={index}
-                    control={control}
-                    isLoading={isLoading}
                   />
+                  {index > 0 && (
+                    <DeleteButton
+                      content="Remove Attribute"
+                      deleteFunc={remove}
+                      index={index}
+                    />
+                  )}
                 </div>
-              );
-            })}
+                <NestedAttribute
+                  nestIndex={index}
+                  control={control}
+                  isLoading={isLoading}
+                />
+              </div>
+            );
+          })}
+          <div className="flex items-center justify-end">
             <Button type="button" onClick={() => append(defaultAttribute)}>
               Add Attribute
             </Button>
           </div>
 
-          <div>
-            <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                isLoading && "bg-gray-100/70"
-              }`}
-              disabled={isLoading}
-              type="submit"
-            >
-              <FaPlus />
-              {isLoading ? "Creating Attribute..." : "Create Attribute"}
-            </Button>
-          </div>
+          <CreateButton
+            isLoading={isLoading}
+            content="Create Attribute"
+            isLoadingContent="Creating Attribute"
+          />
         </form>
       </Form>
-    </section>
+    </>
   );
 };
 

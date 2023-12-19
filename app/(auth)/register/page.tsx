@@ -1,7 +1,7 @@
 // actions
 import getCurrentUser from "@/actions/users/getCurrentUser";
 // components
-import RegisterForm from "@/components/forms/auth/register-form";
+import RegisterForm from "@/app/(auth)/register/components/forms/register-form";
 import { redirect } from "next/navigation";
 
 const Register = async () => {

@@ -14,19 +14,22 @@ import {
 } from "@/components/ui/form";
 // components
 import { Input } from "@/components/ui/input";
-import { Button } from "../../ui/button";
-// next-auth
-import { signIn } from "next-auth/react";
+import { Button } from "../../../../../components/ui/button";
+
 // hooks
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 // toast
 import { toast } from "react-toastify";
-// icons
-import { FcGoogle } from "react-icons/fc";
+// api
+import { RegisterUser } from "@/app/libs/api";
 
 const formSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters" })
+    .max(39, { message: "Name must be less then 40 characters" }),
   email: z.string().email({ message: "Must be valid email" }),
   password: z
     .string()
@@ -34,13 +37,15 @@ const formSchema = z.object({
     .max(39, { message: "Password must be less then 40 characters" }),
 });
 
-const SignInForm = () => {
+const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false);
+
   const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
     },
@@ -49,25 +54,42 @@ const SignInForm = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
 
-    signIn("credentials", { ...values, redirect: false }).then((callback) => {
+    try {
+      const registerUser = await RegisterUser(values);
+
+      toast.success(`User: ${registerUser.name} created`);
       setIsLoading(false);
-
-      if (!callback?.error) {
-        router.refresh();
-        router.push("/");
-        toast.success("User signed in");
-      }
-
-      if (callback?.error) {
-        toast.error(`Error signing in`);
-      }
-    });
+      router.push("/sign-in");
+    } catch (error) {
+      console.log(error);
+      toast.error(`Error creating user`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <section className="flex flex-col gap-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter Name"
+                    type="text"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="email"
@@ -78,8 +100,8 @@ const SignInForm = () => {
                   <Input
                     placeholder="Enter Email"
                     type="text"
-                    disabled={isLoading}
                     {...field}
+                    disabled={isLoading}
                   />
                 </FormControl>
                 <FormMessage />
@@ -105,28 +127,14 @@ const SignInForm = () => {
             )}
           />
           <div>
-            <Button
-              className={`w-full ${isLoading && "bg-gray-100/70"}`}
-              disabled={isLoading}
-            >
-              {isLoading ? "Signing In..." : "Sign In"}
+            <Button className={`w-full ${isLoading && "bg-gray-100/70"}`}>
+              {isLoading ? "Registering User..." : "Register"}
             </Button>
           </div>
         </form>
       </Form>
-      <div>
-        <Button
-          className="flex items-center gap-4 w-full"
-          variant="outline"
-          onClick={() => signIn("google", { callbackUrl: "/" })}
-          disabled={isLoading}
-        >
-          Sign In
-          <FcGoogle />
-        </Button>
-      </div>
     </section>
   );
 };
 
-export default SignInForm;
+export default RegisterForm;

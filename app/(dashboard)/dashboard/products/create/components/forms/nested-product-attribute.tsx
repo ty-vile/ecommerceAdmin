@@ -19,8 +19,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { Button } from "@/components/ui/button";
+// components
+import DeleteButton from "@/components/buttons/forms/delete-button";
 
 type Props = {
   nestIndex: number;
@@ -69,7 +69,7 @@ const NestedProductAttribute = ({
   }, [productAttributeId]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <>
       {fields.map((field, index) => {
         return (
           <div className="flex items-end gap-4" key={field.id}>
@@ -78,7 +78,7 @@ const NestedProductAttribute = ({
               name={`attributes.${nestIndex}.productAttributeValues.${index}.name`}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Category {index + 1}</FormLabel>
+                  <FormLabel>Attribute Value {index + 1}</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -110,18 +110,16 @@ const NestedProductAttribute = ({
               )}
             />
             {index > 0 && (
-              <Button
-                type="button"
-                onClick={() => remove(index)}
-                className="bg-red-600 hover:bg-red-700 transition-300"
-              >
-                Remove Value
-              </Button>
+              <DeleteButton
+                content="Remove Attribute"
+                deleteFunc={remove}
+                index={index}
+              />
             )}
           </div>
         );
       })}
-    </div>
+    </>
   );
 };
 

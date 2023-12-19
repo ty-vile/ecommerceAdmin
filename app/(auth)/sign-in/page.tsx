@@ -3,7 +3,7 @@ import getCurrentUser from "@/actions/users/getCurrentUser";
 // next
 import { redirect } from "next/navigation";
 // components
-import SignInForm from "@/components/forms/auth/sign-in-form";
+import SignInForm from "@/app/(auth)/sign-in/components/forms/sign-in-form";
 
 const SignIn = async () => {
   const currentUser = await getCurrentUser();

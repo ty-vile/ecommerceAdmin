@@ -12,7 +12,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "../../../ui/button";
+import { Button } from "@/components/ui/button";
 // hooks
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -20,14 +20,14 @@ import { useState } from "react";
 // toast
 import { toast } from "react-toastify";
 // icons
-import { FaPlus } from "react-icons/fa";
 import { FaArrowLeftLong } from "react-icons/fa6";
-
 // api
 import { CreateCategory } from "@/app/libs/api";
 // types
 import { Category } from "@prisma/client";
 import { Input } from "@/components/ui/input";
+import CreateButton from "@/components/buttons/forms/create-button";
+import DeleteButton from "@/components/buttons/forms/delete-button";
 
 const categorySchema = z.object({
   name: z
@@ -106,77 +106,72 @@ const CreateCategoryForm = ({ categories, formStep, setFormStep }: Props) => {
   };
 
   return (
-    <section className="flex flex-col gap-4">
+    <>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-bold">Create Categories</h2>
-              <Button
-                className="flex items-center gap-2 transition-300"
-                onClick={() => setFormStep(formStep)}
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+              Create Categories
+            </h2>
+            <Button
+              className="flex items-center gap-2 transition-300"
+              onClick={() => setFormStep(formStep)}
+            >
+              <FaArrowLeftLong />
+              Go back
+            </Button>
+          </div>
+          {fields.map((field, index) => {
+            return (
+              <div
+                key={field.id}
+                className="flex flex-col gap-4 bg-gray-50 p-4"
               >
-                <FaArrowLeftLong />
-                Go back
-              </Button>
-            </div>
-            {fields.map((field, index) => {
-              return (
-                <div key={index} className="flex flex-col gap-4">
-                  <h2 className="text-xl font-bold border-b-2 border-gray-300 pb-1">
-                    Category {index + 1}
-                  </h2>
-                  <div className="flex items-end gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`categories.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter Category Name"
-                              type="text"
-                              disabled={isLoading}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="bg-red-600 hover:red-bg-700 transition-300"
-                      >
-                        Remove Category
-                      </Button>
+                <h2 className="text-xl font-bold">Category {index + 1}</h2>
+                <div className="flex items-end gap-4">
+                  <FormField
+                    control={form.control}
+                    name={`categories.${index}.name`}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Category Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="Enter Category Name"
+                            type="text"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
                     )}
-                  </div>
+                  />
+                  {index > 0 && (
+                    <DeleteButton
+                      content="Remove Category"
+                      deleteFunc={remove}
+                      index={index}
+                    />
+                  )}
                 </div>
-              );
-            })}
+              </div>
+            );
+          })}
+          <div className="flex items-center justify-end">
             <Button type="button" onClick={() => append(defaultCategory)}>
               Add Category
             </Button>
           </div>
 
-          <div>
-            <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                isLoading && "bg-gray-100/70"
-              }`}
-              disabled={isLoading}
-            >
-              <FaPlus />
-              {isLoading ? "Creating Category..." : "Create Category"}
-            </Button>
-          </div>
+          <CreateButton
+            isLoading={isLoading}
+            content="Create Category"
+            isLoadingContent="Creating Category"
+          />
         </form>
       </Form>
-    </section>
+    </>
   );
 };
 

@@ -22,8 +22,15 @@ import {
 // components
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "../../../../ui/button";
+import { Button } from "@/components/ui/button";
 import FormStep from "@/components/cards/form-step";
+import NestedAttribute from "@/app/(dashboard)/dashboard/products/create/components/forms/nested-attribute";
+import NestedProductAttribute from "./nested-product-attribute";
+import CreateButton from "@/components/buttons/forms/create-button";
+import DeleteButton from "@/components/buttons/forms/delete-button";
+import CreateCategoryForm from "@/app/(dashboard)/dashboard/products/create/components/forms/create-category-form";
+import CreateAttributeForm from "@/app/(dashboard)/dashboard/products/create/components/forms/create-attribute-form";
+import ImageUpload from "@/components/image/image-upload";
 // hooks
 import { useRouter } from "next/navigation";
 import { useFieldArray, useForm } from "react-hook-form";
@@ -32,7 +39,12 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 // icons
 import { FaShoppingBag, FaImages, FaPlus } from "react-icons/fa";
-import { FaBoxesPacking } from "react-icons/fa6";
+import {
+  FaArrowLeftLong,
+  FaArrowRightLong,
+  FaBoxesPacking,
+} from "react-icons/fa6";
+import { MdDelete } from "react-icons/md";
 // api
 import {
   CreateCategory,
@@ -46,17 +58,11 @@ import {
   Category,
   Product,
   ProductAttribute,
-  // ProductAttribute,
   ProductSku,
 } from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
-import CreateCategoryForm from "../../category/create-category-form";
-import CreateAttributeForm from "../../attribute/create/create-attribute-form";
-import ImageUpload from "@/components/image/image-upload";
 import { getSignedS3Url } from "@/lib/s3";
-import NestedAttribute from "../../attribute/create/nested-attribute";
-import NestedProductAttribute from "./nested-product-attribute";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,
@@ -323,11 +329,11 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
   };
 
   return (
-    <section className="flex flex-col gap-4">
+    <>
       {formStep !== PRODUCTFORMSTEP.CREATECATEGORY &&
         formStep !== PRODUCTFORMSTEP.CREATEATTRIBUTE && (
           <>
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-4">
               <FormStep
                 formStep={formStep}
                 formStepValue={PRODUCTFORMSTEP.PRODUCT}
@@ -363,44 +369,52 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
               >
                 {formStep === PRODUCTFORMSTEP.PRODUCT && (
                   <>
-                    <h2 className="text-2xl font-bold">Product Details</h2>
-                    <FormField
-                      control={form.control}
-                      name="name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product Name</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="Enter Product Name"
-                              type="text"
-                              disabled={isLoading}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="description"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product Description</FormLabel>
-                          <FormControl>
-                            <Textarea
-                              placeholder="Enter Product Description"
-                              disabled={isLoading}
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold">Product Categories</h2>
+                    <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8">
+                      Product Details
+                    </h2>
+
+                    <div className="flex flex-col gap-4 bg-gray-50 p-4">
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Name</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Enter Product Name"
+                                type="text"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="description"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Description</FormLabel>
+                            <FormControl>
+                              <Textarea
+                                placeholder="Enter Product Description"
+                                disabled={isLoading}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between pt-8">
+                      <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+                        Product Categories
+                      </h2>
                       <Button
                         className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
                         onClick={() =>
@@ -411,10 +425,17 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                         Create category
                       </Button>
                     </div>
-                    <div className="flex flex-col gap-4">
-                      {categoryFields.map((field, index) => {
-                        return (
-                          <div key={field.id} className="flex items-end gap-4">
+
+                    {categoryFields.map((field, index) => {
+                      return (
+                        <div
+                          key={field.id}
+                          className="flex flex-col gap-4 bg-gray-50 p-4"
+                        >
+                          <h2 className="text-xl font-bold">
+                            Category {index + 1}
+                          </h2>
+                          <div className="flex items-end gap-4">
                             <FormField
                               key={field.id}
                               control={form.control}
@@ -455,19 +476,20 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                               )}
                             />
                             {index > 0 && (
-                              <Button
-                                type="button"
-                                onClick={() => categoryRemove(index)}
-                                className="bg-red-600 hover:bg-red-700 transition-300"
-                              >
-                                Remove Category
-                              </Button>
+                              <DeleteButton
+                                content="Remove Category"
+                                deleteFunc={categoryRemove}
+                                index={index}
+                              />
                             )}
                           </div>
-                        );
-                      })}
+                        </div>
+                      );
+                    })}
+                    <div className="flex items-center justify-end">
                       <Button
                         type="button"
+                        className="w-fit"
                         onClick={() => categoryAppend(defaultCategory)}
                       >
                         Add Category
@@ -477,37 +499,43 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                 )}
                 {formStep === PRODUCTFORMSTEP.SKU && (
                   <>
-                    <h2 className="text-2xl font-bold">Unit Details</h2>
-                    <FormField
-                      control={form.control}
-                      name="price"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product Price</FormLabel>
-                          <FormControl>
-                            <Input type="text" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="quantity"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Product Quantity</FormLabel>
-                          <FormControl>
-                            <Input type="text" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <div className="flex items-center justify-between">
-                      <h2 className="text-2xl font-bold">SKU Attributes</h2>
+                    <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8">
+                      Unit Details
+                    </h2>
+                    <div className="flex flex-col gap-4 bg-gray-50 p-4">
+                      <FormField
+                        control={form.control}
+                        name="price"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Price</FormLabel>
+                            <FormControl>
+                              <Input type="text" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="quantity"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Quantity</FormLabel>
+                            <FormControl>
+                              <Input type="text" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="flex items-center justify-between pt-8">
+                      <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+                        SKU Attributes
+                      </h2>
                       <Button
-                        className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
+                        variant="create"
                         onClick={() =>
                           setFormStep(PRODUCTFORMSTEP.CREATEATTRIBUTE)
                         }
@@ -516,71 +544,80 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                         Create attribute
                       </Button>
                     </div>
-                    <div className="flex flex-col gap-4">
-                      {attributeFields.map((field, index) => {
-                        return (
-                          <div key={field.id} className="flex flex-col gap-4">
-                            <h2 className="text-2xl font-bold border-b-2 border-gray-300 pb-1">
-                              Attribute {index + 1}
-                            </h2>
-                            <div className="flex items-end gap-4">
-                              <FormField
-                                control={form.control}
-                                name={`attributes.${index}.productAttribute`}
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>Category {index + 1}</FormLabel>
-                                    <Select
-                                      onValueChange={field.onChange}
-                                      defaultValue={field.value}
-                                      disabled={isLoading}
-                                    >
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="No attribute found" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {attributes &&
-                                        Array.isArray(attributes) &&
-                                        attributes.length > 0 ? (
-                                          attributes.map((attribute, i) => (
-                                            <SelectItem
-                                              value={attribute.id}
-                                              key={i}
-                                            >
-                                              {attribute?.name}
-                                            </SelectItem>
-                                          ))
-                                        ) : (
+
+                    {attributeFields.map((field, index) => {
+                      return (
+                        <div
+                          key={field.id}
+                          className="flex flex-col gap-4 bg-gray-50 p-4"
+                        >
+                          <h2 className="text-2xl font-bold">
+                            Attribute {index + 1}
+                          </h2>
+                          <div className="flex items-end gap-4">
+                            <FormField
+                              control={form.control}
+                              name={`attributes.${index}.productAttribute`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Attribute {index + 1}</FormLabel>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    disabled={isLoading}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="No attribute found" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {attributes &&
+                                      Array.isArray(attributes) &&
+                                      attributes.length > 0 ? (
+                                        attributes.map((attribute, i) => (
                                           <SelectItem
-                                            value="nocategory"
-                                            disabled
+                                            value={attribute.id}
+                                            key={i}
                                           >
-                                            No categories
+                                            {attribute?.name}
                                           </SelectItem>
-                                        )}
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            </div>
-                            <NestedProductAttribute
-                              nestIndex={index}
-                              control={control}
-                              isLoading={isLoading}
-                              productAttributeId={form.watch(
-                                `attributes.${index}.productAttribute`
+                                        ))
+                                      ) : (
+                                        <SelectItem value="nocategory" disabled>
+                                          No categories
+                                        </SelectItem>
+                                      )}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
                               )}
-                              attributes={attributes}
                             />
+                            {index > 0 && (
+                              <DeleteButton
+                                content="Remove Attribute"
+                                deleteFunc={attributeRemove}
+                                index={index}
+                              />
+                            )}
                           </div>
-                        );
-                      })}
+                          <NestedProductAttribute
+                            nestIndex={index}
+                            control={control}
+                            isLoading={isLoading}
+                            productAttributeId={form.watch(
+                              `attributes.${index}.productAttribute`
+                            )}
+                            attributes={attributes}
+                          />
+                        </div>
+                      );
+                    })}
+                    <div className="flex items-center justify-end">
                       <Button
                         type="button"
+                        className="w-fit"
                         onClick={() => attributeAppend(defaultAttribute)}
                       >
                         Add Attribute
@@ -600,16 +637,44 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                   </>
                 )}
                 <div>
-                  <Button
-                    className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                      isLoading && "bg-gray-100/70"
-                    }`}
-                    disabled={isLoading}
-                    type="submit"
-                  >
-                    <FaPlus />
-                    {isLoading ? "Creating Product..." : "Create Product"}
-                  </Button>
+                  {formStep === PRODUCTFORMSTEP.PRODUCT && (
+                    <Button
+                      className={`flex items-center gap-2  w-full`}
+                      type="button"
+                      onClick={() => setFormStep(PRODUCTFORMSTEP.SKU)}
+                    >
+                      <FaArrowRightLong />
+                      Next Step
+                    </Button>
+                  )}
+                  {formStep === PRODUCTFORMSTEP.SKU && (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        className={`flex items-center gap-2  w-full`}
+                        type="button"
+                        onClick={() => setFormStep(PRODUCTFORMSTEP.PRODUCT)}
+                      >
+                        <FaArrowLeftLong />
+                        Previous Step
+                      </Button>
+                      <Button
+                        className={`flex items-center gap-2  w-full`}
+                        type="button"
+                        onClick={() => setFormStep(PRODUCTFORMSTEP.IMAGES)}
+                      >
+                        <FaArrowRightLong />
+                        Next Step
+                      </Button>
+                    </div>
+                  )}
+                  {formStep === PRODUCTFORMSTEP.IMAGES && (
+                    <CreateButton
+                      isLoading={isLoading}
+                      content="Create Product"
+                      isLoadingContent="Creating Product"
+                    />
+                  )}
                 </div>
               </form>
             </Form>
@@ -635,7 +700,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
           />
         </>
       )}
-    </section>
+    </>
   );
 };
 

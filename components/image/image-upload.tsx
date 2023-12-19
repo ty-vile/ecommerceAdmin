@@ -43,8 +43,10 @@ const ImageUpload = ({ isLoading, files, filesUrl, form, setFiles }: Props) => {
   };
 
   return (
-    <div>
-      <h2 className="text-2xl font-bold pb-4">Product Images</h2>
+    <>
+      <h2 className="text-2xl font-bold mt-8 border-l-4 border-blue-600 pl-4">
+        Product Images
+      </h2>
       <FormField
         control={form.control}
         name="image"
@@ -116,7 +118,7 @@ const ImageUpload = ({ isLoading, files, filesUrl, form, setFiles }: Props) => {
             );
           })}
       </div>
-    </div>
+    </>
   );
 };
 
