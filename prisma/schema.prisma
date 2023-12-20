@@ -85,16 +85,25 @@ model ProductSku {
   sku           String @unique
   productId     String
   product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  price         Float
   quantity      Int
   productImage  ProductImage[]
   productAttributeSku ProductAttributeSku[]
+  price         ProductSkuPrice[]
   isDefault Boolean
 
   @@index([productId])
 }
 
+model ProductSkuPrice {
+  id            String @id @default(cuid())
+  skuId         String
+  price         Int
+  sku           ProductSku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  isActive      Boolean     
+  createdAt     DateTime @default(now())
 
+  @@index([skuId])
+}
 
 // e.g - productAttribue is a parent level variant - SIZE, COLOUR etc.
 model ProductAttribute {
