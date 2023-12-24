@@ -14,24 +14,21 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { productId, sku, quantity } = body;
+    const { price } = body;
 
-    if (!productId || !sku || !quantity) {
+    if (!price) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
     }
 
-    const productSku = await prisma.productSku.create({
+    const productPrice = await prisma.productSkuPrice.create({
       data: {
-        productId: productId,
-        sku: sku,
-        quantity: Number(quantity),
-        isDefault: false,
+        price: Number(price),
       },
     });
 
-    return NextResponse.json(productSku);
+    return NextResponse.json(productPrice);
   } catch (error) {
     console.error("PRODUCTSKU_POST", error);
     return new NextResponse("Internal Error", { status: 500 });

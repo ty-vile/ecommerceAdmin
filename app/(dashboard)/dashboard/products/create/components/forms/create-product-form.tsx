@@ -337,8 +337,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
               <FormStep
                 formStep={formStep}
                 formStepValue={PRODUCTFORMSTEP.PRODUCT}
-                stepNumber={1}
-                setFormStep={setFormStep}
                 content="Product Details"
               >
                 <FaShoppingBag className="text-3xl" />
@@ -346,8 +344,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
               <FormStep
                 formStep={formStep}
                 formStepValue={PRODUCTFORMSTEP.SKU}
-                stepNumber={2}
-                setFormStep={setFormStep}
                 content="Product Attributes"
               >
                 <FaBoxesPacking className="text-3xl" />
@@ -355,8 +351,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
               <FormStep
                 formStep={formStep}
                 formStepValue={PRODUCTFORMSTEP.IMAGES}
-                stepNumber={3}
-                setFormStep={setFormStep}
                 content="Product Images"
               >
                 <FaImages className="text-3xl" />
@@ -669,11 +663,22 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                     </div>
                   )}
                   {formStep === PRODUCTFORMSTEP.IMAGES && (
-                    <CreateButton
-                      isLoading={isLoading}
-                      content="Create Product"
-                      isLoadingContent="Creating Product"
-                    />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        className={`flex items-center gap-2  w-full`}
+                        type="button"
+                        onClick={() => setFormStep(PRODUCTFORMSTEP.PRODUCT)}
+                      >
+                        <FaArrowLeftLong />
+                        Previous Step
+                      </Button>
+                      <CreateButton
+                        isLoading={isLoading}
+                        content="Create Product"
+                        isLoadingContent="Creating Product"
+                      />
+                    </div>
                   )}
                 </div>
               </form>
