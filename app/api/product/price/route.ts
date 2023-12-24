@@ -14,9 +14,9 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { price } = body;
+    const { price, skuId } = body;
 
-    if (!price) {
+    if (!price || !skuId) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const productPrice = await prisma.productSkuPrice.create({
       data: {
         price: Number(price),
+        skuId: skuId,
       },
     });
 
