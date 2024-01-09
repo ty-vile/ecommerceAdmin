@@ -50,6 +50,9 @@ import { SiGoogleforms } from "react-icons/si";
 import { FaBoxesPacking } from "react-icons/fa6";
 import { FaImages, FaPlus } from "react-icons/fa";
 import { MdEditDocument } from "react-icons/md";
+import CreateCategoryForm from "../../../../create/components/forms/create-category-form";
+import CreateAttributeForm from "../../../../create/components/forms/create-attribute-form";
+import DeleteButton from "@/components/buttons/forms/delete-button";
 
 type Props = {
   product: {
@@ -68,7 +71,7 @@ type Props = {
   };
   productCategories?: {
     name: string;
-    id: string;
+    id?: string;
   }[];
   sku:
     | {} & {
@@ -157,9 +160,9 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   });
 
   const {
-    fields: fieldsCategory,
-    append: appendCategory,
-    remove: removeCategory,
+    fields: categoryFields,
+    append: categoryAppend,
+    remove: categoryRemove,
   } = useFieldArray({
     name: "categories",
     control,
@@ -168,6 +171,11 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   const defaultAttribute = {
     productAttribute: "",
     productAttributeValue: "",
+  };
+
+  const defaultCategory = {
+    name: "",
+    id: "",
   };
 
   // generates local urls of images to preview on frontend when files state is updated
@@ -188,7 +196,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   const onSubmit = async () => {};
 
   return (
-    <section className="flex flex-col gap-4">
+    <>
       <div className="flex items-center gap-4 mb-8">
         <FormStep
           formStep={formStep}
@@ -216,77 +224,119 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {formStep === SKUFORMSTEP.OVERVIEW && (
             <>
-              <h2 className="text-2xl font-bold">Product Details</h2>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Name</FormLabel>
-                    <FormControl>
-                      <Input type="text" disabled {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Description</FormLabel>
-                    <FormControl>
-                      <Textarea disabled {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8">
+                Product Details
+              </h2>
+
+              <div className="flex flex-col gap-4 bg-gray-50 p-4">
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Name</FormLabel>
+                      <FormControl>
+                        <Input type="text" disabled {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Description</FormLabel>
+                      <FormControl>
+                        <Textarea disabled={!isEditing} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-8">
+                <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+                  Product Categories
+                </h2>
+                {/* <Button
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
+                  onClick={() => setFormStep(SKUFORMSTEP.CREATECATEGORY)}
+                >
+                  <FaPlus />
+                  Create category
+                </Button> */}
+              </div>
+
               {/* MAP OVER CATEGORIES HERE AND RETURN FIELDS */}
 
-              {productCategories?.map((field, index) => {
+              {categoryFields?.map((field, index) => {
                 return (
-                  <div key={field.id}>
-                    <FormField
-                      control={form.control}
-                      name={`categories.${index}.name`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Category {index + 1}</FormLabel>
-                          <Select
-                            onValueChange={field.onChange}
-                            defaultValue={field.value}
-                            disabled={!isEditing}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full">
-                                <SelectValue placeholder="No category found" />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {productCategories &&
-                              Array.isArray(productCategories) &&
-                              productCategories.length > 0 ? (
-                                productCategories.map((category, i) => (
-                                  <SelectItem value={category?.name} key={i}>
-                                    {category?.name}
+                  <div
+                    key={field.id}
+                    className="flex flex-col gap-4 bg-gray-50 p-4"
+                  >
+                    <h2 className="text-xl font-bold">Category {index + 1}</h2>
+
+                    <div className="flex items-end gap-4">
+                      <FormField
+                        control={form.control}
+                        name={`categories.${index}.name`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Product Category</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                              disabled={!isEditing}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="No category found" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {productCategories &&
+                                Array.isArray(productCategories) &&
+                                productCategories.length > 0 ? (
+                                  productCategories.map((category, i) => (
+                                    <SelectItem value={category?.name} key={i}>
+                                      {category?.name}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value="nocategory" disabled>
+                                    No categories
                                   </SelectItem>
-                                ))
-                              ) : (
-                                <SelectItem value="nocategory" disabled>
-                                  No categories
-                                </SelectItem>
-                              )}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {index > 0 && (
+                        <DeleteButton
+                          content="Remove Category"
+                          deleteFunc={categoryRemove}
+                          index={index}
+                        />
                       )}
-                    />
+                    </div>
                   </div>
                 );
               })}
+              <div className="flex items-center justify-end">
+                <Button
+                  type="button"
+                  className="w-fit"
+                  onClick={() => categoryAppend(defaultCategory)}
+                >
+                  Add Category
+                </Button>
+              </div>
             </>
           )}
           {formStep === SKUFORMSTEP.SKU && (
@@ -412,7 +462,18 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
           </div>
         </form>
       </Form>
-    </section>
+
+      {formStep === SKUFORMSTEP.CREATEATTRIBUTE && (
+        <>
+          <CreateAttributeForm
+            formStep={SKUFORMSTEP.SKU}
+            setFormStep={setFormStep}
+            attributes={[]}
+            attributeValues={[]}
+          />
+        </>
+      )}
+    </>
   );
 };
 

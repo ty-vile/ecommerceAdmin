@@ -29,7 +29,7 @@ export const DashboardProductColumns: ColumnDef<DashboardUsers>[] = [
       const data = row.original;
 
       // JSX COMPONENT TO VIEW SKU
-      return <></>;
+      return <div onClick={() => console.log(data)}>VIEW</div>;
     },
   },
 ];

@@ -24,7 +24,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FormStep from "@/components/cards/form-step";
-import NestedAttribute from "@/app/(dashboard)/dashboard/products/create/components/forms/nested-attribute";
 import NestedProductAttribute from "./nested-product-attribute";
 import CreateButton from "@/components/buttons/forms/create-button";
 import DeleteButton from "@/components/buttons/forms/delete-button";
@@ -44,7 +43,7 @@ import {
   FaArrowRightLong,
   FaBoxesPacking,
 } from "react-icons/fa6";
-import { MdDelete } from "react-icons/md";
+
 // api
 import {
   CreateCategory,
@@ -55,12 +54,7 @@ import {
   CreateProductSkuPrice,
 } from "@/app/libs/api";
 // types
-import {
-  Category,
-  Product,
-  ProductAttribute,
-  ProductSku,
-} from "@prisma/client";
+import { Category } from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
 import { getSignedS3Url } from "@/lib/s3";
@@ -201,7 +195,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
 
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
-    console.log(values);
     setIsLoading(true);
     try {
       const createdProduct = await CreateProduct(values);
