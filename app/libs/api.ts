@@ -144,6 +144,27 @@ export const CreateProductSku = async (body: {
   throw new Error(response.statusText);
 };
 
+// @types - body: {productId: string, sku:string}
+export const CreateProductSkuPrice = async (body: {
+  price: number;
+  skuId: string;
+}) => {
+  const response = await fetch("/api/product/price", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
 // @types - body: {url: string, productSkuId:string}
 export const CreateProductImage = async (body: {
   url: string;

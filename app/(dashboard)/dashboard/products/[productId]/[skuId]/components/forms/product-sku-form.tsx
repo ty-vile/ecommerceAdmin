@@ -52,18 +52,32 @@ import { FaImages, FaPlus } from "react-icons/fa";
 import { MdEditDocument } from "react-icons/md";
 
 type Props = {
-  product: Product & {
-    categories: {
-      category: { name: string; id: string };
-    }[];
+  product: {
+    id: string;
+    userId: string;
+    name: string;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+    // categories?: {
+    //   category: {
+    //     id: string;
+    //     name: string;
+    //   };
+    // }[];
   };
-  sku: ProductSku &
-    {
-      productImage: ProductImage[];
-      productAttributeSku: (ProductAttributeSku & {
-        attribute: ProductAttribute;
-      })[];
-    }[];
+  productCategories?: {
+    name: string;
+    id: string;
+  }[];
+  sku:
+    | {} & {
+        id: string;
+        sku: string;
+        productId: string;
+        quantity: number;
+        isDefault: boolean;
+      };
 };
 
 enum SKUFORMSTEP {
@@ -108,7 +122,7 @@ const formSchema = z.object({
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
-const ProductSkuForm = ({ product, sku }: Props) => {
+const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
@@ -117,16 +131,14 @@ const ProductSkuForm = ({ product, sku }: Props) => {
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
-  const categoryNames = product.categories.map((cat) => cat.category);
-
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: product.name,
       description: product?.description,
-      categories: categoryNames,
+      categories: productCategories,
       quantity: sku.quantity,
-      price: sku.price,
+      // price: sku.price,
       attributes: [
         { productAttribute: undefined, productAttributeValue: undefined },
       ],
@@ -181,8 +193,6 @@ const ProductSkuForm = ({ product, sku }: Props) => {
         <FormStep
           formStep={formStep}
           formStepValue={SKUFORMSTEP.OVERVIEW}
-          stepNumber={1}
-          setFormStep={setFormStep}
           content="Product Details"
         >
           <SiGoogleforms className="text-3xl" />
@@ -190,8 +200,6 @@ const ProductSkuForm = ({ product, sku }: Props) => {
         <FormStep
           formStep={formStep}
           formStepValue={SKUFORMSTEP.SKU}
-          stepNumber={2}
-          setFormStep={setFormStep}
           content="SKU Details"
         >
           <FaBoxesPacking className="text-3xl" />
@@ -199,8 +207,6 @@ const ProductSkuForm = ({ product, sku }: Props) => {
         <FormStep
           formStep={formStep}
           formStepValue={SKUFORMSTEP.IMAGES}
-          stepNumber={3}
-          setFormStep={setFormStep}
           content="Product Images"
         >
           <FaImages className="text-3xl" />
@@ -238,8 +244,8 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                 )}
               />
               {/* MAP OVER CATEGORIES HERE AND RETURN FIELDS */}
-              <h2 className="text-2xl font-bold">Product Details</h2>
-              {fieldsCategory.map((field, index) => {
+
+              {productCategories?.map((field, index) => {
                 return (
                   <div key={field.id}>
                     <FormField
@@ -254,15 +260,15 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                             disabled={!isEditing}
                           >
                             <FormControl>
-                              <SelectTrigger>
-                                <SelectValue placeholder="No categrory found" />
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="No category found" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {categoryNames &&
-                              Array.isArray(categoryNames) &&
-                              categoryNames.length > 0 ? (
-                                categoryNames.map((category, i) => (
+                              {productCategories &&
+                              Array.isArray(productCategories) &&
+                              productCategories.length > 0 ? (
+                                productCategories.map((category, i) => (
                                   <SelectItem value={category?.name} key={i}>
                                     {category?.name}
                                   </SelectItem>
@@ -278,14 +284,6 @@ const ProductSkuForm = ({ product, sku }: Props) => {
                         </FormItem>
                       )}
                     />
-                    {/* {index > 0 && (
-                      <Button
-                        type="button"
-                        onClick={() => removeAttribute(index)}
-                      >
-                        Remove Attribute
-                      </Button>
-                    )} */}
                   </div>
                 );
               })}

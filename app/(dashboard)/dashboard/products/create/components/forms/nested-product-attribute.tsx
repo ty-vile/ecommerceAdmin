@@ -30,7 +30,7 @@ type Props = {
   attributes: {
     id: string;
     name: string;
-    productAttributeValues: {
+    productAttributeValues?: {
       id: string;
       name: string;
       hexCode: string | null;

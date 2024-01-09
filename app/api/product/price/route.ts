@@ -31,7 +31,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     return NextResponse.json(productPrice);
   } catch (error) {
-    console.error("PRODUCTSKU_POST", error);
+    console.error("PRODUCTSKU_PRICE_POST", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

@@ -92,6 +92,7 @@ model ProductSku {
   @@index([productId])
 }
 
+// productSkuPrice is a table that tracks the price changes of each productSku
 model ProductSkuPrice {
   id        String     @id @default(cuid())
   skuId     String

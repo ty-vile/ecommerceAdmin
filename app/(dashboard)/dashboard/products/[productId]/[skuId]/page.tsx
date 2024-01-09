@@ -3,7 +3,9 @@ import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
 // components
 import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/product-sku-form";
+import { CloudCog } from "lucide-react";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 type Props = {
   productId: string;
@@ -15,9 +17,9 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   const product = await getProduct(productId);
   const sku = await getSku(skuId);
+  // const skuPrices = await getSkuPrice();
 
-  console.log(product?.categories, "PRODUCT");
-  console.log(sku, "SKU");
+  const categoryNames = product?.categories?.map((cat) => cat.category);
 
   if (!product || !sku) {
     return notFound();
@@ -30,7 +32,11 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
         <h5 className="font-bold">SKU: {sku.sku.toUpperCase()}</h5>
       </div>
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
-        <ProductSkuForm product={product} sku={sku} />
+        <ProductSkuForm
+          product={product}
+          sku={sku}
+          productCategories={categoryNames}
+        />
       </div>
     </div>
   );

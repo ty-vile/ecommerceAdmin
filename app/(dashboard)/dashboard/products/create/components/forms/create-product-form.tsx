@@ -52,6 +52,7 @@ import {
   CreateProductSku,
   CreateProductCategoryJoin,
   CreateProductImage,
+  CreateProductSkuPrice,
 } from "@/app/libs/api";
 // types
 import {
@@ -117,7 +118,7 @@ type Props = {
   attributes: {
     id: string;
     name: string;
-    productAttributeValues: {
+    productAttributeValues?: {
       id: string;
       name: string;
       hexCode: string | null;
@@ -201,131 +202,141 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
     console.log(values);
-    // setIsLoading(true);
-    // try {
-    //   const createdProduct = await CreateProduct(values);
+    setIsLoading(true);
+    try {
+      const createdProduct = await CreateProduct(values);
 
-    //   if (!createdProduct) {
-    //     toast.error("Error creating product");
-    //     throw new Error("Error creating product");
-    //   }
+      if (!createdProduct) {
+        toast.error("Error creating product");
+        throw new Error("Error creating product");
+      }
 
-    //   for (const category of values.categories) {
-    //     // CHECK IF CATEGORY ALREADY EXISTS IN DP
-    //     const resultArray = categories?.filter(
-    //       (categoryObj) => categoryObj.name === category.name
-    //     );
+      for (const category of values.categories) {
+        // CHECK IF CATEGORY ALREADY EXISTS IN DP
+        const resultArray = categories?.filter(
+          (categoryObj) => categoryObj.name === category.name
+        );
 
-    //     // IF CATEGORY DOES NOT EXIST
-    //     if (resultArray.length === 0) {
-    //       const createdProductCategory = await CreateCategory(category);
+        // IF CATEGORY DOES NOT EXIST
+        if (resultArray.length === 0) {
+          const createdProductCategory = await CreateCategory(category);
 
-    //       if (!createdProductCategory) {
-    //         toast.error("Error creating category");
-    //         throw new Error("Error creating category");
-    //       }
+          if (!createdProductCategory) {
+            toast.error("Error creating category");
+            throw new Error("Error creating category");
+          }
 
-    //       const joinData = {
-    //         productId: createdProduct.id,
-    //         categoryId: createdProductCategory.id,
-    //         createdByUser: createdProduct.userId,
-    //       };
+          const joinData = {
+            productId: createdProduct.id,
+            categoryId: createdProductCategory.id,
+            createdByUser: createdProduct.userId,
+          };
 
-    //       const createdProductCategoryJoin = await CreateProductCategoryJoin(
-    //         joinData
-    //       );
+          const createdProductCategoryJoin = await CreateProductCategoryJoin(
+            joinData
+          );
 
-    //       if (!createdProductCategoryJoin) {
-    //         toast.error("Error joining category with product");
-    //         throw new Error("Error joining category with product");
-    //       }
-    //     } else {
-    //       // IF CATEGORY DOES EXIST
-    //       const matchingCategory = resultArray[0];
+          if (!createdProductCategoryJoin) {
+            toast.error("Error joining category with product");
+            throw new Error("Error joining category with product");
+          }
+        } else {
+          // IF CATEGORY DOES EXIST
+          const matchingCategory = resultArray[0];
 
-    //       const joinData = {
-    //         productId: createdProduct.id,
-    //         categoryId: matchingCategory.id,
-    //         createdByUser: createdProduct.userId,
-    //       };
+          const joinData = {
+            productId: createdProduct.id,
+            categoryId: matchingCategory.id,
+            createdByUser: createdProduct.userId,
+          };
 
-    //       const createdProductCategoryJoin = await CreateProductCategoryJoin(
-    //         joinData
-    //       );
+          const createdProductCategoryJoin = await CreateProductCategoryJoin(
+            joinData
+          );
 
-    //       if (!createdProductCategoryJoin) {
-    //         toast.error("Error joining category with product");
-    //         throw new Error("Error joining category with product");
-    //       }
-    //     }
-    //   }
+          if (!createdProductCategoryJoin) {
+            toast.error("Error joining category with product");
+            throw new Error("Error joining category with product");
+          }
+        }
+      }
 
-    //   const createdSkuCode = await generateSKUCode(createdProduct.name);
+      const createdSkuCode = await generateSKUCode(createdProduct.name);
 
-    //   if (!createdSkuCode) {
-    //     toast.error("Error generating SKU code");
-    //     throw new Error("Error generating SKU code");
-    //   }
+      if (!createdSkuCode) {
+        toast.error("Error generating SKU code");
+        throw new Error("Error generating SKU code");
+      }
 
-    //   const skuData = {
-    //     productId: createdProduct.id,
-    //     sku: createdSkuCode,
-    //     price: values.price,
-    //     quantity: values.quantity,
-    //   };
+      const skuData = {
+        productId: createdProduct.id,
+        sku: createdSkuCode,
+        quantity: values.quantity,
+      };
 
-    //   const createdProductSku = await CreateProductSku(skuData);
+      const createdProductSku = await CreateProductSku(skuData);
 
-    //   if (!createdProductSku) {
-    //     toast.error("Error creating product SKU");
-    //     throw new Error("Error creating product SKU");
-    //   }
+      if (!createdProductSku) {
+        toast.error("Error creating product SKU");
+        throw new Error("Error creating product SKU");
+      }
 
-    //   NOTES - ADD ATTRIBUTE -> PRODUCT JOIN
+      // NOTES - ADD PRODUCT SKU PRICE
+      const skuPriceData = {
+        skuId: createdProductSku.id,
+        price: Number(values.price),
+      };
 
-    //   if (files) {
-    //     for (let i = 0; i < files.length; i++) {
-    //       const checkSum = await generateSHA256(files[i]);
-    //       const { signedS3Url, productImageData } = await getSignedS3Url(
-    //         createdProductSku.sku,
-    //         files[i].type,
-    //         files[i].size,
-    //         checkSum,
-    //         createdProductSku.sku
-    //       );
+      const createdProductSkuPrice = await CreateProductSkuPrice(skuPriceData);
 
-    //       if (!signedS3Url) {
-    //         throw new Error("Error creating S3 URL");
-    //       }
-    //       const url = signedS3Url;
-    //       const repsone = await fetch(url, {
-    //         method: "PUT",
-    //         body: files[i],
-    //         headers: {
-    //           "Content-Type": files[i].type,
-    //         },
-    //       });
-    //       const createdProductImage = await CreateProductImage(
-    //         productImageData
-    //       );
+      if (!createdProductSkuPrice) {
+        toast.error("Error creating product SKU price");
+        throw new Error("Error creating product SKU price");
+      }
 
-    //       if (!createdProductImage) {
-    //         toast.error("Error creating product imagee");
-    //         throw new Error("Error creating product imagee");
-    //       }
-    //     }
-    //   }
+      if (files) {
+        for (let i = 0; i < files.length; i++) {
+          const checkSum = await generateSHA256(files[i]);
+          const { signedS3Url, productImageData } = await getSignedS3Url(
+            createdProductSku.sku,
+            files[i].type,
+            files[i].size,
+            checkSum,
+            createdProductSku.sku
+          );
 
-    //   toast.success("Product successfully created");
-    //   router.push(
-    //     `/dashboard/products/${createdProduct.id}/${createdProductSku.id}`
-    //   );
-    // } catch (error) {
-    //   console.error("Error in createProductWorkflow:", error);
-    //   toast.error("An error occurred during product creation");
-    // } finally {
-    //   setIsLoading(false);
-    // }
+          if (!signedS3Url) {
+            throw new Error("Error creating S3 URL");
+          }
+          const url = signedS3Url;
+          const repsone = await fetch(url, {
+            method: "PUT",
+            body: files[i],
+            headers: {
+              "Content-Type": files[i].type,
+            },
+          });
+          const createdProductImage = await CreateProductImage(
+            productImageData
+          );
+
+          if (!createdProductImage) {
+            toast.error("Error creating product imagee");
+            throw new Error("Error creating product imagee");
+          }
+        }
+      }
+
+      toast.success("Product successfully created");
+      router.push(
+        `/dashboard/products/${createdProduct.id}/${createdProductSku.id}`
+      );
+    } catch (error) {
+      console.error("Error in createProductWorkflow:", error);
+      toast.error("An error occurred during product creation");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

@@ -60,12 +60,12 @@ export function DataTable<TData, TValue>({
     <>
       {searchValue === "name" && (
         <Input
+          className="mb-4 border-black border-2"
           placeholder="Filter by name..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
           }
-          className="pb-8"
         />
       )}
       <div className="rounded-md border">

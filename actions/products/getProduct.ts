@@ -1,8 +1,24 @@
 import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-import getCategory from "../categories/getCategory";
 
-export default async function getProduct(productId: string) {
+interface IProduct {
+  id: string;
+  userId: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  categories?: {
+    category: {
+      id: string;
+      name: string;
+    };
+  }[];
+}
+
+export default async function getProduct(
+  productId: string
+): Promise<IProduct | null> {
   try {
     const user = await getCurrentUser();
 
