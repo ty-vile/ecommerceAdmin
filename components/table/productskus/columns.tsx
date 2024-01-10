@@ -17,8 +17,12 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
     header: "SKU Code",
   },
   {
-    accessorKey: "price",
-    header: "Price",
+    accessorKey: "createdAt",
+    header: "Date Created",
+  },
+  {
+    accessorKey: "currentPrice",
+    header: "Price ($)",
   },
   {
     accessorKey: "quantity",

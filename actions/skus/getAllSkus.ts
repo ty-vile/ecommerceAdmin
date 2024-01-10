@@ -13,10 +13,8 @@ interface Sku {
         skuId: string;
         price: number;
         createdAt: Date;
-      }[]
-    | {
-        price: number;
-      };
+      }[];
+  currentPrice?: number;
 }
 
 export default async function getAllSkus(productId: string) {

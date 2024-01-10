@@ -58,6 +58,7 @@ import { Category } from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
 import { getSignedS3Url } from "@/lib/s3";
+import getAllSkus from "@/actions/skus/getAllSkus";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,

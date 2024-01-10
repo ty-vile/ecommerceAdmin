@@ -18,9 +18,7 @@ const ProductPage = async ({ params }: { params: Props }) => {
   const productSkus = await getAllSkus(productId);
 
   productSkus.forEach((element) => {
-    element.price = element?.price[element.price.length - 1].price;
-
-    console.log(element);
+    element.currentPrice = element?.price[element.price.length - 1].price;
   });
 
   if (!product || !productSkus) {

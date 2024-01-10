@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import getCurrentUser from "@/actions/users/getCurrentUser";
+import getAllSkus from "@/actions/skus/getAllSkus";
 
 export async function POST(req: NextRequest, res: NextResponse) {
   try {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { productId, sku, quantity } = body;
+    const { productId, sku, quantity, isDefault } = body;
 
     if (!productId || !sku || !quantity) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
@@ -22,12 +23,14 @@ export async function POST(req: NextRequest, res: NextResponse) {
       });
     }
 
+    const previousSkus = await getAllSkus(productId);
+
     const productSku = await prisma.productSku.create({
       data: {
         productId: productId,
         sku: sku,
         quantity: Number(quantity),
-        isDefault: false,
+        isDefault: previousSkus.length > 0 ? false : true,
       },
     });
 

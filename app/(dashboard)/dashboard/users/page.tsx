@@ -24,8 +24,11 @@ const UsersPage = async () => {
         <h1 className="text-4xl font-bold">USERS ADMIN</h1>
       </div>
       <div className="p-4 m-4 bg-white rounded-md">
-        {/* @ts-ignore */}
-        <DataTable columns={DashboardUsersColumns} data={users} />
+        <DataTable
+          columns={DashboardUsersColumns}
+          data={users}
+          searchValue={"name"}
+        />
       </div>
     </div>
   );
