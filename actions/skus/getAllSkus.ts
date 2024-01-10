@@ -1,7 +1,25 @@
 import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 
-export default async function getSku(productId: string) {
+interface Sku {
+  id: string;
+  sku: string;
+  productId: string;
+  quantity: number;
+  isDefault: boolean;
+  price:
+    | {
+        id: string;
+        skuId: string;
+        price: number;
+        createdAt: Date;
+      }[]
+    | {
+        price: number;
+      };
+}
+
+export default async function getAllSkus(productId: string) {
   try {
     const user = await getCurrentUser();
 
@@ -17,9 +35,12 @@ export default async function getSku(productId: string) {
       where: {
         productId: productId,
       },
+      include: {
+        price: {},
+      },
     });
 
-    return allSkus;
+    return allSkus as Sku[];
   } catch (error: any) {
     console.error("SKU_ALL_GET", error);
     throw new Error(error);

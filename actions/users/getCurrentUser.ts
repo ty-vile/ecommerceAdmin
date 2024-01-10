@@ -2,6 +2,14 @@ import prisma from "@/app/libs/prismadb";
 
 import { getCurrentSession } from "../getSession";
 
+interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  image: string;
+  role: string;
+}
+
 export default async function getCurrentUser() {
   try {
     const session = await getCurrentSession();
@@ -10,7 +18,7 @@ export default async function getCurrentUser() {
       return null;
     }
 
-    const currentUser = await prisma.user.findUnique({
+    const currentUser = (await prisma.user.findUnique({
       where: {
         email: session.user.email,
       },
@@ -21,7 +29,7 @@ export default async function getCurrentUser() {
         image: true,
         role: true,
       },
-    });
+    })) as IUser | null;
 
     return currentUser;
   } catch (error: any) {

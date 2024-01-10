@@ -59,14 +59,17 @@ export function DataTable<TData, TValue>({
   return (
     <>
       {searchValue === "name" && (
-        <Input
-          className="mb-4 border-black border-2"
-          placeholder="Filter by name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-        />
+        <>
+          <h3 className="font-bold">Search</h3>
+          <Input
+            className="mb-4"
+            placeholder="Filter by name..."
+            value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+            onChange={(event) =>
+              table.getColumn("name")?.setFilterValue(event.target.value)
+            }
+          />
+        </>
       )}
       <div className="rounded-md border">
         <Table>

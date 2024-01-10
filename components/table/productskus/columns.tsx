@@ -6,14 +6,15 @@ import { useRouter } from "next/navigation";
 // icons
 import { MdOutlinePageview } from "react-icons/md";
 
-type DashboardProducts = {
+type DashboardProductSkus = {
+  productId: string;
   id: string;
 };
 
-export const DashboardProductColumns: ColumnDef<DashboardProducts>[] = [
+export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "sku",
+    header: "SKU Code",
   },
   {
     accessorKey: "price",
@@ -30,16 +31,20 @@ export const DashboardProductColumns: ColumnDef<DashboardProducts>[] = [
     cell: ({ row }) => {
       const data = row.original;
 
-      const { id } = data;
+      const { productId, id } = data;
 
       const router = useRouter();
 
       // JSX COMPONENT TO VIEW SKU
       return (
-        <div className="rounded-full bg-gray-100 w-fit p-2 text-center">
+        <div
+          className="rounded-full bg-gray-100 w-fit p-2 text-center"
+          key={id}
+        >
           <MdOutlinePageview
             className="text-xl hover:scale-95 cursor-pointer"
-            onClick={() => router.push(`/dashboard/products/${id}`)}
+            // onClick={() => router.push(`/dashboard/products/${id}/`)}
+            onClick={() => console.log(data)}
           />
         </div>
       );

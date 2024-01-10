@@ -1,5 +1,10 @@
-import getAllProducts from "@/actions/products/getAllProducts";
+// actions
 import getProduct from "@/actions/products/getProduct";
+import getAllSkus from "@/actions/skus/getAllSkus";
+// tables
+import { DataTable } from "@/components/table/data-table";
+import { DashboardProductSkusColumns } from "@/components/table/productskus/columns";
+// nextjs
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -10,8 +15,15 @@ const ProductPage = async ({ params }: { params: Props }) => {
   const { productId } = params;
 
   const product = await getProduct(productId);
+  const productSkus = await getAllSkus(productId);
 
-  if (!product) {
+  productSkus.forEach((element) => {
+    element.price = element?.price[element.price.length - 1].price;
+
+    console.log(element);
+  });
+
+  if (!product || !productSkus) {
     return notFound();
   }
 
@@ -21,7 +33,11 @@ const ProductPage = async ({ params }: { params: Props }) => {
         <h1 className="text-4xl font-bold">{product.name}</h1>
       </div>
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
-        {/* <ProductSkuForm product={product} sku={sku} /> */}
+        <DataTable
+          columns={DashboardProductSkusColumns}
+          data={productSkus}
+          searchValue={"skucode"}
+        />
       </div>
     </div>
   );

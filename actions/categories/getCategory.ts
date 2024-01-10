@@ -1,7 +1,5 @@
 import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
-import { ACTION_TYPE } from "@/app/libs/types";
-import { Category } from "@prisma/client";
 
 export default async function getCategory(categoryId: string) {
   try {
