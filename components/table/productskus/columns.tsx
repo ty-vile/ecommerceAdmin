@@ -70,7 +70,7 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
       const submitDelete = async (skuId: string) => {
         setIsLoading(true);
         try {
-          const deletedSku = await DeleteProductSku({ skuId: id });
+          await DeleteProductSku({ skuId: id });
 
           toast.success(`Deleted sku: ${id}`);
           router.refresh();
@@ -99,7 +99,7 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
                   router.push(`/dashboard/products/${productId}/${id}`)
                 }
               >
-                View Sku
+                View Sku Details
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DialogTrigger asChild>

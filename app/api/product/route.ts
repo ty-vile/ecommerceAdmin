@@ -40,15 +40,35 @@ export async function POST(req: NextRequest, res: NextResponse) {
   }
 }
 
-export async function GET(req: NextRequest, res: NextResponse) {
+export async function DELETE(req: NextRequest, res: NextResponse) {
   try {
     const user = await getCurrentUser();
 
-    console.log("USER", user);
+    if (!user) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
 
-    return NextResponse.json("");
+    const body = await req.json();
+
+    const { productId } = body;
+
+    if (!productId) {
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
+      });
+    }
+
+    const deletedProduct = await prisma.product.delete({
+      where: {
+        id: productId,
+      },
+    });
+
+    return NextResponse.json(deletedProduct);
   } catch (error) {
-    console.error("PRODUCT_POST", error);
+    console.error("PRODUCT_DELETE", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

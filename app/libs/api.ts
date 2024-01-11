@@ -83,6 +83,24 @@ export const CreateProduct = async (body: {
   throw new Error(response.statusText);
 };
 
+// @types - body: {productId: string}
+export const DeleteProduct = async (body: { productId: string }) => {
+  const response = await fetch("/api/product", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json", // Set the appropriate content-type for your data
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
 // @types - body: {name: string}
 export const CreateCategory = async (body: { name: string }) => {
   const response = await fetch("/api/product/category", {
