@@ -25,9 +25,11 @@ const UsersPage = async () => {
       </div>
       <div className="p-4 m-4 bg-white rounded-md">
         <DataTable
+          // @ts-ignore
           columns={DashboardUsersColumns}
           data={users}
           searchValue={"name"}
+          tableTitle="Users"
         />
       </div>
     </div>

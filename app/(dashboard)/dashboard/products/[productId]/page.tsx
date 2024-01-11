@@ -17,8 +17,9 @@ const ProductPage = async ({ params }: { params: Props }) => {
   const product = await getProduct(productId);
   const productSkus = await getAllSkus(productId);
 
-  productSkus.forEach((element) => {
-    element.currentPrice = element?.price[element.price.length - 1].price;
+  productSkus.forEach((sku) => {
+    sku.formattedCreatedAt = sku.createdAt.toLocaleDateString();
+    sku.currentPrice = sku?.price[sku.price.length - 1].price;
   });
 
   if (!product || !productSkus) {
@@ -32,9 +33,11 @@ const ProductPage = async ({ params }: { params: Props }) => {
       </div>
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
         <DataTable
+          // @ts-ignore
           columns={DashboardProductSkusColumns}
           data={productSkus}
           searchValue={"skucode"}
+          tableTitle="Product Skus"
         />
       </div>
     </div>

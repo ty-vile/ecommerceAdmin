@@ -58,7 +58,7 @@ import { Category } from "@prisma/client";
 // functions
 import { generateSHA256, generateSKUCode } from "@/app/libs/functions";
 import { getSignedS3Url } from "@/lib/s3";
-import getAllSkus from "@/actions/skus/getAllSkus";
+import { useFormState } from "react-dom";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,
@@ -97,7 +97,10 @@ const formSchema = z.object({
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
   categories: z.array(categorySchema),
-  quantity: z.string().max(999999999, "Quantity must be less than 999999999"),
+  quantity: z
+    .string()
+    .min(1, "Quantity must be at least 1")
+    .max(999999999, "Quantity must be less than 999999999"),
   price: z
     .string()
     .min(1, "Price must at least $1")
@@ -150,7 +153,12 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
     },
   });
 
-  const { control } = form;
+  const {
+    control,
+    formState: { errors },
+    trigger,
+    getFieldState,
+  } = form;
 
   const {
     fields: categoryFields,
@@ -197,6 +205,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
+
     try {
       const createdProduct = await CreateProduct(values);
 
@@ -330,6 +339,28 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
       toast.error("An error occurred during product creation");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const toggleFormStep = async (
+    directionStep: string,
+    currStep: number,
+    fields?: any[]
+  ) => {
+    if (directionStep === "next") {
+      try {
+        const isValid = await trigger(fields!);
+
+        if (isValid) {
+          setFormStep(currStep + 1);
+        }
+      } catch (error) {
+        console.error("Error during form validation:", error);
+      }
+    }
+
+    if (directionStep === "previous") {
+      setFormStep(currStep - 1);
     }
   };
 
@@ -507,9 +538,14 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                         name="price"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Product Price</FormLabel>
+                            <FormLabel>Product Price ($)</FormLabel>
                             <FormControl>
-                              <Input type="text" {...field} />
+                              <Input
+                                placeholder="Enter Product Price"
+                                type="text"
+                                disabled={isLoading}
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -522,7 +558,12 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                           <FormItem>
                             <FormLabel>Product Quantity</FormLabel>
                             <FormControl>
-                              <Input type="text" {...field} />
+                              <Input
+                                placeholder="Enter Stock Quantity"
+                                type="text"
+                                disabled={isLoading}
+                                {...field}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -640,7 +681,13 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                     <Button
                       className={`flex items-center gap-2  w-full`}
                       type="button"
-                      onClick={() => setFormStep(PRODUCTFORMSTEP.SKU)}
+                      // onClick={() => setFormStep(PRODUCTFORMSTEP.SKU)}
+                      onClick={() =>
+                        toggleFormStep("next", PRODUCTFORMSTEP.PRODUCT, [
+                          "name",
+                          "description",
+                        ])
+                      }
                     >
                       <FaArrowRightLong />
                       Next Step
@@ -652,7 +699,9 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                         variant="outline"
                         className={`flex items-center gap-2  w-full`}
                         type="button"
-                        onClick={() => setFormStep(PRODUCTFORMSTEP.PRODUCT)}
+                        onClick={() =>
+                          toggleFormStep("previous", PRODUCTFORMSTEP.SKU)
+                        }
                       >
                         <FaArrowLeftLong />
                         Previous Step
@@ -660,7 +709,12 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                       <Button
                         className={`flex items-center gap-2  w-full`}
                         type="button"
-                        onClick={() => setFormStep(PRODUCTFORMSTEP.IMAGES)}
+                        onClick={() =>
+                          toggleFormStep("next", PRODUCTFORMSTEP.SKU, [
+                            "price",
+                            "quantity",
+                          ])
+                        }
                       >
                         <FaArrowRightLong />
                         Next Step
@@ -673,7 +727,9 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                         variant="outline"
                         className={`flex items-center gap-2  w-full`}
                         type="button"
-                        onClick={() => setFormStep(PRODUCTFORMSTEP.PRODUCT)}
+                        onClick={() =>
+                          toggleFormStep("previous", PRODUCTFORMSTEP.IMAGES)
+                        }
                       >
                         <FaArrowLeftLong />
                         Previous Step

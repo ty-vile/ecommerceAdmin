@@ -17,7 +17,7 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
     header: "SKU Code",
   },
   {
-    accessorKey: "createdAt",
+    accessorKey: "formattedCreatedAt",
     header: "Date Created",
   },
   {
@@ -47,8 +47,9 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
         >
           <MdOutlinePageview
             className="text-xl hover:scale-95 cursor-pointer"
-            // onClick={() => router.push(`/dashboard/products/${id}/`)}
-            onClick={() => console.log(data)}
+            onClick={() =>
+              router.push(`/dashboard/products/${productId}/${id}/`)
+            }
           />
         </div>
       );

@@ -14,6 +14,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 // icons
 import { FaPlus } from "react-icons/fa";
+import getAllSkus from "@/actions/skus/getAllSkus";
 
 const ProductsPage = async () => {
   const currentUser = await getCurrentUser();
@@ -37,9 +38,11 @@ const ProductsPage = async () => {
       </div>
       <div className="p-4 m-4 bg-white rounded-md">
         <DataTable
+          // @ts-ignore
           columns={DashboardProductColumns}
           data={products}
           searchValue={"name"}
+          tableTitle="Products"
         />
       </div>
     </div>

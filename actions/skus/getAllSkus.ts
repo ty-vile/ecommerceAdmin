@@ -7,6 +7,8 @@ interface Sku {
   productId: string;
   quantity: number;
   isDefault: boolean;
+  createdAt: Date;
+  updatedAt: Date;
   price:
     | {
         id: string;
@@ -14,6 +16,8 @@ interface Sku {
         price: number;
         createdAt: Date;
       }[];
+
+  formattedCreatedAt?: string;
   currentPrice?: number;
 }
 
@@ -33,9 +37,15 @@ export default async function getAllSkus(productId: string) {
       where: {
         productId: productId,
       },
+
       include: {
         price: {},
       },
+    });
+
+    allSkus.forEach((sku) => {
+      if (sku.createdAt instanceof Date) {
+      }
     });
 
     return allSkus as Sku[];

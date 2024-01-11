@@ -29,12 +29,14 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   searchValue: string;
+  tableTitle: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   searchValue,
+  tableTitle,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -89,7 +91,7 @@ export function DataTable<TData, TValue>({
         </>
       )}
       <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8 mb-4">
-        Table Data
+        {tableTitle}
       </h2>
       <div className="rounded-md border">
         <Table>
