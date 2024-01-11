@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb";
 import bcrypt from "bcrypt";
 import { Role } from "@prisma/client";
+import getCurrentUser from "@/actions/users/getCurrentUser";
 
 // NOTES - CREATE
 
@@ -38,21 +39,31 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
 export async function DELETE(req: NextRequest, res: NextResponse) {
   try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
+
     const body = await req.json();
 
-    if (!body) {
+    const { email } = body;
+
+    if (!email) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
         status: 400,
       });
     }
 
-    const user = await prisma.user.delete({
+    const newUser = await prisma.user.delete({
       where: {
-        email: body,
+        email: email,
       },
     });
 
-    return NextResponse.json(user);
+    return NextResponse.json(newUser);
   } catch (error) {
     console.error("USER_DELETE", error);
     return new NextResponse("Internal Error", { status: 500 });

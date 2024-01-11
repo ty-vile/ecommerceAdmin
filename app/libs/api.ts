@@ -22,14 +22,14 @@ export const RegisterUser = async (values: {
   throw new Error(response.statusText);
 };
 
-// @types - email:string
-export const DeleteUser = async (email: string) => {
+// @types - body: {email:string, role:string, task:string}
+export const DeleteUser = async (body: { email: string }) => {
   const response = await fetch("/api/user", {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json", // Set the appropriate content-type for your data
     },
-    body: JSON.stringify(email),
+    body: JSON.stringify(body),
   });
 
   if (response.ok) {
@@ -132,6 +132,24 @@ export const CreateProductSku = async (body: {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
+// @types - body: {skuId :string}
+export const DeleteProductSku = async (body: { skuId: string }) => {
+  const response = await fetch("/api/product/sku", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json", // Set the appropriate content-type for your data
     },
     body: JSON.stringify(body),
   });

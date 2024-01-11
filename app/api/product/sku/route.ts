@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
 
     const body = await req.json();
 
-    const { productId, sku, quantity, isDefault } = body;
+    const { productId, sku, quantity } = body;
 
     if (!productId || !sku || !quantity) {
       return NextResponse.json("Bad Request - Missing required parameters.", {
@@ -37,6 +37,39 @@ export async function POST(req: NextRequest, res: NextResponse) {
     return NextResponse.json(productSku);
   } catch (error) {
     console.error("PRODUCTSKU_POST", error);
+    return new NextResponse("Internal Error", { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest, res: NextResponse) {
+  try {
+    const user = await getCurrentUser();
+
+    if (!user) {
+      return NextResponse.json("Unathorized", {
+        status: 401,
+      });
+    }
+
+    const body = await req.json();
+
+    const { skuId } = body;
+
+    if (!skuId) {
+      return NextResponse.json("Bad Request - Missing required parameters.", {
+        status: 400,
+      });
+    }
+
+    const deletedSku = await prisma.productSku.delete({
+      where: {
+        id: skuId,
+      },
+    });
+
+    return NextResponse.json(deletedSku);
+  } catch (error) {
+    console.error("PRODUCTSKU_DELETE", error);
     return new NextResponse("Internal Error", { status: 500 });
   }
 }

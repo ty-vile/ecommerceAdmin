@@ -1,7 +1,7 @@
 "use client";
 // table
 import { ColumnDef } from "@tanstack/react-table";
-// dropdown menu
+// shadcnui
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 // components
 import { Button } from "@/components/ui/button";
 // icons
@@ -20,18 +29,9 @@ import { DeleteUser, UpdateUserRole } from "@/app/libs/api";
 import { toast } from "react-toastify";
 // nextjs
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 // types
 import { Role } from "@prisma/client";
-import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 
 type DashboardUsers = {
   name: string;
@@ -66,7 +66,7 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
       const submitDelete = async (email: string) => {
         setIsLoading(true);
         try {
-          const deletedUser = await DeleteUser(email);
+          const deletedUser = await DeleteUser({ email: email });
 
           toast.success(`Deleted user: ${deletedUser.name}`);
           router.refresh();
