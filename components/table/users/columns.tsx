@@ -1,28 +1,6 @@
 "use client";
 // table
 import { ColumnDef } from "@tanstack/react-table";
-// shadcnui
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-// components
-import { Button } from "@/components/ui/button";
-// icons
-import { FaEllipsisVertical } from "react-icons/fa6";
 // actions
 import { DeleteUser, UpdateUserRole } from "@/app/libs/api";
 // toast
@@ -32,6 +10,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 // types
 import { Role } from "@prisma/client";
+// components
+import TableDropdown from "../table-dropdown";
 
 type DashboardUsers = {
   name: string;
@@ -99,48 +79,30 @@ export const DashboardUsersColumns: ColumnDef<DashboardUsers>[] = [
       };
 
       return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <FaEllipsisVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => submitRoleChange(user.email, user.role, "role")}
-              >
-                Change User Role
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DialogTrigger asChild>
-                <DropdownMenuItem className="bg-red-600 text-white hover:bg-red-700 transition-300">
-                  Delete User
-                </DropdownMenuItem>
-              </DialogTrigger>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Deleting: {user.name}</DialogTitle>
-              <DialogDescription className="pt-2">
-                This action cannot be undone. Are you sure you want to
-                permanently delete this user.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                className="bg-red-600 text-white hover:bg-red-700 transition-300"
-                onClick={() => submitDelete(user.email)}
-                disabled={isLoading}
-              >
-                Confirm
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TableDropdown
+          isLoading={isLoading}
+          actionButton={"Change User Role"}
+          deleteData={{
+            deleteId: user.email,
+            deleteButton: "Delete User",
+            onDelete: () => submitDelete(user.email),
+          }}
+          updateRole={{
+            userRoleData: {
+              id: user.email,
+              role: user.role,
+              task: "role",
+            },
+            onUpdateUserRole: () =>
+              submitRoleChange(user.email, user.role, "role"),
+          }}
+          modalData={{
+            modalTitle: `Confirm Deleting: ${user.name}`,
+            modalContent:
+              "This action cannot be undone. Are you sure you want to permanently delete this user.",
+            modalButton: "Confirm",
+          }}
+        />
       );
     },
   },

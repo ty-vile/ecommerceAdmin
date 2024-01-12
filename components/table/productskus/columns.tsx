@@ -4,32 +4,12 @@ import { ColumnDef } from "@tanstack/react-table";
 // nextjs
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-// icons
-import { FaEllipsisVertical } from "react-icons/fa6";
-// shadcnui
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-// components
-import { Button } from "@/components/ui/button";
 // actions
 import { DeleteProductSku } from "@/app/libs/api";
 // toast
 import { toast } from "react-toastify";
+import TableDropdown from "../table-dropdown";
+// components
 
 type DashboardProductSkus = {
   productId: string;
@@ -82,52 +62,27 @@ export const DashboardProductSkusColumns: ColumnDef<DashboardProductSkus>[] = [
         }
       };
 
-      // JSX COMPONENT TO VIEW SKU
       return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <FaEllipsisVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() =>
-                  router.push(`/dashboard/products/${productId}/${id}`)
-                }
-              >
-                View Sku Details
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DialogTrigger asChild>
-                <DropdownMenuItem className="bg-red-600 text-white hover:bg-red-700 transition-300">
-                  Delete Sku
-                </DropdownMenuItem>
-              </DialogTrigger>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Confirm Deleting: SKU: {data.id}</DialogTitle>
-              <DialogDescription className="pt-2">
-                This action cannot be undone. Are you sure you want to
-                permanently delete this SKU.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button
-                className="bg-red-600 text-white hover:bg-red-700 transition-300"
-                onClick={() => submitDelete(id)}
-                disabled={isLoading}
-              >
-                Confirm
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <TableDropdown
+          isLoading={isLoading}
+          actionButton={"View Sku Details"}
+          deleteData={{
+            deleteId: id,
+            deleteButton: "Delete Sku",
+            onDelete: () => submitDelete(id),
+          }}
+          modalData={{
+            modalTitle: `Confirm Deleting: SKU: ${data.id}`,
+            modalContent:
+              "  This action cannot be undone. Are you sure you want topermanently delete this SKU.",
+            modalButton: "Confirm",
+          }}
+          navigateData={{
+            navigatePath: `/dashboard/products/${productId}/${id}`,
+            onNavigate: () =>
+              router.push(`/dashboard/products/${productId}/${id}`),
+          }}
+        />
       );
     },
   },
