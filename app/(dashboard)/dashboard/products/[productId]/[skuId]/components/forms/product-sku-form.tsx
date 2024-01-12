@@ -134,6 +134,8 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
+  const formStepLen = 3;
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {

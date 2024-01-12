@@ -1,5 +1,3 @@
-import { ProductAttributeValue } from "@prisma/client";
-
 // @types - body: {email:string, role:string}
 export const RegisterUser = async (values: {
   name: string;

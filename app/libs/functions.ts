@@ -38,15 +38,26 @@ const generateRandomString = (length: number) => {
   return result;
 };
 
-async function getData() {
-  const res = await fetch("https://api.example.com/...");
-  // The return value is *not* serialized
-  // You can return Date, Map, Set, etc.
+export const toggleFormStep = async (
+  trigger: any,
+  directionStep: string,
+  currStep: number,
+  setFormStep: (index: number) => void,
+  fields?: any[]
+) => {
+  if (directionStep === "next") {
+    try {
+      const isValid = await trigger(fields!);
 
-  if (!res.ok) {
-    // This will activate the closest `error.js` Error Boundary
-    throw new Error("Failed to fetch data");
+      if (isValid) {
+        setFormStep(currStep + 1);
+      }
+    } catch (error) {
+      console.error("Error during form validation:", error);
+    }
   }
 
-  return res.json();
-}
+  if (directionStep === "previous") {
+    setFormStep(currStep - 1);
+  }
+};
