@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import FormStep from "@/components/cards/form-step";
-import NestedProductAttribute from "./nested-product-attribute";
+
 import CreateButton from "@/components/buttons/forms/create-button";
 import DeleteButton from "@/components/buttons/forms/delete-button";
 import ImageUpload from "@/components/image/image-upload";
@@ -61,6 +61,7 @@ import {
   toggleFormStep,
 } from "@/app/libs/functions";
 import { getSignedS3Url } from "@/lib/s3";
+import NestedProductAttribute from "../nested/nested-product-attribute";
 
 enum PRODUCTFORMSTEP {
   PRODUCT = 0,

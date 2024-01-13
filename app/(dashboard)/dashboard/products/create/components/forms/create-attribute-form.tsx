@@ -27,7 +27,7 @@ import { ProductAttribute, ProductAttributeValue } from "@prisma/client";
 import { Input } from "@/components/ui/input";
 import DeleteButton from "@/components/buttons/forms/delete-button";
 import CreateButton from "@/components/buttons/forms/create-button";
-import NestedAttribute from "@/app/(dashboard)/dashboard/products/create/components/forms/nested-attribute";
+import NestedAttribute from "../nested/nested-attribute";
 // api
 import { CreateAttribute, CreateAttributeValue } from "@/app/libs/api";
 
