@@ -34,17 +34,6 @@ import { getSignedS3Url } from "@/lib/s3";
 // component
 import FormStep from "@/components/cards/form-step";
 import ImageUpload from "@/components/image/image-upload";
-// api
-import { CreateProductImage } from "@/app/libs/api";
-// types
-import {
-  Category,
-  Product,
-  ProductAttribute,
-  ProductAttributeSku,
-  ProductImage,
-  ProductSku,
-} from "@prisma/client";
 // icons
 import { SiGoogleforms } from "react-icons/si";
 import { FaBoxesPacking } from "react-icons/fa6";
@@ -53,6 +42,7 @@ import { MdEditDocument } from "react-icons/md";
 import CreateCategoryForm from "../../../../create/components/forms/create-category-form";
 import CreateAttributeForm from "../../../../create/components/forms/create-attribute-form";
 import DeleteButton from "@/components/buttons/forms/delete-button";
+import MultistepForm from "@/components/forms/multistep/multistep-form";
 
 type Props = {
   product: {
@@ -134,8 +124,6 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   const [files, setFiles] = useState<any[]>([]);
   const [filesUrl, setFileUrls] = useState<String[] | []>([]);
 
-  const formStepLen = 3;
-
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -197,31 +185,34 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
 
   const onSubmit = async () => {};
 
-  return (
+  const multiStepContent = (
+    <div className="flex items-center gap-4 mb-8">
+      <FormStep
+        formStep={formStep}
+        formStepValue={SKUFORMSTEP.OVERVIEW}
+        content="Product Details"
+      >
+        <SiGoogleforms className="text-3xl" />
+      </FormStep>
+      <FormStep
+        formStep={formStep}
+        formStepValue={SKUFORMSTEP.SKU}
+        content="SKU Details"
+      >
+        <FaBoxesPacking className="text-3xl" />
+      </FormStep>
+      <FormStep
+        formStep={formStep}
+        formStepValue={SKUFORMSTEP.IMAGES}
+        content="Product Images"
+      >
+        <FaImages className="text-3xl" />
+      </FormStep>
+    </div>
+  );
+
+  const formContent = (
     <>
-      <div className="flex items-center gap-4 mb-8">
-        <FormStep
-          formStep={formStep}
-          formStepValue={SKUFORMSTEP.OVERVIEW}
-          content="Product Details"
-        >
-          <SiGoogleforms className="text-3xl" />
-        </FormStep>
-        <FormStep
-          formStep={formStep}
-          formStepValue={SKUFORMSTEP.SKU}
-          content="SKU Details"
-        >
-          <FaBoxesPacking className="text-3xl" />
-        </FormStep>
-        <FormStep
-          formStep={formStep}
-          formStepValue={SKUFORMSTEP.IMAGES}
-          content="Product Images"
-        >
-          <FaImages className="text-3xl" />
-        </FormStep>
-      </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           {formStep === SKUFORMSTEP.OVERVIEW && (
@@ -264,12 +255,12 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
                   Product Categories
                 </h2>
                 {/* <Button
-                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
-                  onClick={() => setFormStep(SKUFORMSTEP.CREATECATEGORY)}
-                >
-                  <FaPlus />
-                  Create category
-                </Button> */}
+                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300"
+                onClick={() => setFormStep(SKUFORMSTEP.CREATECATEGORY)}
+              >
+                <FaPlus />
+                Create category
+              </Button> */}
               </div>
 
               {/* MAP OVER CATEGORIES HERE AND RETURN FIELDS */}
@@ -450,17 +441,17 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
               {isEditing ? "Cancel SKU" : "Edit SKU"}
             </Button>
             {/* {isEditing && (
-              <Button
-                className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                  isLoading && "bg-gray-100/70"
-                }`}
-                disabled={isLoading}
-                type="submit"
-              >
-                <FaPlus />
-                {isLoading ? "Creating Product..." : "Create Product"}
-              </Button>
-            )} */}
+            <Button
+              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+                isLoading && "bg-gray-100/70"
+              }`}
+              disabled={isLoading}
+              type="submit"
+            >
+              <FaPlus />
+              {isLoading ? "Creating Product..." : "Create Product"}
+            </Button>
+          )} */}
           </div>
         </form>
       </Form>
@@ -475,6 +466,21 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
           />
         </>
       )}
+    </>
+  );
+
+  return (
+    <>
+      <MultistepForm
+        multiStepData={{
+          content: multiStepContent,
+          formStep: formStep,
+        }}
+        formData={{
+          form: form,
+          content: formContent,
+        }}
+      />
     </>
   );
 };

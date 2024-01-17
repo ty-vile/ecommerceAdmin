@@ -2,7 +2,7 @@
 import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
 // components
-import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/product-sku-form";
+import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/update-product-form";
 import { CloudCog } from "lucide-react";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
