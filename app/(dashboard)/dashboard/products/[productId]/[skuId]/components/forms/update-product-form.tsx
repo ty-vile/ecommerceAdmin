@@ -28,7 +28,7 @@ import React, { useEffect, useState } from "react";
 // toast
 import { toast } from "react-toastify";
 // functions
-import { generateSHA256 } from "@/app/libs/functions";
+import { generateSHA256, toggleFormStep } from "@/app/libs/functions";
 // aws
 import { getSignedS3Url } from "@/lib/s3";
 // component
@@ -36,13 +36,18 @@ import FormStep from "@/components/cards/form-step";
 import ImageUpload from "@/components/image/image-upload";
 // icons
 import { SiGoogleforms } from "react-icons/si";
-import { FaBoxesPacking } from "react-icons/fa6";
+import {
+  FaArrowLeftLong,
+  FaArrowRightLong,
+  FaBoxesPacking,
+} from "react-icons/fa6";
 import { FaImages, FaPlus } from "react-icons/fa";
 import { MdEditDocument } from "react-icons/md";
 import CreateCategoryForm from "../../../../create/components/forms/create-category-form";
 import CreateAttributeForm from "../../../../create/components/forms/create-attribute-form";
 import DeleteButton from "@/components/buttons/forms/delete-button";
 import MultistepForm from "@/components/forms/multistep/multistep-form";
+import CreateButton from "@/components/buttons/forms/create-button";
 
 type Props = {
   product: {
@@ -138,7 +143,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
     },
   });
 
-  const { control } = form;
+  const { control, trigger } = form;
 
   const {
     fields: fieldsAttribute,
@@ -427,31 +432,109 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
             </>
           )}
           <div>
+            {formStep === SKUFORMSTEP.OVERVIEW && (
+              <Button
+                className={`flex items-center gap-2  w-full`}
+                type="button"
+                onClick={() =>
+                  toggleFormStep(
+                    trigger,
+                    "next",
+                    SKUFORMSTEP.OVERVIEW,
+                    setFormStep,
+                    [""]
+                  )
+                }
+              >
+                <FaArrowRightLong />
+                Next Step
+              </Button>
+            )}
+            {formStep === SKUFORMSTEP.SKU && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className={`flex items-center gap-2  w-full`}
+                  type="button"
+                  onClick={() =>
+                    toggleFormStep(
+                      trigger,
+                      "previous",
+                      SKUFORMSTEP.SKU,
+                      setFormStep
+                    )
+                  }
+                >
+                  <FaArrowLeftLong />
+                  Previous Step
+                </Button>
+                <Button
+                  className={`flex items-center gap-2  w-full`}
+                  type="button"
+                  onClick={() =>
+                    toggleFormStep(
+                      trigger,
+                      "next",
+                      SKUFORMSTEP.SKU,
+                      setFormStep,
+                      ["price", "quantity"]
+                    )
+                  }
+                >
+                  <FaArrowRightLong />
+                  Next Step
+                </Button>
+              </div>
+            )}
+            {formStep === SKUFORMSTEP.IMAGES && (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  className={`flex items-center gap-2  w-full`}
+                  type="button"
+                  onClick={() =>
+                    toggleFormStep(
+                      trigger,
+                      "previous",
+                      SKUFORMSTEP.IMAGES,
+                      setFormStep
+                    )
+                  }
+                >
+                  <FaArrowLeftLong />
+                  Previous Step
+                </Button>
+                <CreateButton
+                  isLoading={isLoading}
+                  content="Create Product"
+                  isLoadingContent="Creating Product"
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
             <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
+              className={`flex items-center gap-2 w-full ${
                 isLoading && "bg-gray-100/70"
+              } ${
+                isEditing &&
+                "bg-red-500 hover:bg-red-600 text-white hover:text-white"
               }`}
               disabled={isLoading}
               type="button"
+              variant="outline"
               onClick={() => {
                 setIsEditing(!isEditing);
               }}
             >
               <MdEditDocument />
-              {isEditing ? "Cancel SKU" : "Edit SKU"}
+              {isEditing ? "Cancel Edits" : "Edit SKU Details"}
             </Button>
-            {/* {isEditing && (
-            <Button
-              className={`flex items-center gap-2 bg-green-600 hover:bg-green-700 transition-300 w-full ${
-                isLoading && "bg-gray-100/70"
-              }`}
-              disabled={isLoading}
-              type="submit"
-            >
-              <FaPlus />
-              {isLoading ? "Creating Product..." : "Create Product"}
-            </Button>
-          )} */}
+            {isEditing && (
+              <Button className="flex items-center gap-2 w-full bg-green-600 hover:bg-green-700">
+                <FaPlus /> Save Details
+              </Button>
+            )}
           </div>
         </form>
       </Form>
