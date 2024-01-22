@@ -286,6 +286,12 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
         throw new Error("Error creating product SKU");
       }
 
+      // NOTES - MAP OVER ATTRIBUTES AND CREATE POST ROUTE FOR PRODUCTATTRIBUTESKU WHICH ACCEPTS
+      // SKUID
+      // ATTRIBUTEVALUEID
+      // LOOP
+      // DATA {skuId: skuId, productAttributeValueId: productAttributeValueId}
+
       // NOTES - ADD PRODUCT SKU PRICE
       const skuPriceData = {
         skuId: createdProductSku.id,

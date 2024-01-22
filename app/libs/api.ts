@@ -256,3 +256,24 @@ export const CreateAttributeValue = async (body: {
 
   throw new Error(response.statusText);
 };
+
+// @types - body: {name: string, productAttributeId: string}
+export const CreateAttributeSkuJoin = async (body: {
+  skuId: string;
+  productAttributeValueId: string;
+}) => {
+  const response = await fetch("/api/product/attribute/sku", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
