@@ -13,7 +13,7 @@ const FormStep = ({ formStep, formStepValue, children, content }: Props) => {
   return (
     <>
       <div
-        className={`flex items-center gap-4  px-8 py-6  w-1/5 min-w-[100px] transition-300 ${
+        className={`flex items-center gap-4  px-8 py-6  w-1/5 min-w-[100px] w-full transition-300 ${
           isActive
             ? "bg-blue-700 text-white shadow-md"
             : "bg-white text-black border-2 border-gray-100"

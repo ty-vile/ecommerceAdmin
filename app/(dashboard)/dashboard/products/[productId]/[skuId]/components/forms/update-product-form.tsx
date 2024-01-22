@@ -191,28 +191,51 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
   const onSubmit = async () => {};
 
   const multiStepContent = (
-    <div className="flex items-center gap-4 mb-8">
-      <FormStep
-        formStep={formStep}
-        formStepValue={SKUFORMSTEP.OVERVIEW}
-        content="Product Details"
-      >
-        <SiGoogleforms className="text-3xl" />
-      </FormStep>
-      <FormStep
-        formStep={formStep}
-        formStepValue={SKUFORMSTEP.SKU}
-        content="SKU Details"
-      >
-        <FaBoxesPacking className="text-3xl" />
-      </FormStep>
-      <FormStep
-        formStep={formStep}
-        formStepValue={SKUFORMSTEP.IMAGES}
-        content="Product Images"
-      >
-        <FaImages className="text-3xl" />
-      </FormStep>
+    <div className="flex justify-between gap-8">
+      <div className="flex items-center gap-4 mb-8 w-9/12">
+        <FormStep
+          formStep={formStep}
+          formStepValue={SKUFORMSTEP.OVERVIEW}
+          content="Product Details"
+        >
+          <SiGoogleforms className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          formStepValue={SKUFORMSTEP.SKU}
+          content="SKU Details"
+        >
+          <FaBoxesPacking className="text-3xl" />
+        </FormStep>
+        <FormStep
+          formStep={formStep}
+          formStepValue={SKUFORMSTEP.IMAGES}
+          content="Product Images"
+        >
+          <FaImages className="text-3xl" />
+        </FormStep>
+      </div>
+      <div className="flex items-start gap-4 w-3/12">
+        <Button
+          className={`flex items-center gap-2 w-full ${
+            isLoading && "bg-gray-100/70"
+          } ${"bg-red-500 hover:bg-red-600 text-white hover:text-white"}`}
+          disabled={isLoading}
+          type="button"
+          variant="outline"
+          onClick={() => {
+            setIsEditing(!isEditing);
+          }}
+        >
+          <MdEditDocument />
+          {isEditing ? "Cancel Edits" : "Edit SKU Details"}
+        </Button>
+        {isEditing && (
+          <Button className="flex items-center gap-2 w-full bg-green-600 hover:bg-green-700">
+            <FaPlus /> Save Details
+          </Button>
+        )}
+      </div>
     </div>
   );
 
@@ -510,30 +533,6 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
                   isLoadingContent="Creating Product"
                 />
               </div>
-            )}
-          </div>
-          <div className="flex items-center gap-4">
-            <Button
-              className={`flex items-center gap-2 w-full ${
-                isLoading && "bg-gray-100/70"
-              } ${
-                isEditing &&
-                "bg-red-500 hover:bg-red-600 text-white hover:text-white"
-              }`}
-              disabled={isLoading}
-              type="button"
-              variant="outline"
-              onClick={() => {
-                setIsEditing(!isEditing);
-              }}
-            >
-              <MdEditDocument />
-              {isEditing ? "Cancel Edits" : "Edit SKU Details"}
-            </Button>
-            {isEditing && (
-              <Button className="flex items-center gap-2 w-full bg-green-600 hover:bg-green-700">
-                <FaPlus /> Save Details
-              </Button>
             )}
           </div>
         </form>
