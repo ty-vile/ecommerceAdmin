@@ -80,10 +80,7 @@ const categorySchema = z.object({
 });
 
 const productAtrtibuteValueSchema = z.object({
-  name: z
-    .string()
-    .min(1, "Attribute value must be at least 1 character")
-    .max(20, "Attribute value must be less then 20 characters"),
+  id: z.string(),
 });
 
 const productAttributeSchema = z.object({
@@ -151,7 +148,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
       attributes: [
         {
           productAttribute: "",
-          productAttributeValues: [{ name: "" }],
+          productAttributeValues: [{ id: "" }],
         },
       ],
     },
@@ -187,7 +184,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
 
   const defaultAttribute = {
     productAttribute: "",
-    productAttributeValues: [{ name: "" }],
+    productAttributeValues: [{ id: "" }],
   };
 
   // generates local urls of images to preview on frontend when files state is updated
@@ -208,6 +205,8 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
   // submit form
   const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
+
+    console.log(values);
 
     try {
       const createdProduct = await CreateProduct(values);

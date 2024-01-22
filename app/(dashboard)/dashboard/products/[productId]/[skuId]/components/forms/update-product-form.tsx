@@ -64,6 +64,7 @@ type Props = {
     //   };
     // }[];
   };
+  price: number;
   productCategories?: {
     name: string;
     id?: string;
@@ -120,7 +121,7 @@ const formSchema = z.object({
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
-const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
+const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
@@ -136,19 +137,19 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
       description: product?.description,
       categories: productCategories,
       quantity: sku.quantity,
-      // price: sku.price,
+      price: price,
       attributes: [
         { productAttribute: undefined, productAttributeValue: undefined },
       ],
     },
   });
 
-  const { control, trigger } = form;
+  const { control, trigger, reset } = form;
 
   const {
-    fields: fieldsAttribute,
-    append: appendAttribute,
-    remove: removeAttribute,
+    fields: attributeFields,
+    append: attributeAppend,
+    remove: attributeRemove,
   } = useFieldArray({
     name: "attributes",
     control,
@@ -188,6 +189,25 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
     }
   }, [files]);
 
+  const onCancelEdit = () => {
+    if (isEditing) {
+      reset({
+        name: product.name,
+        description: product?.description,
+        categories: productCategories,
+        quantity: sku.quantity,
+        price: price,
+        attributes: [
+          { productAttribute: undefined, productAttributeValue: undefined },
+        ],
+      });
+      setIsEditing(false);
+      return;
+    }
+
+    setIsEditing(true);
+  };
+
   const onSubmit = async () => {};
 
   const multiStepContent = (
@@ -223,9 +243,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
           disabled={isLoading}
           type="button"
           variant="outline"
-          onClick={() => {
-            setIsEditing(!isEditing);
-          }}
+          onClick={() => onCancelEdit()}
         >
           <MdEditDocument />
           {isEditing ? "Cancel Edits" : "Edit SKU Details"}
@@ -399,7 +417,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
                   Create attribute
                 </Button>
               </div>
-              {fieldsAttribute.map((field, index) => {
+              {attributeFields.map((field, index) => {
                 return (
                   <div key={field.id}>
                     <FormField
@@ -427,7 +445,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
                     {index > 0 && (
                       <Button
                         type="button"
-                        onClick={() => removeAttribute(index)}
+                        onClick={() => attributeRemove(index)}
                       >
                         Remove Attribute
                       </Button>
@@ -437,7 +455,7 @@ const ProductSkuForm = ({ product, sku, productCategories }: Props) => {
               })}
               <Button
                 type="button"
-                onClick={() => appendAttribute(defaultAttribute)}
+                onClick={() => attributeAppend(defaultAttribute)}
               >
                 Add Attribute
               </Button>

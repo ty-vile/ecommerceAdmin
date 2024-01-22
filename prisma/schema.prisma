@@ -135,7 +135,7 @@ model ProductAttributeValue {
 // if sku = 1 appears in two rows &&
 // sku = 1 and attributeValueId.value = red
 // sku = 1 and attributeValueId.value = large
-// then whatever the productId of sky
+// then whatever the productId of sku
 model ProductAttributeSku {
   skuId            String
   sku              ProductSku            @relation(fields: [skuId], references: [id], onDelete: Cascade)

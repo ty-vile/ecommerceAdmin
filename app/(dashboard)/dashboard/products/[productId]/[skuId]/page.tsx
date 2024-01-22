@@ -1,6 +1,8 @@
 // actions
+import getAllAttributes from "@/actions/attributes/getAllAttributes";
 import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
+import getSkuPrices from "@/actions/skus/getSkuPrices";
 // components
 import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/update-product-form";
 import { notFound } from "next/navigation";
@@ -15,7 +17,14 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   const product = await getProduct(productId);
   const sku = await getSku(skuId);
-  // const skuPrices = await getSkuPrice();
+  // const attributes = await getAllAttributes();
+  const skuPrices = await getSkuPrices(skuId);
+
+  const sortedPrices = skuPrices.sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+  );
+
+  const currentPrice = sortedPrices[0].price;
 
   const categoryNames = product?.categories?.map((cat) => cat.category);
 
@@ -33,6 +42,8 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
         <ProductSkuForm
           product={product}
           sku={sku}
+          price={currentPrice}
+          // attributes={attributes}
           productCategories={categoryNames}
         />
       </div>

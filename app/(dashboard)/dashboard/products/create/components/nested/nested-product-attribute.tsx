@@ -75,7 +75,7 @@ const NestedProductAttribute = ({
           <div className="flex items-end gap-4" key={field.id}>
             <FormField
               control={control}
-              name={`attributes.${nestIndex}.productAttributeValues.${index}.name`}
+              name={`attributes.${nestIndex}.productAttributeValues.${index}.id`}
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Attribute Value {index + 1}</FormLabel>
@@ -94,7 +94,7 @@ const NestedProductAttribute = ({
                       Array.isArray(attributeValues) &&
                       attributeValues.length > 0 ? (
                         attributeValues.map((attribute, i) => (
-                          <SelectItem value={attribute.name} key={i}>
+                          <SelectItem value={attribute.id} key={i}>
                             {attribute?.name}
                           </SelectItem>
                         ))
