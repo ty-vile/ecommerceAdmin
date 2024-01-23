@@ -53,6 +53,7 @@ import {
   CreateProductCategoryJoin,
   CreateProductImage,
   CreateProductSkuPrice,
+  CreateAttributeSkuJoin,
 } from "@/app/libs/api";
 // types
 import { Category } from "@prisma/client";
@@ -206,8 +207,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
   const onSubmit = async (values: ProductFormValues) => {
     setIsLoading(true);
 
-    console.log(values);
-
     try {
       const createdProduct = await CreateProduct(values);
 
@@ -286,13 +285,22 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
         throw new Error("Error creating product SKU");
       }
 
-      // NOTES - MAP OVER ATTRIBUTES AND CREATE POST ROUTE FOR PRODUCTATTRIBUTESKU WHICH ACCEPTS
-      // SKUID
-      // ATTRIBUTEVALUEID
-      // LOOP
-      // DATA {skuId: skuId, productAttributeValueId: productAttributeValueId}
+      for (const attribute of values.attributes) {
+        const attributeData = {
+          skuId: createdProductSku.id,
+          productAttributeValueId: attribute.productAttributeValues[0].id,
+        };
 
-      // NOTES - ADD PRODUCT SKU PRICE
+        const createdProductAttributeSku = await CreateAttributeSkuJoin(
+          attributeData
+        );
+
+        if (!createdProductAttributeSku) {
+          toast.error("Error joining product attribute to SKU");
+          throw new Error("Error joining product attribute to SKU");
+        }
+      }
+
       const skuPriceData = {
         skuId: createdProductSku.id,
         price: Number(values.price),

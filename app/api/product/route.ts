@@ -30,7 +30,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
         name,
         description,
         userId: user.id!,
-        isArchived: false,
+        // isArchived: false,
       },
     });
 

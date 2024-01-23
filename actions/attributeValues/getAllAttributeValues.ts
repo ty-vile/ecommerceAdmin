@@ -1,7 +1,7 @@
 import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 
-export default async function getAllAttributes() {
+export default async function getAllAttributeValues() {
   try {
     const user = await getCurrentUser();
 
@@ -9,11 +9,11 @@ export default async function getAllAttributes() {
       throw new Error("Unauthorised credentials");
     }
 
-    const attributes = await prisma.productAttribute.findMany({});
+    const attributeValues = await prisma.productAttributeValue.findMany({});
 
-    return attributes;
+    return attributeValues;
   } catch (error: any) {
-    console.error("ATRRIBUTES_ALL_GET", error);
+    console.error("ATTRIBUTE_VALUES_ALL_GET", error);
     throw new Error(error);
   }
 }

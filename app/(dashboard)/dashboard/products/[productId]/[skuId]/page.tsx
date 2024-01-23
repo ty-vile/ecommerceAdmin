@@ -2,6 +2,7 @@
 import getAllAttributes from "@/actions/attributes/getAllAttributes";
 import getProduct from "@/actions/products/getProduct";
 import getSku from "@/actions/skus/getSku";
+import getSkuAttributes from "@/actions/skus/getSkuAttributes";
 import getSkuPrices from "@/actions/skus/getSkuPrices";
 // components
 import ProductSkuForm from "@/app/(dashboard)/dashboard/products/[productId]/[skuId]/components/forms/update-product-form";
@@ -17,8 +18,10 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   const product = await getProduct(productId);
   const sku = await getSku(skuId);
-  // const attributes = await getAllAttributes();
+  const attributes = await getSkuAttributes(skuId);
   const skuPrices = await getSkuPrices(skuId);
+
+  console.log(attributes, "AB");
 
   const sortedPrices = skuPrices.sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
