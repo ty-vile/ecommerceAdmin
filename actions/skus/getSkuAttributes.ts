@@ -24,10 +24,10 @@ export default async function getSkuAttributes(skuId: string) {
     });
 
     const skuAttributeArr: {
-      valueId: string | undefined;
-      valueName: string | undefined;
       attributeId: string | undefined;
       attributeName: string | undefined;
+      attributeValueId: string | undefined;
+      attributeValueName: string | undefined;
     }[] = [];
 
     // LOOP OVER SKU ATTRIBUTES
@@ -43,10 +43,10 @@ export default async function getSkuAttributes(skuId: string) {
       );
 
       const attributeData = {
-        valueId: matchingAttributeValue?.id,
-        valueName: matchingAttributeValue?.name,
         attributeId: parentAttribute?.id,
         attributeName: parentAttribute?.name,
+        attributeValueId: matchingAttributeValue?.id,
+        attributeValueName: matchingAttributeValue?.name,
       };
 
       return skuAttributeArr.push(attributeData);

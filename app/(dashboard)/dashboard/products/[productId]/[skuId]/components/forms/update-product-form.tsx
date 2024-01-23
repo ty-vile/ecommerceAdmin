@@ -48,6 +48,7 @@ import CreateAttributeForm from "../../../../create/components/forms/create-attr
 import DeleteButton from "@/components/buttons/forms/delete-button";
 import MultistepForm from "@/components/forms/multistep/multistep-form";
 import CreateButton from "@/components/buttons/forms/create-button";
+import NestedProductAttribute from "../../../../create/components/nested/nested-product-attribute";
 
 type Props = {
   product: {
@@ -57,18 +58,12 @@ type Props = {
     description: string;
     createdAt: Date;
     updatedAt: Date;
-    // categories?: {
-    //   category: {
-    //     id: string;
-    //     name: string;
-    //   };
-    // }[];
   };
-  price: number;
   productCategories?: {
     name: string;
     id?: string;
   }[];
+  price: number;
   sku:
     | {} & {
         id: string;
@@ -77,6 +72,12 @@ type Props = {
         quantity: number;
         isDefault: boolean;
       };
+  attributes: {
+    attributeId: string | undefined;
+    attributeName: string | undefined;
+    attributeValueId: string | undefined;
+    attributeValueName: string | undefined;
+  }[];
 };
 
 enum SKUFORMSTEP {
@@ -88,8 +89,10 @@ enum SKUFORMSTEP {
 }
 
 const productAttributeSchema = z.object({
-  productAttribute: z.string(),
-  productAttributeValue: z.string(),
+  attributeId: z.string(),
+  attributeName: z.string(),
+  attributeValueId: z.string(),
+  attributeValueName: z.string(),
 });
 
 const categorySchema = z.object({
@@ -121,7 +124,13 @@ const formSchema = z.object({
 
 type ProductFormValues = z.infer<typeof formSchema>;
 
-const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
+const ProductSkuForm = ({
+  product,
+  sku,
+  productCategories,
+  price,
+  attributes,
+}: Props) => {
   // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
@@ -138,9 +147,7 @@ const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
       categories: productCategories,
       quantity: sku.quantity,
       price: price,
-      attributes: [
-        { productAttribute: undefined, productAttributeValue: undefined },
-      ],
+      attributes: attributes,
     },
   });
 
@@ -165,8 +172,10 @@ const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
   });
 
   const defaultAttribute = {
-    productAttribute: "",
-    productAttributeValue: "",
+    attributeId: "",
+    attributeName: "",
+    attributeValueId: "",
+    attributeValueName: "",
   };
 
   const defaultCategory = {
@@ -197,9 +206,7 @@ const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
         categories: productCategories,
         quantity: sku.quantity,
         price: price,
-        attributes: [
-          { productAttribute: undefined, productAttributeValue: undefined },
-        ],
+        attributes: attributes,
       });
       setIsEditing(false);
       return;
@@ -419,37 +426,82 @@ const ProductSkuForm = ({ product, sku, productCategories, price }: Props) => {
               </div>
               {attributeFields.map((field, index) => {
                 return (
-                  <div key={field.id}>
+                  <div
+                    key={field.id}
+                    className="flex flex-col gap-4 bg-gray-50 p-4"
+                  >
+                    <h2 className="text-2xl font-bold">
+                      Attribute {index + 1}
+                    </h2>
+                    <div>
+                      <div className="flex items-end gap-4">
+                        <FormField
+                          control={form.control}
+                          name={`attributes.${index}.attributeName`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Attribute {index + 1}</FormLabel>
+                              <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                                disabled={isLoading}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="No attribute found" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value={field.value}>
+                                    {field.value}
+                                  </SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {index > 0 && (
+                          <DeleteButton
+                            content="Remove Attribute"
+                            deleteFunc={attributeRemove}
+                            index={index}
+                          />
+                        )}
+                      </div>
+                    </div>
                     <FormField
                       control={form.control}
-                      name={`attributes.${index}.productAttribute`}
+                      name={`attributes.${index}.attributeValueName`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Product Attribute</FormLabel>
+                          <FormLabel>Attribute Value {index + 1}</FormLabel>
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={!isEditing}
+                            disabled={isLoading}
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="No attributes found" />
+                                <SelectValue placeholder="No attribute found" />
                               </SelectTrigger>
                             </FormControl>
-                            <SelectContent>No attributes found</SelectContent>
+                            <SelectContent>
+                              {attributes ? (
+                                <SelectItem value={field.value}>
+                                  {field.value}
+                                </SelectItem>
+                              ) : (
+                                <SelectItem value="nocategory" disabled>
+                                  No categories
+                                </SelectItem>
+                              )}
+                            </SelectContent>
                           </Select>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
-                    {index > 0 && (
-                      <Button
-                        type="button"
-                        onClick={() => attributeRemove(index)}
-                      >
-                        Remove Attribute
-                      </Button>
-                    )}
                   </div>
                 );
               })}
