@@ -18,8 +18,9 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
 
   const product = await getProduct(productId);
   const sku = await getSku(skuId);
-  const attributes = await getSkuAttributes(skuId);
+  const skuAttributes = await getSkuAttributes(skuId);
   const skuPrices = await getSkuPrices(skuId);
+  const allAttributes = await getAllAttributes();
 
   const sortedPrices = skuPrices.sort(
     (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
@@ -43,7 +44,8 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
           product={product}
           sku={sku}
           price={currentPrice}
-          attributes={attributes}
+          skuAttributes={skuAttributes}
+          attributes={allAttributes}
           productCategories={categoryNames}
         />
       </div>

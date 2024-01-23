@@ -48,7 +48,6 @@ import CreateAttributeForm from "../../../../create/components/forms/create-attr
 import DeleteButton from "@/components/buttons/forms/delete-button";
 import MultistepForm from "@/components/forms/multistep/multistep-form";
 import CreateButton from "@/components/buttons/forms/create-button";
-import NestedProductAttribute from "../../../../create/components/nested/nested-product-attribute";
 
 type Props = {
   product: {
@@ -72,11 +71,15 @@ type Props = {
         quantity: number;
         isDefault: boolean;
       };
-  attributes: {
+  skuAttributes: {
     attributeId: string | undefined;
     attributeName: string | undefined;
     attributeValueId: string | undefined;
     attributeValueName: string | undefined;
+  }[];
+  attributes: {
+    id: string;
+    name: string;
   }[];
 };
 
@@ -130,6 +133,7 @@ const ProductSkuForm = ({
   productCategories,
   price,
   attributes,
+  skuAttributes,
 }: Props) => {
   // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
@@ -147,7 +151,7 @@ const ProductSkuForm = ({
       categories: productCategories,
       quantity: sku.quantity,
       price: price,
-      attributes: attributes,
+      attributes: skuAttributes,
     },
   });
 
@@ -206,7 +210,7 @@ const ProductSkuForm = ({
         categories: productCategories,
         quantity: sku.quantity,
         price: price,
-        attributes: attributes,
+        attributes: skuAttributes,
       });
       setIsEditing(false);
       return;
@@ -452,9 +456,28 @@ const ProductSkuForm = ({
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value={field.value}>
-                                    {field.value}
-                                  </SelectItem>
+                                  {isEditing ? (
+                                    attributes &&
+                                    Array.isArray(attributes) &&
+                                    attributes.length > 0 ? (
+                                      attributes.map((attribute, i) => (
+                                        <SelectItem
+                                          value={attribute.id}
+                                          key={i}
+                                        >
+                                          {attribute?.name}
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <SelectItem value="nocategory" disabled>
+                                        No attributes
+                                      </SelectItem>
+                                    )
+                                  ) : (
+                                    <SelectItem value={field.value}>
+                                      {field.value}
+                                    </SelectItem>
+                                  )}
                                 </SelectContent>
                               </Select>
                               <FormMessage />
@@ -487,13 +510,23 @@ const ProductSkuForm = ({
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {attributes ? (
+                              {isEditing ? (
+                                attributes &&
+                                Array.isArray(attributes) &&
+                                attributes.length > 0 ? (
+                                  attributes.map((attribute, i) => (
+                                    <SelectItem value={attribute.id} key={i}>
+                                      {attribute?.name}
+                                    </SelectItem>
+                                  ))
+                                ) : (
+                                  <SelectItem value="nocategory" disabled>
+                                    No attributes
+                                  </SelectItem>
+                                )
+                              ) : (
                                 <SelectItem value={field.value}>
                                   {field.value}
-                                </SelectItem>
-                              ) : (
-                                <SelectItem value="nocategory" disabled>
-                                  No categories
                                 </SelectItem>
                               )}
                             </SelectContent>

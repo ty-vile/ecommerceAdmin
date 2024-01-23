@@ -604,7 +604,7 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
                                   ))
                                 ) : (
                                   <SelectItem value="nocategory" disabled>
-                                    No categories
+                                    No attributes
                                   </SelectItem>
                                 )}
                               </SelectContent>
