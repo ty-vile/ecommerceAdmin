@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+// account schema as provided by next-auth
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+// session schema as provided by next-auth
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// user schema - ADMIN
+model User {
+  id             String    @id @default(cuid())
+  role           Role      @default(ADMIN)
+  name           String?
+  email          String?   @unique
+  phone          String?   @unique
+  image          String?
+  hashedPassword String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  products       Product[]
+  accounts       Account[]
+  sessions       Session[]
+}
+
+// ENUM FOR USER
+enum Role {
+  ADMIN
+  VIEWER
+}
+
+model Product {
+  id          String                 @id @default(cuid())
+  userId      String
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String
+  isArchived  Boolean
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+  categories  CategoriesToProducts[]
+  sku         ProductSku[]
+
+  @@index([userId])
+}
+
+model ProductSku {
+  id                  String                @id @default(cuid())
+  sku                 String                @unique
+  productId           String
+  product             Product               @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity            Int
+  productImage        ProductImage[]
+  productAttributeSku ProductAttributeSku[]
+  price               ProductSkuPrice[]
+  isDefault           Boolean
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+
+  @@index([productId])
+}
+
+// productSkuPrice is a table that tracks the price changes of each productSku
+model ProductSkuPrice {
+  id        String     @id @default(cuid())
+  skuId     String
+  price     Int
+  sku       ProductSku @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+
+  @@index([skuId])
+}
+
+// e.g - productAttribue is a parent level variant - SIZE, COLOUR etc.
+model ProductAttribute {
+  id                     String                  @id @default(cuid())
+  name                   String                  @unique
+  productAttributeValues ProductAttributeValue[]
+}
+
+// productAttributeValue is a child level varient
+// e.g productAttributeId would be SIZE, COLOUR etc. (PARENT)
+// value would be s, xs, md, lg, xl, 2xl - if productAttributeId refrenced SIZE
+// value would be red, yellow, green - if productAttributeId refrenced COLOUR
+model ProductAttributeValue {
+  id                  String                @id @default(cuid())
+  name                String
+  hexCode             String?
+  productAttributeId  String
+  productAttribute    ProductAttribute      @relation(fields: [productAttributeId], references: [id], onDelete: Cascade)
+  productAttributeSku ProductAttributeSku[]
+
+  @@index([productAttributeId])
+}
+
+// JOIN TABLE - for m-n relationships as:
+// a sku can have many or none related attribute
+// a attribue can have many or none related skus
+// ----------------------------------------
+// if sku = 1 appears in two rows &&
+// sku = 1 and attributeValueId.value = red
+// sku = 1 and attributeValueId.value = large
+// then whatever the productId of sku
+model ProductAttributeSku {
+  skuId            String
+  sku              ProductSku            @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  attributeValueId String
+  attribute        ProductAttributeValue @relation(fields: [attributeValueId], references: [id], onDelete: Cascade)
+  comment          String?
+
+  @@id([skuId, attributeValueId])
+  @@index([skuId])
+  @@index([attributeValueId])
+}
+
+model ProductImage {
+  id           String     @id @default(cuid())
+  url          String     @unique
+  productSkuId String
+  productSku   ProductSku @relation(fields: [productSkuId], references: [id], onDelete: Cascade)
+
+  @@index([productSkuId])
+}
+
+model Category {
+  id        String                 @id @default(cuid())
+  name      String                 @unique
+  createdAt DateTime               @default(now())
+  updatedAt DateTime               @updatedAt
+  products  CategoriesToProducts[]
+}
+
+// JOIN TABLE - for m-n relationships as:
+// a category can have many or none related products
+// a product can have many or none related categories
+model CategoriesToProducts {
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  categoryId String
+  createdAt  DateTime @default(now())
+  createdBy  String
+
+  @@id([productId, categoryId])
+  @@index([productId])
+  @@index([categoryId])
+}
+
+// ORDER / CLIENT / CART - LOGIN TO ACCESS SCHEMA
+// https://azimutt.app/
+// https://laracasts.com/discuss/channels/laravel/database-design-for-e-commerce-product-variants-with-laravel
