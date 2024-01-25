@@ -178,6 +178,27 @@ export const DeleteProductSku = async (body: { skuId: string }) => {
   throw new Error(response.statusText);
 };
 
+// @types - body: {skuId :string}
+export const PatchProductSku = async (body: {
+  skuId: string;
+  quantity: string;
+}) => {
+  const response = await fetch("/api/product/sku", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json", // Set the appropriate content-type for your data
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    return data;
+  }
+
+  throw new Error(response.statusText);
+};
+
 // @types - body: {productId: string, sku:string}
 export const CreateProductSkuPrice = async (body: {
   price: number;

@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 // react-hook-form
 import { useForm, useFieldArray } from "react-hook-form";
 // react-hooks
@@ -45,6 +46,19 @@ import {
   ProductSku,
   ProductSkuPrice,
 } from "@prisma/client";
+
+import { CreateProductSkuPrice, PatchProductSku } from "@/app/libs/api";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 interface UpdateProduct {
   product: Product;
@@ -110,6 +124,8 @@ const ProductSkuForm = ({
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
 
+  const router = useRouter();
+
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -133,6 +149,36 @@ const ProductSkuForm = ({
     name: "categories",
     control,
   });
+
+  const handleUpdate = async (
+    skuId: string,
+    price?: number,
+    quantity?: string
+  ) => {
+    console.log(skuId, price, quantity);
+
+    // price
+    // if (price) {
+    //   const priceData = {
+    //     price: price,
+    //     skuId: skuId,
+    //   };
+
+    //   const newPrice = await CreateProductSkuPrice(priceData);
+    // }
+
+    // if (quantity) {
+    //   const quantityData = {
+    //     skuId: skuId,
+    //     quantity: quantity,
+    //   };
+
+    //   const updatedQuantity = await PatchProductSku(quantityData);
+    // }
+
+    // router.refresh();
+    // return;
+  };
 
   const multiStepContent = (
     <div className="flex justify-between gap-8">
@@ -160,23 +206,60 @@ const ProductSkuForm = ({
         </FormStep>
       </div>
       <div className="flex items-start gap-4 w-3/12">
-        {/* <Button
-          className={`flex items-center gap-2 w-full ${
-            isLoading && "bg-gray-100/70"
-          } ${"bg-red-500 hover:bg-red-600 text-white hover:text-white"}`}
-          disabled={isLoading}
-          type="button"
-          variant="outline"
-          onClick={() => onCancelEdit()}
-        >
-          <MdEditDocument />
-          {isEditing ? "Cancel Edits" : "Edit SKU Details"}
-        </Button>
-        {isEditing && (
-          <Button className="flex items-center gap-2 w-full bg-green-600 hover:bg-green-700">
-            <FaPlus /> Save Details
-          </Button>
-        )} */}
+        <Dialog>
+          <DialogTrigger className="w-full" asChild>
+            <Button className="w-full">Update Price</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update SKU Price</DialogTitle>
+              <DialogDescription className="pt-2">
+                <div className="flex flex-col gap-4 mt-4">
+                  <Label htmlFor="update-price">Price</Label>
+                  <Input type="text" name="update-price" id="update-price" />
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                className="bg-green-600 text-white hover:bg-green-700 transition-300"
+                disabled={isLoading}
+                onClick={() => handleUpdate(sku.id)}
+              >
+                Confirm Update
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog>
+          <DialogTrigger className="w-full" asChild>
+            <Button className="w-full">Update Quantity</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Update SKU Quantity</DialogTitle>
+              <DialogDescription className="pt-2">
+                <div className="flex flex-col gap-4 mt-4">
+                  <Label htmlFor="update-quantity">Quantity</Label>
+                  <Input
+                    type="text"
+                    name="update-quantity"
+                    id="update-quantity"
+                  />
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                className="bg-green-600 text-white hover:bg-green-700 transition-300"
+                disabled={isLoading}
+                onClick={() => handleUpdate(sku.id)}
+              >
+                Confirm Update
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

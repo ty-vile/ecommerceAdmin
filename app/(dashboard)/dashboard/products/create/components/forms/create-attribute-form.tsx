@@ -53,13 +53,12 @@ const formSchema = z.object({
 type ProductFormValues = z.infer<typeof formSchema>;
 
 type Props = {
-  attributes: ProductAttribute[] | [];
   attributeValues: ProductAttributeValue[] | [];
   formStep: number;
   setFormStep: (formStep: number) => void;
 };
 
-const CreateAttributeForm = ({ attributes, formStep, setFormStep }: Props) => {
+const CreateAttributeForm = ({ formStep, setFormStep }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();

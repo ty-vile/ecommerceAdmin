@@ -752,7 +752,6 @@ const CreateProductForm = ({ categories, attributes }: Props) => {
           <CreateAttributeForm
             formStep={PRODUCTFORMSTEP.SKU}
             setFormStep={setFormStep}
-            attributes={[]}
             attributeValues={[]}
           />
         </>
