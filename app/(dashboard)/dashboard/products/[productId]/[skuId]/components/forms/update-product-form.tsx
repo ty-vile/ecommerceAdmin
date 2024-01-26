@@ -59,6 +59,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Update } from "next/dist/build/swc";
 
 interface UpdateProduct {
   product: Product;
@@ -77,7 +78,7 @@ enum SKUFORMSTEP {
   SKU = 1,
   IMAGES = 2,
 }
-// test
+
 const productAttributeSchema = z.object({
   attributeName: z.string(),
   attributeValueName: z.string(),
@@ -102,7 +103,10 @@ const formSchema = z.object({
     .min(10, { message: "Product description must be at least 10 characters" })
     .max(200, "Product description must be less than 200 characters"),
   image: z.any(),
-  quantity: z.number().max(999999999, "Quantity must be less than 999999999"),
+  quantity: z
+    .number()
+    .min(1, "Quantity must be at least 1")
+    .max(999999999, "Quantity must be less than 999999999"),
   price: z
     .number()
     .min(1, "Price must at least $1")
@@ -110,17 +114,33 @@ const formSchema = z.object({
   attributes: z.array(productAttributeSchema),
 });
 
+const updatePriceFormSchema = z.object({
+  price: z
+    .number()
+    .min(1, "Price must at least $1")
+    .max(999999999, "Price must be less than $999999999"),
+  skuId: z.string(),
+});
+
+const updateQuantityFormSchema = z.object({
+  quantity: z
+    .number()
+    .min(1, "Quantity must be at least 1")
+    .max(999999999, "Quantity must be less than 999999999"),
+  skuId: z.string(),
+});
+
 type ProductFormValues = z.infer<typeof formSchema>;
+type UpdatePriceFormValues = z.infer<typeof updatePriceFormSchema>;
+type UpdateQuantityFormValues = z.infer<typeof updateQuantityFormSchema>;
 
 const ProductSkuForm = ({
   product,
   sku,
   categories,
   price,
-
   skuAttributes,
 }: UpdateProduct) => {
-  // form state
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -138,6 +158,22 @@ const ProductSkuForm = ({
     },
   });
 
+  const updatePriceForm = useForm<UpdatePriceFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      price: 0,
+      skuId: sku.id,
+    },
+  });
+
+  const updateQuantityForm = useForm<UpdateQuantityFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      quantity: 0,
+      skuId: sku.id,
+    },
+  });
+
   const { control } = form;
 
   const { fields: attributeFields } = useFieldArray({
@@ -150,34 +186,44 @@ const ProductSkuForm = ({
     control,
   });
 
-  const handleUpdate = async (
-    skuId: string,
-    price?: number,
-    quantity?: string
-  ) => {
-    console.log(skuId, price, quantity);
+  const onUpdatePriceSubmit = async (values: UpdatePriceFormValues) => {
+    try {
+      const priceData = {
+        price: values.price,
+        skuId: values.skuId,
+      };
+      const newPrice = await CreateProductSkuPrice(priceData);
 
-    // price
-    // if (price) {
-    //   const priceData = {
-    //     price: price,
-    //     skuId: skuId,
-    //   };
+      if (newPrice) {
+        toast.success("Price updated sucesfully");
+      }
 
-    //   const newPrice = await CreateProductSkuPrice(priceData);
-    // }
+      router.refresh();
+      return newPrice;
+    } catch (error) {
+      toast.error("Error updating price");
+      console.error(error);
+    }
+  };
 
-    // if (quantity) {
-    //   const quantityData = {
-    //     skuId: skuId,
-    //     quantity: quantity,
-    //   };
+  const onUpdateQuantitySubmit = async (values: UpdateQuantityFormValues) => {
+    try {
+      const quantityData = {
+        quantity: values.quantity,
+        skuId: values.skuId,
+      };
+      const updatedQuantity = await PatchProductSku(quantityData);
 
-    //   const updatedQuantity = await PatchProductSku(quantityData);
-    // }
+      if (updatedQuantity) {
+        toast.success("Quantity updated sucesfully");
+      }
 
-    // router.refresh();
-    // return;
+      router.refresh();
+      return updatedQuantity;
+    } catch (error) {
+      toast.error("Error updating quantity");
+      console.error(error);
+    }
   };
 
   const multiStepContent = (
@@ -212,23 +258,38 @@ const ProductSkuForm = ({
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Update SKU Price</DialogTitle>
-              <DialogDescription className="pt-2">
-                <div className="flex flex-col gap-4 mt-4">
-                  <Label htmlFor="update-price">Price</Label>
-                  <Input type="text" name="update-price" id="update-price" />
-                </div>
-              </DialogDescription>
+              <DialogTitle className="mb-4">Update SKU Price</DialogTitle>
+              <Form {...updatePriceForm}>
+                <form
+                  onSubmit={updatePriceForm.handleSubmit(onUpdatePriceSubmit)}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={updatePriceForm.control}
+                    name="price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Price</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            disabled={isLoading}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button
+                    className="bg-green-600 text-white hover:bg-green-700 transition-300"
+                    disabled={isLoading}
+                  >
+                    Confirm Update
+                  </Button>
+                </form>
+              </Form>
             </DialogHeader>
-            <DialogFooter>
-              <Button
-                className="bg-green-600 text-white hover:bg-green-700 transition-300"
-                disabled={isLoading}
-                onClick={() => handleUpdate(sku.id)}
-              >
-                Confirm Update
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
         <Dialog>
@@ -238,22 +299,39 @@ const ProductSkuForm = ({
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Update SKU Quantity</DialogTitle>
-              <DialogDescription className="pt-2">
-                <div className="flex flex-col gap-4 mt-4">
-                  <Label htmlFor="update-quantity">Quantity</Label>
-                  <Input
-                    type="text"
-                    name="update-quantity"
-                    id="update-quantity"
+              <Form {...updateQuantityForm}>
+                <form
+                  onSubmit={updateQuantityForm.handleSubmit(
+                    onUpdateQuantitySubmit
+                  )}
+                  className="space-y-8"
+                >
+                  <FormField
+                    control={updateQuantityForm.control}
+                    name="quantity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Product Quantity</FormLabel>
+                        <FormControl>
+                          <Input type="text" disabled={isLoading} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-              </DialogDescription>
+                  <Button
+                    className="bg-green-600 text-white hover:bg-green-700 transition-300"
+                    disabled={isLoading}
+                  >
+                    Confirm Update
+                  </Button>
+                </form>
+              </Form>
             </DialogHeader>
             <DialogFooter>
               <Button
                 className="bg-green-600 text-white hover:bg-green-700 transition-300"
                 disabled={isLoading}
-                onClick={() => handleUpdate(sku.id)}
               >
                 Confirm Update
               </Button>

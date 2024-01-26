@@ -181,7 +181,7 @@ export const DeleteProductSku = async (body: { skuId: string }) => {
 // @types - body: {skuId :string}
 export const PatchProductSku = async (body: {
   skuId: string;
-  quantity: string;
+  quantity: number;
 }) => {
   const response = await fetch("/api/product/sku", {
     method: "PATCH",
