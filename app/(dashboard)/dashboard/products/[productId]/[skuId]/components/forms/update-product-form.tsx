@@ -25,7 +25,7 @@ import {
 // react-hook-form
 import { useForm, useFieldArray } from "react-hook-form";
 // react-hooks
-import React, { useState } from "react";
+import React, { useState, useTransition } from "react";
 // toast
 import { toast } from "react-toastify";
 // component
@@ -43,6 +43,7 @@ import {
   Category,
   Product,
   ProductAttribute,
+  ProductImage,
   ProductSku,
   ProductSkuPrice,
 } from "@prisma/client";
@@ -52,17 +53,15 @@ import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Update } from "next/dist/build/swc";
+import Image from "next/image";
 
 interface UpdateProduct {
   product: Product;
+  productImage?: ProductImage[];
   categories?: Category[];
   sku: ProductSku;
   price: ProductSkuPrice;
@@ -116,7 +115,7 @@ const formSchema = z.object({
 
 const updatePriceFormSchema = z.object({
   price: z
-    .number()
+    .string()
     .min(1, "Price must at least $1")
     .max(999999999, "Price must be less than $999999999"),
   skuId: z.string(),
@@ -124,7 +123,7 @@ const updatePriceFormSchema = z.object({
 
 const updateQuantityFormSchema = z.object({
   quantity: z
-    .number()
+    .string()
     .min(1, "Quantity must be at least 1")
     .max(999999999, "Quantity must be less than 999999999"),
   skuId: z.string(),
@@ -140,9 +139,13 @@ const ProductSkuForm = ({
   categories,
   price,
   skuAttributes,
+  productImage,
 }: UpdateProduct) => {
   const [formStep, setFormStep] = useState(SKUFORMSTEP.OVERVIEW);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [priceUpdateOpen, setPriceUpdateOpen] = useState(false);
+  const [quantityUpdateOpen, setQuantityUpdateOpen] = useState(false);
 
   const router = useRouter();
 
@@ -159,17 +162,17 @@ const ProductSkuForm = ({
   });
 
   const updatePriceForm = useForm<UpdatePriceFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(updatePriceFormSchema),
     defaultValues: {
-      price: 0,
+      price: "",
       skuId: sku.id,
     },
   });
 
   const updateQuantityForm = useForm<UpdateQuantityFormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(updateQuantityFormSchema),
     defaultValues: {
-      quantity: 0,
+      quantity: "",
       skuId: sku.id,
     },
   });
@@ -187,39 +190,45 @@ const ProductSkuForm = ({
   });
 
   const onUpdatePriceSubmit = async (values: UpdatePriceFormValues) => {
+    setIsLoading(true);
+
     try {
       const priceData = {
-        price: values.price,
+        price: Number(values.price),
         skuId: values.skuId,
       };
       const newPrice = await CreateProductSkuPrice(priceData);
 
       if (newPrice) {
+        setPriceUpdateOpen(false);
         toast.success("Price updated sucesfully");
       }
 
-      router.refresh();
-      return newPrice;
+      window.location.reload();
     } catch (error) {
       toast.error("Error updating price");
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const onUpdateQuantitySubmit = async (values: UpdateQuantityFormValues) => {
     try {
       const quantityData = {
-        quantity: values.quantity,
+        quantity: Number(values.quantity),
         skuId: values.skuId,
       };
       const updatedQuantity = await PatchProductSku(quantityData);
 
       if (updatedQuantity) {
+        setQuantityUpdateOpen(false);
         toast.success("Quantity updated sucesfully");
       }
 
-      router.refresh();
-      return updatedQuantity;
+      setTimeout(() => {
+        window.location.reload();
+      }, 2000);
     } catch (error) {
       toast.error("Error updating quantity");
       console.error(error);
@@ -252,9 +261,11 @@ const ProductSkuForm = ({
         </FormStep>
       </div>
       <div className="flex items-start gap-4 w-3/12">
-        <Dialog>
+        <Dialog open={priceUpdateOpen} onOpenChange={setPriceUpdateOpen}>
           <DialogTrigger className="w-full" asChild>
-            <Button className="w-full">Update Price</Button>
+            <Button className="w-full bg-green-600 hover:bg-green-700 transition-300">
+              Update Price
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -272,7 +283,8 @@ const ProductSkuForm = ({
                         <FormLabel>Product Price</FormLabel>
                         <FormControl>
                           <Input
-                            type="number"
+                            placeholder="Enter SKU Price"
+                            type="text"
                             disabled={isLoading}
                             {...field}
                           />
@@ -292,13 +304,15 @@ const ProductSkuForm = ({
             </DialogHeader>
           </DialogContent>
         </Dialog>
-        <Dialog>
+        <Dialog open={quantityUpdateOpen} onOpenChange={setQuantityUpdateOpen}>
           <DialogTrigger className="w-full" asChild>
-            <Button className="w-full">Update Quantity</Button>
+            <Button className="w-full bg-green-600 hover:bg-green-700 transition-300">
+              Update Quantity
+            </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Update SKU Quantity</DialogTitle>
+              <DialogTitle className="mb-4">Update SKU Quantity</DialogTitle>
               <Form {...updateQuantityForm}>
                 <form
                   onSubmit={updateQuantityForm.handleSubmit(
@@ -313,7 +327,12 @@ const ProductSkuForm = ({
                       <FormItem>
                         <FormLabel>Product Quantity</FormLabel>
                         <FormControl>
-                          <Input type="text" disabled={isLoading} {...field} />
+                          <Input
+                            placeholder="Enter SKU Quantity"
+                            type="text"
+                            disabled={isLoading}
+                            {...field}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -328,14 +347,6 @@ const ProductSkuForm = ({
                 </form>
               </Form>
             </DialogHeader>
-            <DialogFooter>
-              <Button
-                className="bg-green-600 text-white hover:bg-green-700 transition-300"
-                disabled={isLoading}
-              >
-                Confirm Update
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -538,6 +549,46 @@ const ProductSkuForm = ({
                   </div>
                 );
               })}
+            </>
+          )}
+          {formStep === SKUFORMSTEP.IMAGES && (
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-6 gap-10">
+                {productImage &&
+                  productImage?.map((image, i) => {
+                    return (
+                      <div
+                        key={i}
+                        className="flex flex-col gap-4 group relative transition-300"
+                      >
+                        {/* overlay to remove image - desktop only */}
+                        <div className="flex items-center justify-center absolute top-0 left-0 h-full w-full bg-black/50 invisible lg:group-hover:visible">
+                          <Button
+                            className="p-2 bg-red-600 hover:red-bg-700 z-20 text-white rounded-full"
+                            type="button"
+                            // onClick={() => handleRemoveImage(i)}
+                          >
+                            {/* <IoMdClose className="text-2xl" /> */}
+                          </Button>
+                        </div>
+                        <Image
+                          src={image.url as string}
+                          alt="Product Image"
+                          height={0}
+                          width={0}
+                          className="h-full w-full object-cover"
+                        />
+                        {/* button to remove image - mobile only */}
+                        <Button
+                          className="flex items-center gap-4 bg-red-600 hover:red-bg-700 transition-300 w-full  visible lg:hidden"
+                          type="button"
+                        >
+                          {/* Remove <FaTrash /> */}
+                        </Button>
+                      </div>
+                    );
+                  })}
+              </div>
             </>
           )}
 

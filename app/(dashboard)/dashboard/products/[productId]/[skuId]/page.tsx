@@ -1,6 +1,7 @@
 // actions
 import getAllAttributes from "@/actions/attributes/getAllAttributes";
 import getProduct from "@/actions/products/getProduct";
+import getProductImages from "@/actions/products/getProductImages";
 import getSku from "@/actions/skus/getSku";
 import getSkuAttributes from "@/actions/skus/getSkuAttributes";
 import getSkuPrices from "@/actions/skus/getSkuPrices";
@@ -17,6 +18,7 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
   const { productId, skuId } = params;
 
   const product = await getProduct(productId);
+  const productImage = await getProductImages(skuId);
   const sku = await getSku(skuId);
   const skuAttributes = await getSkuAttributes(skuId);
   const skuPrices = await getSkuPrices(skuId);
@@ -42,6 +44,7 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
       <div className="p-4 m-4 bg-white rounded-md shadow-sm">
         <ProductSkuForm
           product={product}
+          productImage={productImage}
           sku={sku}
           price={currentPrice}
           skuAttributes={skuAttributes}
