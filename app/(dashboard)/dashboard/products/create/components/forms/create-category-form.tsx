@@ -110,7 +110,7 @@ const CreateCategoryForm = ({ categories, formStep, setFormStep }: Props) => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4">
+            <h2 className="mt-8 text-2xl font-bold border-l-4 border-blue-600 pl-4">
               Create Categories
             </h2>
             <Button

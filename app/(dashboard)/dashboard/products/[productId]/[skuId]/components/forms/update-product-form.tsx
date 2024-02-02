@@ -501,7 +501,7 @@ const ProductSkuForm = ({
                               <Select
                                 onValueChange={field.onChange}
                                 defaultValue={field.value}
-                                disabled={isLoading}
+                                disabled
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -529,7 +529,7 @@ const ProductSkuForm = ({
                           <Select
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            disabled={isLoading}
+                            disabled
                           >
                             <FormControl>
                               <SelectTrigger>
