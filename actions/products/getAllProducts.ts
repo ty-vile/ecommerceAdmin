@@ -24,7 +24,22 @@ export default async function getAllProducts() {
       include: { categories: true, sku: true },
     });
 
-    return products as IProduct[];
+    const sortedProducts = products.sort((a, b) => {
+      const nameA = a.name.toLowerCase(); // Convert names to lowercase for case-insensitive sorting
+      const nameB = b.name.toLowerCase();
+
+      if (nameA < nameB) {
+        return -1;
+      }
+
+      if (nameA > nameB) {
+        return 1;
+      }
+
+      return 0; // names are equal
+    });
+
+    return sortedProducts as IProduct[];
   } catch (error: any) {
     console.error("PRODUCT_ALL_GET", error);
     throw new Error(error);
