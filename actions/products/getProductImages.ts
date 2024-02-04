@@ -2,7 +2,7 @@ import getCurrentUser from "@/actions/users/getCurrentUser";
 import prisma from "@/app/libs/prismadb";
 import { CategoriesToProducts, Category, Product } from "@prisma/client";
 
-export default async function getProductImages(skuId: string) {
+export default async function getProductImages(sku: string) {
   try {
     const user = await getCurrentUser();
 
@@ -12,7 +12,7 @@ export default async function getProductImages(skuId: string) {
 
     const productImages = await prisma.productImage.findMany({
       where: {
-        productSkuId: skuId,
+        productSkuId: sku,
       },
     });
 

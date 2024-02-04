@@ -568,13 +568,12 @@ const ProductSkuForm = ({
                     return (
                       <div
                         key={i}
-                        className="flex flex-col gap-4 group relative transition-300"
+                        className="flex flex-col gap-4 group relative transition-300 w-full h-full min-h-[400px] bg-red-100"
                       >
                         <Image
                           src={image.url as string}
                           alt="Product Image"
-                          height={0}
-                          width={0}
+                          fill
                           className="h-full w-full object-cover"
                         />
                       </div>

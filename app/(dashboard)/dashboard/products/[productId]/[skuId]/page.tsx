@@ -18,8 +18,8 @@ const ProductSKUPage = async ({ params }: { params: Props }) => {
   const { productId, skuId } = params;
 
   const product = await getProduct(productId);
-  const productImage = await getProductImages(skuId);
   const sku = await getSku(skuId);
+  const productImage = await getProductImages(sku!.sku);
   const skuAttributes = await getSkuAttributes(skuId);
   const skuPrices = await getSkuPrices(skuId);
   const allAttributes = await getAllAttributes();
