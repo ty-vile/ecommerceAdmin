@@ -73,3 +73,14 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
     return new NextResponse("Internal Error", { status: 500 });
   }
 }
+
+export async function GET(req: NextRequest, res: NextResponse) {
+  try {
+    const products = await prisma.product.findMany({});
+
+    return NextResponse.json(products);
+  } catch (error: any) {
+    console.error("PRODUCT_ALL_GET", error);
+    throw new Error(error);
+  }
+}
