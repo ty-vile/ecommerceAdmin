@@ -48,7 +48,11 @@ import {
   ProductSkuPrice,
 } from "@prisma/client";
 
-import { CreateProductSkuPrice, PatchProductSku } from "@/app/libs/api";
+import {
+  CreateProductImage,
+  CreateProductSkuPrice,
+  PatchProductSku,
+} from "@/app/libs/api";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -451,36 +455,41 @@ const ProductSkuForm = ({
           )}
           {formStep === SKUFORMSTEP.SKU && (
             <>
-              <h2 className="text-2xl font-bold">Unit Details</h2>
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Price</FormLabel>
-                    <FormControl>
-                      <Input type="text" disabled {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="quantity"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Product Quantity</FormLabel>
-                    <FormControl>
-                      <Input type="text" disabled {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold">SKU Attributes</h2>
+              <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8">
+                Unit Details
+              </h2>
+
+              <div className="flex flex-col gap-4 bg-gray-50 p-4">
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Price</FormLabel>
+                      <FormControl>
+                        <Input type="text" disabled {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="quantity"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Product Quantity</FormLabel>
+                      <FormControl>
+                        <Input type="text" disabled {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+              <h2 className="text-2xl font-bold border-l-4 border-blue-600 pl-4 mt-8">
+                SKU Attributes
+              </h2>
               {attributeFields.map((field, index) => {
                 return (
                   <div
@@ -561,16 +570,6 @@ const ProductSkuForm = ({
                         key={i}
                         className="flex flex-col gap-4 group relative transition-300"
                       >
-                        {/* overlay to remove image - desktop only */}
-                        <div className="flex items-center justify-center absolute top-0 left-0 h-full w-full bg-black/50 invisible lg:group-hover:visible">
-                          <Button
-                            className="p-2 bg-red-600 hover:red-bg-700 z-20 text-white rounded-full"
-                            type="button"
-                            // onClick={() => handleRemoveImage(i)}
-                          >
-                            {/* <IoMdClose className="text-2xl" /> */}
-                          </Button>
-                        </div>
                         <Image
                           src={image.url as string}
                           alt="Product Image"
@@ -578,13 +577,6 @@ const ProductSkuForm = ({
                           width={0}
                           className="h-full w-full object-cover"
                         />
-                        {/* button to remove image - mobile only */}
-                        <Button
-                          className="flex items-center gap-4 bg-red-600 hover:red-bg-700 transition-300 w-full  visible lg:hidden"
-                          type="button"
-                        >
-                          {/* Remove <FaTrash /> */}
-                        </Button>
                       </div>
                     );
                   })}
